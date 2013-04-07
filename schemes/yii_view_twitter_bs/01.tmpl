@@ -1,0 +1,141 @@
+{% if($model->getIsAbstract()): %}
+{% message('Error: Abstract models is not supported') %}
+{% else: %}
+{% open_file('views/'.lcfirst($model->getName()).'/create.php') %}
+<?php
+
+$this->pageTitle = Yii::app()->name . ' - Create {%= $model->getName() %}';
+
+$this->breadcrumbs = array(
+	'{%= ucfirst(pluralize($model->getName())) %}' => array('{%= env('indexAction', 'index') %}'), 
+	'Create',
+);
+
+$this->menu = array(
+	array(
+		'label' => '<i class="icon-wrench"></i> Manage {%= ucfirst(pluralize($model->getName())) %}', 
+		'url' => array('{%= env('indexAction', 'index') %}'),
+	),
+);
+
+?>
+<div class="box altbox">
+	<div class="boxin">
+		<div class="header">
+			<h3>Create {%= $model->getName() %}</h3>
+		</div>
+
+		<?php $this->renderPartial('_form', array(
+			'model' => $model,
+		)); ?>
+	</div>
+</div>
+{% close_file() %}
+{% open_file('views/'.lcfirst($model->getName()).'/update.php') %}
+<?php
+
+$this->pageTitle = Yii::app()->name . ' - Update {%= $model->getName() %}';
+
+$this->breadcrumbs = array(
+	'{%= ucfirst(pluralize($model->getName())) %}' => array('{%= env('indexAction', 'index') %}'),
+	$model->id => array('view', 'id' => $model->id),
+);
+
+$this->menu = array(
+	array(
+		'label' => '<i class="icon-plus"></i> Create {%= $model->getName() %}', 
+		'url' => array('create'),
+	),
+	array(
+		'label' => '<i class="icon-eye-open"></i> View {%= $model->getName() %}', 
+		'url' => array('view', 'id' => $model->id),
+	),
+	array(
+		'label' => '<i class="icon-wrench"></i> Manage {%= ucfirst(pluralize($model->getName())) %}', 
+		'url'=>array('{%= env('indexAction', 'index') %}'),
+	),
+);
+
+?>
+<div class="box altbox">
+	<div class="boxin">
+		<div class="header">
+			<h3>Update {%= $model->getName() %} #<?php echo $model->id?></h3>
+		</div>
+
+		<?php $this->renderPartial('_form', array(
+			'model' => $model,
+		)); ?>
+	</div>
+</div>
+{% close_file() %}
+{% open_file('views/'.lcfirst($model->getName()).'/_form.php') %}
+<div class="form-content">
+	<div class="msg msg-info">
+		<button class="close" data-dismiss="msg">×</button>
+		<p>Fields with <span class="required">*</span> are required.</p>
+	</div>
+	
+	<?php $form=$this->beginWidget('CActiveForm', array(
+		'id' => '{%= strtolower($model->getName()) %}-form',
+		'htmlOptions' => array(
+			'class'=>'form-horizontal',
+		),
+		'enableClientValidation' => true,
+		'clientOptions' => array(
+			'validateOnSubmit' => true,
+			'afterValidate' => 'js:function(f,d,e) {
+				if (e) $("html, body").animate({scrollTop: $("#{%= strtolower($model->getName()) %}-form").offset().top - 50}, 1000);
+				return true;
+			}',
+		),
+	)); ?>
+	
+	<?php echo $form->errorSummary($model, null, null, array('class' => 'msg msg-error')); ?>
+
+{% start_attr_list_natural_order %}
+{% if($attribute->getMode() == Attribute::MODE_READONLY || $attribute->getMode() == Attribute::MODE_NOACCESS) continue %}
+	<div class="control-group">
+		<?php echo $form->labelEx($model, '{%= yii_attr_id($attribute) %}', array('class'=>'control-label')); ?>
+		<div class="controls">
+{% if($attribute->getType() == Attribute::TYPE_INT || $attribute->getType() == Attribute::TYPE_DECIMAL): %}
+			<?php echo $form->textField($model, '{%= yii_attr_id($attribute) %}', array('class'=>'input-small')); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_TEXT): %}
+			<?php echo $form->textarea($model, '{%= yii_attr_id($attribute) %}', array('class'=>'input-xlarge')); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_BOOL): %}
+			<?php echo $form->checkbox($model, '{%= yii_attr_id($attribute) %}'); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_CUSTOM && $attribute->getCustomType() == 'date'): %}
+			<?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
+				'attribute' => '{%= yii_attr_id($attribute) %}',
+				'model' => $model,
+				'options'=>array(
+					'dateFormat' => '{%= env('datepickerFormat', 'dd-mm-yy') %}',
+				),
+				'htmlOptions' => array('class' => 'input-small'),
+			)); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_CUSTOM && $attribute->getCustomType() == 'file'): %}
+			<?php echo $form->fileField($model, '{%= yii_attr_id($attribute) %}', array('class'=>'input-xlarge')); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_INTOPTION || $attribute->getType() == Attribute::TYPE_STROPTION): %}
+			<?php echo $form->{%= $attribute->getIsCollection() ? 'checkboxList' : 'dropdownList' %}($model, '{%= yii_attr_id($attribute) %}', array(
+{% foreach($attribute->getOptions() as $key => $value): %}
+					{%= php_escape_value($key) %} => {%= php_escape_value($value) %},
+{% endforeach %}
+			), array('class'=>'input-xlarge', 'empty' => 'Select Value')); ?>
+{% elseif (!is_predefined_type($attribute) && !$attribute->getIsCollection()): %}
+			<?php echo $form->dropdownList($model, '{%= yii_attr_id($attribute) %}', {%= $attribute->getCustomType() %}::getList(), array('class'=>'input-xlarge', 'empty' => 'Select Value')); ?>
+{% else: %}
+			<?php echo $form->textField($model, '{%= yii_attr_id($attribute) %}', array('class'=>'input-xlarge')); ?>
+{% endif %}
+			<?php echo $form->error($model, '{%= yii_attr_id($attribute) %}', array('class'=>'help-inline')); ?>
+		</div>
+	</div>
+{% end_attr_list %}
+	
+	<div class="form-actions">
+		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Update', array('class'=>'btn btn-success')); ?>
+	</div>
+
+	<?php $this->endWidget(); ?>
+</div>
+{% close_file() %}
+{% endif %}
