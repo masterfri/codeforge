@@ -23,3 +23,4 @@ model Post scheme yii_model, yii_view_twitter_bs, yii_controller, mysql:
 	attr user User;
 ```
 
+Download generated code here: http://masterfri.org.ua/uploads/output.zip
