@@ -1,5 +1,19 @@
 <?php
 
+/**
+	Copyright (c) 2012 Grigory Ponomar
+
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public License
+	as published by the Free Software Foundation; either version 2
+	of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details (http://www.gnu.org).
+*/
+
 class Attribute
 {
 	const PRIV_PUBLIC = 1;
@@ -26,12 +40,16 @@ class Attribute
 	protected $isRequired = false;
 	protected $isCollection = false;
 	protected $isUnsigned = false;
+	protected $isOwn = false;
 	protected $mode = self::MODE_DEFAULT;
 	protected $type;
 	protected $size = false;
 	protected $custom_type = false;
 	protected $default_value = null;
 	protected $options = null;
+	protected $comments = array();
+	
+	protected static $customTypes = array();
 	
 	public function __construct()
 	{
@@ -67,6 +85,16 @@ class Attribute
 		return $this->isFinal;
 	}
 	
+	public function setIsOwn($flag=true)
+	{
+		$this->isOwn = $flag;
+	}
+	
+	public function getIsOwn()
+	{
+		return $this->isOwn;
+	}
+	
 	public function setIsRequired($flag=true)
 	{
 		$this->isRequired = $flag;
@@ -84,7 +112,8 @@ class Attribute
 	
 	public function getIsUnsigned()
 	{
-		return $this->isUnsigned;
+		$base = $this->getTypeBase();
+		return $base && $base[2] ? true : $this->isUnsigned;
 	}
 	
 	public function setIsCollection($flag=true)
@@ -121,12 +150,19 @@ class Attribute
 	
 	public function getType()
 	{
-		return $this->type;
+		$base = $this->getTypeBase();
+		return $base ? $base[0] : $this->type;
+	}
+	
+	public function getIsCustomType()
+	{
+		return $this->type == self::TYPE_CUSTOM;
 	}
 	
 	public function getSize()
 	{
-		return $this->size;
+		$base = $this->getTypeBase();
+		return $base ? $base[1] : $this->size;
 	}
 	
 	public function getCustomType()
@@ -136,9 +172,6 @@ class Attribute
 	
 	public function setDefaultValue($val)
 	{
-		if (self::TYPE_CUSTOM == $this->type) {
-			throw new AttributeException("Custom type can't has default value");
-		}
 		if (self::TYPE_BOOL == $this->type && !is_bool($val) ||
 			self::TYPE_INT == $this->type && !is_int($val) ||
 			self::TYPE_DECIMAL == $this->type && !(is_float($val) || is_int($val))) {
@@ -164,5 +197,35 @@ class Attribute
 	public function getOptions()
 	{
 		return $this->options;
+	}
+	
+	public function addComment($comment)
+	{
+		if (preg_match('/^\s*@([a-zA-Z0-9]+)\s*(.*)$/', $comment, $m)) {
+			$this->comments[$m[1]] = $m[2];
+		} else {
+			$this->comments[] = $comment;
+		}
+	}
+	
+	public function getComments()
+	{
+		return $this->comments;
+	}
+	
+	public static function registerCustomType($name, $based_on=self::TYPE_CUSTOM, $size=false, $unsigned=false)
+	{
+		self::$customTypes[$name] = array($based_on, $size, $unsigned);
+	}
+	
+	protected function getTypeBase()
+	{
+		if ($this->getIsCustomType()) {
+			$custom_name = $this->getCustomType();
+			if (isset(self::$customTypes[$custom_name])) {
+				return self::$customTypes[$custom_name];
+			}
+		}
+		return false;
 	}
 }

@@ -1,0 +1,19 @@
+{% open_file('data/sql/'.$model->getName().'.sql') %}
+
+CREATE TABLE `{%= strtolower($model->getName()) %}` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+{% start_attr_list %}
+	{%= column_definition($attribute) %} 
+{% end_attr_list %}
+	PRIMARY KEY (`id`)
+) AUTO_INCREMENT=1 CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+{% start_attr_list %}
+{% if($attribute->getIsCustomType() && $attribute->getIsCollection() && !$attribute->getIsOwn()): %}
+CREATE TABLE `{%= many_many_table($model, $attribute) %}` (
+	`{%= many_many_fk1($model, $attribute) %}` INT(10) UNSIGNED NOT NULL,
+	`{%= many_many_fk2($model, $attribute) %}` INT(10) UNSIGNED NOT NULL,
+);
+{% endif %}
+{% end_attr_list %}
+{% close_file() %}

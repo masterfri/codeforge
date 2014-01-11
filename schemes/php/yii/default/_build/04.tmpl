@@ -1,0 +1,15 @@
+{% open_file('protected/modules/admin/controllers/OptionsController.php') %}
+<?php
+
+class OptionsController extends {%= env('controllerBaseClass', 'AdminController') %} 
+{
+{% join_partial('options.controller.actions') %}
+
+	public function filters()
+	{
+		return array(
+			'accessControl',
+		);
+	}
+}
+{% close_file() %}

@@ -1,0 +1,14 @@
+{% open_partial('options.controller.actions', $model->getName()) %}
+	public function action{%= $model->getName() %}()
+	{
+		$model = {%= $model->getName() %}::instance();
+		if ($this->saveModel($model)) {
+			Yii::app()->user->setFlash('message', Yii::t('admin.crud', 'Options have been updated'));
+			$this->refresh();
+		}
+		$this->render('{%= lcfirst($model->getName()) %}', array(
+			'model' => $model,
+		));
+	}
+	
+{% close_file() %}

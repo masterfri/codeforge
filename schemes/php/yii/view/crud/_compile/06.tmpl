@@ -1,0 +1,28 @@
+{% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/_search.php') %}
+<div class="form-content">
+
+	<?php $form = $this->beginWidget('CActiveForm', array(
+		'action' => Yii::app()->createUrl($this->route),
+		'htmlOptions' => array('class'=>'form-horizontal'),
+		'method' => 'get',
+	)); ?>
+{% start_attr_list_natural_order %}
+{% if($attribute->getMode() == Attribute::MODE_NOACCESS) continue %}
+		<div class="form-group">
+			<?php echo $form->label($model, '{%= attribute_id($attribute) %}', array('class'=>'col-sm-3 control-label')); ?>
+			<div class="col-sm-9">
+				<?php echo {%= form_control($attribute, array('line_ending' => "\n\t\t\t", 'prompt' => "''")) %}; ?>
+			</div>
+		</div>
+{% end_attr_list %}
+		
+		<div class="form-group">
+			<div class="col-sm-offset-3 col-sm-9">
+				<?php echo CHtml::submitButton(Yii::t('admin.crud', 'Search'), array('class'=>'btn btn-default')); ?>
+			</div>
+		</div>
+
+	<?php $this->endWidget(); ?>
+
+</div>
+{% close_file() %}

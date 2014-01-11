@@ -1,0 +1,9 @@
+{% open_file('protected/messages/ru/'.lcfirst($model->getName()).'.php') %}
+<?php
+
+return array(
+{% start_attr_list %}
+	'{%= attribute_label($attribute) %}' => '{%= attribute_label($attribute) %}',
+{% end_attr_list %}
+);
+{% close_file() %}

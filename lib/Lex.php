@@ -1,5 +1,19 @@
 <?php
 
+/**
+	Copyright (c) 2012 Grigory Ponomar
+
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public License
+	as published by the Free Software Foundation; either version 2
+	of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details (http://www.gnu.org).
+*/
+
 require_once LIB_DIR . '/Model.php';
 
 class Lex
@@ -22,11 +36,13 @@ class Lex
 	const TOK_EXTENDS = 'TOK_EXTENDS';
 	const TOK_IMPLEMENTS = 'TOK_IMPLEMENTS';
 	const TOK_SCHEME = 'TOK_SCHEME';
+	const TOK_COMPOSITE_IDENTIFIER = 'TOK_COMPOSITE_IDENTIFIER';
 	const TOK_ATTRIBUTE = 'TOK_ATTRIBUTE';
 	const TOK_PUBLIC = 'TOK_PUBLIC';
 	const TOK_PROTECTED = 'TOK_PROTECTED';
 	const TOK_PRIVATE = 'TOK_PRIVATE';
 	const TOK_FINAL = 'TOK_FINAL';
+	const TOK_OWN = 'TOK_OWN';
 	const TOK_REQUIRED = 'TOK_REQUIRED';
 	const TOK_UNSIGNED = 'TOK_UNSIGNED';
 	const TOK_COLLECTION = 'TOK_COLLECTION';
@@ -48,6 +64,7 @@ class Lex
 	const TOK_ASSIGN = '=';
 	const TOK_ENDSTREAM = 'TOK_ENDSTREAM';
 	const TOK_UNDEFINED = 'TOK_UNDEFINED';
+	const TOK_COMMENT = 'TOK_COMMENT';
 	
 	const ERR_SYNTAX = 'SyntaxErrorException';
 	
@@ -64,6 +81,7 @@ class Lex
 		'protected\b' => self::TOK_PROTECTED,
 		'private\b' => self::TOK_PRIVATE,
 		'final\b' => self::TOK_FINAL,
+		'own\b' => self::TOK_OWN,
 		'required\b' => self::TOK_REQUIRED,
 		'unsigned\b' => self::TOK_UNSIGNED,
 		'collection\b' => self::TOK_COLLECTION,
@@ -79,11 +97,13 @@ class Lex
 		'enum\b' => self::TOK_STROPTION,
 		'true\b' => self::TOK_TRUE,
 		'false\b' => self::TOK_FALSE,
+		'[a-z_][a-z0-9_]*([.][a-z_][a-z0-9_]*)+' => self::TOK_COMPOSITE_IDENTIFIER,
 		'[a-z_][a-z0-9_]*' => self::TOK_IDENTIFIER,
 		'`([a-z_][a-z0-9_]*)`' => array(self::TOK_IDENTIFIER, 2),
 		'[0-9]+[.][0-9]+' => self::TOK_DECIMAL_NUMBER,
 		'[0-9]+' => self::TOK_NUMBER,
 		'"((\\\\"|[^"])+)"' => array(self::TOK_STRING, 2),
+		'\/\/\/(.*)\n' => array(self::TOK_COMMENT, 2),
 		'[,]' => self::TOK_COMMA,
 		'[:]' => self::TOK_COLON,
 		'[;]' => self::TOK_SEMICOLON,
@@ -128,6 +148,7 @@ class Lex
 	protected function scanModel()
 	{
 		$model = new Model();
+		$this->scanComments($model);
 		$this->scanModelAttributes($model);
 		$this->expect(self::TOK_IDENTIFIER, $tok_value);
 		$model->setName($tok_value);
@@ -148,7 +169,7 @@ class Lex
 			$this->unexpected($token, self::TOK_SCHEME);
 		}
 		while (true) {
-			$this->expect(self::TOK_IDENTIFIER, $tok_value);
+			$this->expect(array(self::TOK_IDENTIFIER, self::TOK_COMPOSITE_IDENTIFIER), $tok_value);
 			$model->addScheme($tok_value);
 			$token = $this->expect(array(self::TOK_COMMA, self::TOK_COLON), $tok_value);
 			if ($token == self::TOK_COLON) {
@@ -165,6 +186,18 @@ class Lex
 		}
 		
 		$this->addModel($model);
+	}
+	
+	protected function scanComments($object)
+	{
+		while (true) {
+			$token = $this->lookAhead($tok_value);
+			if ($token != self::TOK_COMMENT) {
+				break;
+			}
+			$this->getToken($tok_value);
+			$object->addComment($tok_value);
+		}
 	}
 	
 	protected function scanModelAttributes($model)
@@ -206,10 +239,12 @@ class Lex
 	protected function scanAttribute($model)
 	{
 		$attribute = new Attribute();
+		$this->scanComments($attribute);
 		$this->scanAttributeAttributes($attribute);
 		$this->expect(self::TOK_IDENTIFIER, $tok_value);
 		$attribute->setName($tok_value);
-		if (Attribute::TYPE_CUSTOM != $this->scanAttributeType($attribute) && !$attribute->getIsCollection()) {
+		$this->scanAttributeType($attribute);
+		if (!$attribute->getIsCollection()) {
 			if (self::TOK_ASSIGN == $this->expect(array(self::TOK_SEMICOLON, self::TOK_ASSIGN), $tok_value)) {
 				$this->scanAttributeDefaultVal($attribute);
 				$this->expect(self::TOK_SEMICOLON, $tok_value);
@@ -242,6 +277,10 @@ class Lex
 					
 				case self::TOK_FINAL:
 					$attribute->setIsFinal();
+					break;
+					
+				case self::TOK_OWN:
+					$attribute->setIsOwn();
 					break;
 					
 				case self::TOK_REQUIRED:

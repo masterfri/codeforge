@@ -1,0 +1,62 @@
+{% open_file('protected/modules/admin/controllers/'.$model->getName().'Controller.php') %}
+<?php
+
+class {%= $model->getName() %}Controller extends {%= env('controllerBaseClass', 'AdminController') %} 
+{
+	public function actionIndex()
+	{
+		$model = $this->createSearchModel('{%= $model->getName() %}');
+		$provider = $model->search();
+		$this->render('index', array(
+			'model' => $model,
+			'provider' => $provider,
+		));
+	}
+	
+	public function actionCreate()
+	{
+		$model = new {%= $model->getName() %}('create');
+		if ($this->saveModel($model)) {
+			$this->redirect(array('view', 'id' => $model->id));
+		}
+		$this->render('create', array(
+			'model' => $model,
+		));
+	}
+	
+	public function actionUpdate($id)
+	{
+		$model = $this->loadModel($id, '{%= $model->getName() %}');
+		if ($this->saveModel($model)) {
+			$this->redirect(array('view', 'id' => $model->id));
+		}
+		$this->render('update', array(
+			'model' => $model,
+		));
+	}
+	
+	public function actionDelete($id)
+	{
+		$model = $this->loadModel($id, '{%= $model->getName() %}');
+		$model->delete();
+		if(!isset($_GET['ajax'])) {
+			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
+		}
+	}
+	
+	public function actionView($id)
+	{
+		$this->render('view', array(
+			'model' => $this->loadModel($id, '{%= $model->getName() %}'),
+		));
+	}
+
+	public function filters()
+	{
+		return array(
+			'accessControl',
+			'postOnly + delete', 
+		);
+	}
+}
+{% close_file() %}

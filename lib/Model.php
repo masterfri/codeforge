@@ -1,5 +1,19 @@
 <?php
 
+/**
+	Copyright (c) 2012 Grigory Ponomar
+
+	This program is free software; you can redistribute it and/or
+	modify it under the terms of the GNU General Public License
+	as published by the Free Software Foundation; either version 2
+	of the License, or (at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details (http://www.gnu.org).
+*/
+
 require_once LIB_DIR . '/Attribute.php';
 
 class Model
@@ -12,6 +26,7 @@ class Model
 	protected $attribs = array();
 	protected $attribs_natural_order = array();
 	protected $schemes = array();
+	protected $comments = array();
 	
 	public function __construct()
 	{
@@ -154,5 +169,24 @@ class Model
 		} else {
 			return $this->attribs_natural_order;
 		}
+	}
+	
+	public function hasAttribute($name)
+	{
+		return isset($this->attribs[$name]);
+	}
+	
+	public function addComment($comment)
+	{
+		if (preg_match('/^\s*@([a-zA-Z0-9]+)\s*(.*)$/', $comment, $m)) {
+			$this->comments[$m[1]] = $m[2];
+		} else {
+			$this->comments[] = $comment;
+		}
+	}
+	
+	public function getComments()
+	{
+		return $this->comments;
 	}
 }
