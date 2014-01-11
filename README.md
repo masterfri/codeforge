@@ -82,3 +82,5 @@ Password: `qwe`
 I used `cf` as command, you also can create alias as follow:
 
     sh > alias cf="php /path/to/codeforge/codeforge.php"
+    
+Note that Yii framework is not included to template. You should put it to the same directory as `www`. Yii 1.1.14 should be used as framework.
