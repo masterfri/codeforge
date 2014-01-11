@@ -73,10 +73,11 @@ where `www` is document root of your web application. Then you need to create SQ
 	
 ### Step 5 - Look at the result
 
-Open in your browser `http://domain.loc/index.php/admin/` and login using following credentials:
+Open in your browser `http://yourapp.local/index.php/admin/` and login using following credentials:
 
-Username: admin
-Password: qwe
+Username: `admin`
+
+Password: `qwe`
 
 I used `cf` as command, you also can create alias as follow:
 
