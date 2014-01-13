@@ -1,8 +1,8 @@
-# Source Forge 2.0
+# CodeForge 2.0
 
 ## About
 
-SourceForge is a flexible code generating tool.
+CodeForge is a flexible code generating tool.
 
 ## Features
 
