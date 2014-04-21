@@ -14,28 +14,12 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Lex.php';
+require_once LIB_DIR . '/Parser.php';
 require_once LIB_DIR . '/Generator.php';
 
 class BuildCommand extends Command
 {
 	protected $schemes = array();
-	public $skip_compilation;
-	
-	public function argsmap()
-	{
-		return array(
-			'skip-compilation' => 'skip_compilation',
-			'k' => 'skip_compilation',
-		);
-	}
-	
-	public function printHelp()
-	{
-		printf("%s build [-k] <scheme1> [scheme2] ...\n", SCRIPT);
-		echo "Build source files.\nList of options:\n";
-		echo "\t-k - skip compilation\n";
-	}
 	
 	public function acceptArg($name, $value)
 	{
@@ -46,50 +30,49 @@ class BuildCommand extends Command
 		return false;
 	}
 	
+	public function printHelp()
+	{
+		printf("%s build [scheme] ... \n", SCRIPT);
+		echo "Build project.\n";
+	}
+
 	public function run()
 	{
-		if (empty($this->schemes)) {
-			$this->say("At least one scheme is required");
+		$input = $this->getProjectFiles();
+		if (empty($input)) {
+			$this->say("Nothing to compile");
 			return;
 		}
-		
 		$options = $this->getConfigOption();
-		
-		if (!$this->skip_compilation) {
-			$input = $this->getProjectFiles();
-			foreach ($input as $infile) {
-				$lex = new Lex();
-				$generator = new Generator($this);
-				$generator->setSchemesDir(array(
-					$this->getDefaultSchemeDir(),
-					$this->getCustomSchemeDir(),
-				));
-				$generator->setExtensionsDir(array(
-					$this->getDefaultExtensionsDir(),
-					$this->getCustomExtensionsDir(),
-				));
-				$generator->setCacheDir($this->getCacheDir());
-				$generator->setPartialDir($this->getPartialDir());
-				$generator->setEnv($options);
-				$lex->parse($infile);
-				$generator->compile($lex, $this->getCompiledDir());
-			}
-		}
-		
 		$generator = new Generator($this);
-		$generator->setSchemesDir(array(
+		$generator->setSchemesDir($this->filterDirs(array(
 			$this->getDefaultSchemeDir(),
+			$this->getUserSchemeDir(),
 			$this->getCustomSchemeDir(),
-		));
-		$generator->setExtensionsDir(array(
+		)));
+		$generator->setExtensionsDir($this->filterDirs(array(
 			$this->getDefaultExtensionsDir(),
+			$this->getUserExtensionsDir(),
 			$this->getCustomExtensionsDir(),
-		));
+		)));
 		$generator->setCacheDir($this->getCacheDir());
 		$generator->setPartialDir($this->getPartialDir());
-		$generator->setMode('_build');
+		$generator->setStaticPartialDir($this->getStaticPartialDir());
 		$generator->setEnv($options);
-		$generator->build($this->schemes, $this->getCompiledDir());
+		$models = array();
+		foreach ($input as $infile) {
+			$parser = new Parser();
+			$parser->parseFile($infile);
+			foreach ($parser->getModels() as $model) {
+				$models[] = $model;
+			}
+		}
+		$generator->setModels($models);
+		$generator->compile($this->getCompiledDir());
+		if (count($this->schemes)) {
+			$generator->setMode('_build');
+			$generator->build($this->schemes, $this->getCompiledDir());
+		}
 		$this->say("Done");
 	}
 }

@@ -237,6 +237,38 @@ class FileHelper
 		return $newname;
 	}
 	
+	public static function lsr($path, &$list, $prefix='')
+	{
+		if (is_dir($path)) {
+			$h = @opendir($path);
+			if (! $h) {
+				throw new Exception("Access dinied to path `$file`");
+			}
+			$path = rtrim($path, '/');
+			while (($name = readdir($h)) !== false) {
+				if ('.' == $name || '..' == $name) {
+					continue;
+				}
+				$fullpath = $path . '/' . $name;
+				$shortpath = ('' == $prefix ? '' : ($prefix . '/')) . $name;
+				if (is_dir($fullpath)) {
+					$list[] = $shortpath;
+					try {
+						self::lsr($fullpath, $list, $shortpath);
+					} catch (Exception $e) {
+						closedir($h);
+						throw $e;
+					}
+				} else {
+					$list[] = $shortpath;
+				}
+			}
+			closedir($h);
+		} else {
+			throw new Exception("Not valid directory: `$path`");
+		}
+	}
+	
 	public static function chmod($path, $permissions)
 	{
 		// check are old and new permissions different

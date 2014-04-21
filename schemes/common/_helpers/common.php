@@ -64,18 +64,6 @@ $this->registerHelper('pluralize', function ($invoker, $name)
 	return $name . 's';
 });
 
-$this->registerHelper('optimal_option_len', function ($invoker, $options, $divisible=1) 
-{
-	$max = 0;
-	foreach ($options as $option) {
-		$max = max($max, strlen($option));
-	}
-	if ($divisible > 1 && $max % $divisible) {
-		$max += $divisible - $max % $divisible;
-	}
-	return $max;
-});
-
 $this->registerHelper('attribute_type', function ($invoker, $attribute) 
 {
 	switch ($attribute->getType()) {
@@ -103,4 +91,51 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 		case Attribute::TYPE_CUSTOM:
 			return 'custom';
 	}
+});
+
+$this->registerHelper('attribute_back_reference', function ($invoker, $attribute) 
+{
+	$references = $attribute->getOwner()->getReferences($attribute->getCustomType());
+	foreach ($references as $attr) {
+		if ($attr->getHint('backreference') == $attribute->getName()) {
+			return $attr;
+		}
+	}
+	return false;
+});
+
+$this->registerHelper('attribute_relation', function ($invoker, $attribute) 
+{
+	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+		$relation = $attribute->getHint('relation');
+		if ($relation) {
+			return strtolower($relation);
+		}
+		$backreference = $invoker->refer('attribute_back_reference', $attribute);
+		if ($backreference) {
+			$backrelation = $backreference->getHint('relation');
+			if ($backrelation) {
+				switch (strtolower($backrelation)) {
+					case 'many-to-many': return 'many-to-many';
+					case 'one-to-many': return 'many-to-one';
+					case 'many-to-one': return 'one-to-many';
+					case 'one-to-one': return 'one-to-one';
+				}
+			}
+		}
+		if ($attribute->getIsCollection()) {
+			if ($backreference && $backreference->getIsCollection()) {
+				return 'many-to-many';
+			} else {
+				return 'one-to-many';
+			}
+		} else {
+			if ($backreference && $backreference->getIsCollection()) {
+				return 'many-to-one';
+			} else {
+				return 'one-to-one';
+			}
+		}
+	}
+	return false;
 });

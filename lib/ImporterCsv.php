@@ -28,7 +28,7 @@ class ImporterCsv extends Importer
 			} else {
 				$attribs = array();
 				if (trim(strtolower($data[1])) == 'y') {
-					$attribs[] = 'required';
+					$attribs['required'] = 'true';
 				}
 				$type = trim($data[2]);
 				if (substr($type, 0, 1) == '*') {

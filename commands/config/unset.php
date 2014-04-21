@@ -19,11 +19,13 @@ require_once dirname(__FILE__) . '/default.php';
 class ConfigUnsetCommand extends ConfigDefaultCommand
 {
 	public $name;
+	public $global;
 	
 	public function argsmap()
 	{
 		return array(
 			0 => 'name',
+			'g' => 'global',
 		);
 	}
 	
@@ -38,6 +40,10 @@ class ConfigUnsetCommand extends ConfigDefaultCommand
 			$this->name = $this->ask("Please specify an option name");
 		}
 		
-		$this->unsetConfigOption($this->name);
+		if ($this->global) {
+			$this->unsetGlobalConfigOption($this->name);
+		} else {
+			$this->unsetConfigOption($this->name);
+		}
 	}
 } 

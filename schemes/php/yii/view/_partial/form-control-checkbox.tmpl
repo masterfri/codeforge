@@ -1,0 +1,19 @@
+{% if($attribute->getIsCollection()): %}
+{% if($attribute->getType() == Attribute::TYPE_CUSTOM): %}
+<?php echo $form->checkBoxList($model, '{%= attribute_id($attribute) %}', {%= $attribute->getCustomType() %}::getList()); ?>
+{% elseif($attribute->getType() == Attribute::TYPE_INTOPTION || $attribute->getType() == Attribute::TYPE_STROPTION): %}
+<?php echo $form->checkBoxList($model, '{%= attribute_id($attribute) %}', array(
+{% foreach ($attribute->getOptions() as $key => $value): %}
+	{%= escape_value($key) %} => {%= escape_value($value) %},
+{% endforeach %}
+)); ?>
+{% endif %}
+{% else: %}
+{% if($attribute->getType() == Attribute::TYPE_CUSTOM): %}
+<?php echo $form->checkBox($model, '{%= attribute_id($attribute) %}', array(
+	'value' => $model->primaryKey,
+)); ?>
+{% else: %}
+<?php echo $form->checkBox($model, '{%= attribute_id($attribute) %}'); ?>
+{% endif %}
+{% endif %}

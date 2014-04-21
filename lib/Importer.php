@@ -56,13 +56,16 @@ abstract class Importer
 	
 	abstract protected function process();
 	
-	protected function addAttribute($attribs, $name, $type, $label)
+	protected function addAttribute($hints, $name, $type, $label)
 	{
 		if (null === $name) {
 			$name = $this->generateName($label);
 		}
 		$str  = sprintf("\t /// %s\n", $label);
-		$str .= sprintf("\t %s attr %s %s;\n\n", implode(' ', $attribs), $name, $type);
+		foreach ($hints as $hint => $hintval) {
+			$str .= sprintf("\t /// @%s %s\n", $hint, $hintval);
+		}
+		$str .= sprintf("\t attr %s %s;\n\n", $name, $type);
 		
 		if ($this->_out) {
 			fwrite($this->_out, $str);

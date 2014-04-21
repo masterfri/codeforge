@@ -1,7 +1,7 @@
 {% open_file('protected/models/'.nice_path($model, 'php')) %}
 <?php
 
-class {%= $model->getName() %} extends {%= env('optionsBaseClass', 'OptionRecord') %} 
+class {%= $model->getName() %} extends {%= env('php.yii.model.option.superclass', 'OptionRecord') %} 
 {
 	public static function model($className=__CLASS__)
 	{

@@ -18,6 +18,15 @@ require_once dirname(__FILE__) . '/default.php';
 
 class ConfigShowCommand extends ConfigDefaultCommand
 {
+	public $global;
+	
+	public function argsmap()
+	{
+		return array(
+			'g' => 'global',
+		);
+	}
+	
 	public function printHelp()
 	{
 		$this->printHelpShow();
@@ -25,7 +34,12 @@ class ConfigShowCommand extends ConfigDefaultCommand
 	
 	public function run()
 	{
-		foreach ($this->getConfigOption() as $name => $value) {
+		if ($this->global) {
+			$opts = $this->getGlobalConfigOption();
+		} else {
+			$opts = $this->getConfigOption();
+		}
+		foreach ($opts as $name => $value) {
 			echo "$name => $value\n";
 		}
 	}

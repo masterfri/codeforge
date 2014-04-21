@@ -14,7 +14,7 @@ $this->breadcrumbs = array(
 	</div>
 	<div class="panel-body">	
 		<div class="form-content">
-			<?php $form=$this->beginWidget('CActiveForm', array(
+			<?php $form=$this->beginWidget('ActiveForm', array(
 				'id' => '{%= strtolower($model->getName()) %}-form',
 				'htmlOptions' => array(
 					'class'=>'form-horizontal',
@@ -32,14 +32,19 @@ $this->breadcrumbs = array(
 			<?php echo $form->errorSummary($model, null, null, array('class' => 'alert alert-danger')); ?>
 
 {% start_attr_list_natural_order %}
-{% if($attribute->getMode() == Attribute::MODE_READONLY || $attribute->getMode() == Attribute::MODE_NOACCESS) continue %}
+{% if($control = form_control($attribute, 'update')): %}
 			<div class="form-group">
 				<?php echo $form->labelEx($model, '{%= attribute_id($attribute) %}', array('class'=>'col-sm-3 control-label')); ?>
 				<div class="col-sm-9">
-					<?php echo {%= form_control($attribute, array('line_ending' => "\n\t\t\t\t\t", 'prompt' => "Yii::t('admin.crud', 'Select Value')")) %}; ?>
+{% if(is_array($control)): %}
+					{% partial($control[0], $control[1], 5) %} 
+{% else: %}
+					{%= $control %} 
+{% endif %}
 					<?php echo $form->error($model, '{%= attribute_id($attribute) %}', array('class'=>'help-inline')); ?>
 				</div>
 			</div>
+{% endif %}
 {% end_attr_list %}
 			
 			<div class="form-group">

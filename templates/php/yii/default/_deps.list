@@ -1,0 +1,6 @@
+strict
+	@ 'html.bootstrap
+optional
+	@ 'php.yii.file
+	@ 'php.yii.mail
+	@ 'html.tinymce

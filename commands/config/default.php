@@ -29,26 +29,30 @@ class ConfigDefaultCommand extends Command
 	
 	public function printHelpGet()
 	{
-		printf("%s config get <name>\n", SCRIPT);
-		echo "Display project option.\n";
+		printf("%s config get [-g] <name>\n", SCRIPT);
+		echo "Display project option.\nList of options:\n";
+		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpSet()
 	{
-		printf("%s config set <name> <value>\n", SCRIPT);
-		echo "Set project option.\n";
+		printf("%s config set [-g] <name> <value>\n", SCRIPT);
+		echo "Set project option.\nList of options:\n";
+		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpUnset()
 	{
-		printf("%s config unset <name>\n", SCRIPT);
-		echo "Unset project option.\n";
+		printf("%s config unset [-g] <name>\n", SCRIPT);
+		echo "Unset project option.\nList of options:\n";
+		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpShow()
 	{
-		printf("%s config show\n", SCRIPT);
-		echo "Display all project options.\n";
+		printf("%s config show [-g]\n", SCRIPT);
+		echo "Display all project options.\nList of options:\n";
+		echo "\t-g use global config.\n";
 	}
 	
 	public function run()

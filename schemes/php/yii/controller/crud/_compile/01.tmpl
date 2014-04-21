@@ -1,7 +1,7 @@
 {% open_file('protected/modules/admin/controllers/'.$model->getName().'Controller.php') %}
 <?php
 
-class {%= $model->getName() %}Controller extends {%= env('controllerBaseClass', 'AdminController') %} 
+class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'AdminController') %} 
 {
 	public function actionIndex()
 	{

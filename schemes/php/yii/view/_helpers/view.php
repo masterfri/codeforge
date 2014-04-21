@@ -1,54 +1,12 @@
 <?php
 
-$this->registerHelper('form_control_text', function ($invoker, $attribute, $options=array())
-{
-	$le = isset($options['line_ending']) ? $options['line_ending'] : "\n";
-	
-	return sprintf( "\$form->textField(\$model, '%s', array(".$le. 
-					"\t'class' => 'form-control',".$le.
-					"))", $invoker->refer('attribute_id', $attribute));
-});
-
-$this->registerHelper('form_control_textarea', function ($invoker, $attribute, $options=array())
-{
-	$le = isset($options['line_ending']) ? $options['line_ending'] : "\n";
-	
-	return sprintf( "\$form->textarea(\$model, '%s', array(".$le. 
-					"\t'class' => 'form-control',".$le.
-					"))", $invoker->refer('attribute_id', $attribute));
-});
-
-$this->registerHelper('form_control_dropdown', function ($invoker, $attribute, $options=array())
-{
-	$le = isset($options['line_ending']) ? $options['line_ending'] : "\n";
-	$prompt = isset($options['prompt']) ? $options['prompt'] : false;
-	
-	if($attribute->getType() == Attribute::TYPE_BOOL) {
-		$source =   "array(".$le."\t1 => Yii::t('admin.crud', 'Yes'),".$le."\t0 => Yii::t('admin.crud', 'No'),".$le.")";
-	} elseif($attribute->getType() == Attribute::TYPE_INTOPTION || $attribute->getType() == Attribute::TYPE_STROPTION) {
-		$options = array();
-		foreach ($attribute->getOptions() as $key => $value) {
-			$options[] = sprintf("\t%s => %s,", $invoker->refer('escape_value', $key), $invoker->refer('escape_value', $value)).$le;
-		}
-		$source = "array(".$le.implode($options).")";
-	} elseif ($attribute->getType() == Attribute::TYPE_CUSTOM) {
-		$source = sprintf("%s::getList()", $attribute->getCustomType());
-	} else {
-		$source = "array()";
-	}
-	
-	return sprintf( "\$form->dropdownList(\$model, '%s', %s, array(".$le. 
-					"\t'class' => 'form-control',".$le.
-					($attribute->getIsCollection() ? ("\t'multiple' => true,".$le) : "").
-					($prompt === false ? '' : sprintf("\t'prompt' => %s,".$le, $prompt)) .
-					"))", $invoker->refer('attribute_id', $attribute), $source);
-});
-
 $this->registerHelper('detail_view_attributes', function ($invoker, $attribute)
 {
 	$result = array();
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
-		if (!$attribute->getIsCollection()) {
+		if ($attribute->getIsCollection()) {
+			$result[] = sprintf("'%s:array'", $attribute->getName());
+		} else {
 			$result[] = sprintf("'%s'", $attribute->getName());
 		}
 	} elseif ($attribute->getType() == Attribute::TYPE_BOOL) {
@@ -63,7 +21,9 @@ $this->registerHelper('grid_view_attributes', function ($invoker, $attribute)
 {
 	$result = array();
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
-		if (!$attribute->getIsCollection()) {
+		if ($attribute->getIsCollection()) {
+			$result[] = sprintf("'%s:array'", $attribute->getName());
+		} else {
 			$result[] = sprintf("'%s'", $attribute->getName());
 		}
 	} elseif ($attribute->getType() == Attribute::TYPE_BOOL) {
@@ -74,19 +34,59 @@ $this->registerHelper('grid_view_attributes', function ($invoker, $attribute)
 	return $result;
 });
 
-$this->registerHelper('form_control', function ($invoker, $attribute, $options=array())
+$this->registerHelper('form_control', function ($invoker, $attribute, $mode='')
 {
-	if($attribute->getType() == Attribute::TYPE_TEXT) {
-		return $invoker->refer('form_control_textarea', $attribute, $options);
+	if($attribute->getBoolHint('hidden')) {
+		return false;
+	}
+	if ('update' == $mode && $attribute->getBoolHint('readonly')) {
+		return false;
+	}
+	$control = $attribute->getHint('formcontrol');
+	if ($control) {
+		return array(sprintf('form-control-%s', strtolower($control)), array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
+	} elseif($attribute->getType() == Attribute::TYPE_TEXT) {
+		return array('form-control-textarea', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
 	} elseif($attribute->getType() == Attribute::TYPE_BOOL) {
-		return $invoker->refer('form_control_dropdown', $attribute, $options);
+		return array('form-control-dropdown', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
 	} elseif($attribute->getType() == Attribute::TYPE_INTOPTION) {
-		return $invoker->refer('form_control_dropdown', $attribute, $options);
+		return array('form-control-dropdown', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
 	} elseif($attribute->getType() == Attribute::TYPE_STROPTION) {
-		return $invoker->refer('form_control_dropdown', $attribute, $options);
-	} elseif ($attribute->getType() == Attribute::TYPE_CUSTOM && !$attribute->getIsCollection()) {
-		return $invoker->refer('form_control_dropdown', $attribute, $options);
+		return array('form-control-dropdown', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
+	} elseif ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+		$relation = $invoker->refer('attribute_relation', $attribute);
+		if ('many-to-one' == $relation) {
+			return array('form-control-dropdown', array(
+				'attribute' => $attribute,
+				'mode' => $mode,
+			));
+		} elseif ('many-to-many' == $relation) {
+			return array('form-control-checkbox', array(
+				'attribute' => $attribute,
+				'mode' => $mode,
+			));
+		} else {
+			return false;
+		}
 	} else {
-		return $invoker->refer('form_control_text', $attribute, $options);
+		return array('form-control-text', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
 	}
 });

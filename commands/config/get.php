@@ -20,12 +20,14 @@ class ConfigGetCommand extends ConfigDefaultCommand
 {
 	public $name;
 	public $less;
+	public $global;
 	
 	public function argsmap()
 	{
 		return array(
 			0 => 'name',
 			'l' => 'less',
+			'g' => 'global',
 		);
 	}
 	
@@ -40,7 +42,7 @@ class ConfigGetCommand extends ConfigDefaultCommand
 			$this->name = $this->ask("Please specify an option name");
 		}
 		
-		$value = $this->getConfigOption($this->name);
+		$value = $this->global ? $this->getGlobalConfigOption($this->name) : $this->getConfigOption($this->name);
 		
 		if (!is_null($value)) {
 			if ($this->less) {

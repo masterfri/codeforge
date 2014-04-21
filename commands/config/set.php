@@ -20,12 +20,14 @@ class ConfigSetCommand extends ConfigDefaultCommand
 {
 	public $name;
 	public $value;
+	public $global;
 	
 	public function argsmap()
 	{
 		return array(
 			0 => 'name',
 			1 => 'value',
+			'g' => 'global',
 		);
 	}
 	
@@ -44,6 +46,10 @@ class ConfigSetCommand extends ConfigDefaultCommand
 			$this->value = $this->ask("Please specify an option value", true);
 		}
 		
-		$this->setConfigOption($this->name, $this->value);
+		if ($this->global) {
+			$this->setGlobalConfigOption($this->name, $this->value);
+		} else {
+			$this->setConfigOption($this->name, $this->value);
+		}
 	}
 } 

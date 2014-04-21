@@ -14,101 +14,17 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+require_once LIB_DIR . '/Entity.php';
 require_once LIB_DIR . '/Attribute.php';
+require_once LIB_DIR . '/Behavior.php';
 
-class Model
+class Model extends Entity
 {
-	protected $name;
-	protected $isAbstract = false;
-	protected $isSingle = false;
-	protected $extends = array();
-	protected $implements = array();
 	protected $attribs = array();
+	protected $behaviors = array();
 	protected $attribs_natural_order = array();
 	protected $schemes = array();
-	protected $comments = array();
-	
-	public function __construct()
-	{
-	}
-	
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
-	
-	public function getName()
-	{
-		return $this->name;
-	}
-	
-	public function setIsAbstract($flag=true)
-	{
-		$this->isAbstract = $flag;
-	}
-	
-	public function getIsAbstract()
-	{
-		return $this->isAbstract;
-	}
-	
-	public function setIsSingle($flag=true)
-	{
-		$this->isSingle = $flag;
-	}
-	
-	public function getIsSingle()
-	{
-		return $this->isSingle;
-	}
-	
-	public function addSupermodel($name)
-	{
-		$this->extends[$name] = true;
-	}
-	
-	public function removeSupermodel($name)
-	{
-		if ($name) {
-			unset($this->extends[$name]);
-		} else {
-			$this->extends = array();
-		}
-	}
-	
-	public function getSupermodels()
-	{
-		return array_keys($this->extends);
-	}
-	
-	public function getIsSubclass()
-	{
-		return ! empty($this->extends);
-	}
-	
-	public function addInterface($name)
-	{
-		$this->implements[$name] = true;
-	}
-	
-	public function removeInterface($name)
-	{
-		if ($name) {
-			unset($this->implements[$name]);
-		} else {
-			$this->implements = array();
-		}
-	}
-	
-	public function getInterfaces()
-	{
-		return array_keys($this->implements);
-	}
-	
-	public function getIsImplementation()
-	{
-		return ! empty($this->implements);
-	}
+	protected $references = array();
 	
 	public function addScheme($name)
 	{
@@ -133,19 +49,25 @@ class Model
 	{
 		$name = $attr->getName();
 		if (isset($this->attribs[$name])) {
-			throw new ModelException("attribute `$name` duplicated");
+			throw new ModelException("attribute `$name` is defined more than once");
 		}
 		$this->attribs[$name] = $attr;
 		ksort($this->attribs);
 		$this->attribs_natural_order[] = $name;
+		$attr->setOwner($this);
 	}
 	
 	public function removeAttribute($name=null)
 	{
 		if ($name) {
 			unset($this->attribs[$name]);
+			$index = array_search($name, $this->attribs_natural_order);
+			if (false !== $index) {
+				unset($this->attribs_natural_order[$index]);
+			}
 		} else {
 			$this->attribs = array();
+			$this->attribs_natural_order = array();
 		}
 	}
 	
@@ -176,17 +98,73 @@ class Model
 		return isset($this->attribs[$name]);
 	}
 	
-	public function addComment($comment)
+	public function addBehavior(Behavior $behavior)
 	{
-		if (preg_match('/^\s*@([a-zA-Z0-9]+)\s*(.*)$/', $comment, $m)) {
-			$this->comments[$m[1]] = $m[2];
+		$name = $behavior->getName();
+		if (isset($this->behaviors[$name])) {
+			throw new ModelException("behavior `$name` is defined more than once");
+		}
+		$this->behaviors[$name] = $behavior;
+		$behavior->setOwner($this);
+	}
+	
+	public function removeBehavior($name=null)
+	{
+		if ($name) {
+			unset($this->behaviors[$name]);
 		} else {
-			$this->comments[] = $comment;
+			$this->behaviors = array();
 		}
 	}
 	
-	public function getComments()
+	public function getBehaviors()
 	{
-		return $this->comments;
+		return $this->behaviors;
+	}
+	
+	public function hasBehavior($name)
+	{
+		return isset($this->behaviors[$name]);
+	}
+	
+	public function setReferences(array $references)
+	{
+		$this->clearReferences();
+		foreach ($references as $attribute) {
+			$this->addReference($attribute);
+		}
+	}
+	
+	public function clearReferences()
+	{
+		$this->references = array();
+	}
+	
+	public function addReference(Attribute $attribute)
+	{
+		if ($attribute->getType() != Attribute::TYPE_CUSTOM) {
+			throw new ModelException('Only custom type can be a reference');
+		}
+		if ($attribute->getCustomType() != $this->getName()) {
+			throw new ModelException(sprintf('Type of reference is mismatched (%s != %s)', $attribute->getCustomType(), $this->getName()));
+		}
+		$this->references[] = $attribute;
+	}
+	
+	public function getReferences($from=null)
+	{
+		if (null === $from) {
+			return $this->references;
+		}
+		if ($from instanceof Model) {
+			$from = $from->getName();
+		}
+		$result = array();
+		foreach ($this->references as $attribute) {
+			if ($attribute->getOwner()->getName() == $from) {
+				$result[] = $attribute;
+			}
+		}
+		return $result;
 	}
 }

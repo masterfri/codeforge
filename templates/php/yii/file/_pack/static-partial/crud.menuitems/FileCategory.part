@@ -1,0 +1,4 @@
+						array(
+							'label' => Yii::t('admin.crud', 'File Categories'),
+							'url' => array('/admin/fileCategory'),
+						),

@@ -24,6 +24,7 @@ abstract class Command
 	const MODEL_NAME_PATTERN = '/^[a-z_][a-z0-9_]*$/i';
 	
 	protected $_config;
+	protected $_config_global;
 	
 	abstract public function run();
 	
@@ -84,7 +85,9 @@ abstract class Command
 		$command = new $className();
 		$argsmap = $command->argsmap();
 		$rules = $command->argrules();
-		foreach (self::parseArgs($args, $rules) as $argname => $value) {
+		foreach (self::parseArgs($args, $rules) as $argument) {
+			$argname = $argument['key'];
+			$value = $argument['value'];
 			if (isset($argsmap[$argname])) {
 				$propname = $argsmap[$argname];
 			} else {
@@ -106,24 +109,37 @@ abstract class Command
 	{
 		$invokeargs = array();
 		$empty = array();
+		$position = 0;
 		
 		while ($argv = array_shift($args)) {
 			if (substr($argv, 0, 2) == '--') {
 				$argv = substr($argv, 2);
-				$invokeargs[$argv] = self::parseArg($argv, $rules, $args);
+				$invokeargs[] = array(
+					'key' => $argv,
+					'value' => self::parseArg($argv, $rules, $args),
+				);
 			} elseif (substr($argv, 0, 1) == '-') {
 				$argvv = substr($argv, 1);
 				$len = strlen($argvv);
 				for ($i = 0; $i < $len; $i++) {
 					$argv = $argvv{$i};
 					if ($i == $len - 1) {
-						$invokeargs[$argv] = self::parseArg($argv, $rules, $args);
+						$invokeargs[] = array(
+							'key' => $argv,
+							'value' => self::parseArg($argv, $rules, $args),
+						);
 					} else {
-						$invokeargs[$argv] = self::parseArg($argv, $rules, $empty);
+						$invokeargs[] = array(
+							'key' => $argv,
+							'value' => self::parseArg($argv, $rules, $empty),
+						);
 					}
 				}
 			} else {
-				$invokeargs[] = $argv;
+				$invokeargs[] = array(
+					'key' => $position++,
+					'value' => $argv,
+				);
 			}
 		}
 		
@@ -161,6 +177,11 @@ abstract class Command
 		echo "[CF] $message.\n";
 	}
 	
+	protected function getUserDir()
+	{
+		return $_SERVER['HOME'] . '/.codeforge';
+	}
+	
 	protected function getProjectDir()
 	{
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME;
@@ -186,6 +207,11 @@ abstract class Command
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/partial';
 	}
 	
+	protected function getStaticPartialDir()
+	{
+		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static-partial';
+	}
+	
 	protected function getSrcDir()
 	{
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/src';
@@ -201,6 +227,11 @@ abstract class Command
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/schemes';
 	}
 	
+	protected function getUserSchemeDir()
+	{
+		return $this->getUserDir() . '/schemes';
+	}
+	
 	protected function getDefaultExtensionsDir()
 	{
 		return THISDIR . '/extensions';
@@ -211,19 +242,62 @@ abstract class Command
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/extensions';
 	}
 	
+	protected function getUserExtensionsDir()
+	{
+		return $this->getUserDir() . '/extensions';
+	}
+	
 	protected function getConfigFile()
 	{
 		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/project.manifest';
 	}
 	
-	protected function getTemplatesDir()
+	protected function getGlobalConfigFile()
 	{
-		return THISDIR . '/templates';
+		return $this->getUserDir() . '/globals.manifest';
 	}
 	
-	protected function getTemplateDir($name)
+	protected function getIgnoreListFile()
 	{
-		return $this->getTemplatesDir() . '/' . $name;
+		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/ignore.list';
+	}
+	
+	protected function getChecksumListFile()
+	{
+		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/checksum.list';
+	}
+	
+	protected function filterDirs($dirs)
+	{
+		return array_filter($dirs, function($dir) {
+			return is_dir($dir);
+		});
+	}
+	
+	protected function filterFiles($files)
+	{
+		return array_filter($files, function($file) {
+			return is_file($file);
+		});
+	}
+	
+	protected function getTemplateDirs($name)
+	{
+		$basename = str_replace('.', '/', $name);
+		return $this->filterDirs(array(
+			$this->getUserDir() . '/templates/' . $basename,
+			THISDIR . '/templates/' . $basename,
+		));
+	}
+	
+	protected function getBlank($name)
+	{
+		$basename = str_replace('.', '/', $name) . '.tmpl';
+		$files = $this->filterFiles(array(
+			$this->getUserDir() . '/templates/' . $basename,
+			THISDIR . '/templates/' . $basename,
+		));
+		return current($files);
 	}
 	
 	protected function getModelFile($name)
@@ -234,15 +308,29 @@ abstract class Command
 	protected function getConfig($reload=false)
 	{
 		if (null === $this->_config || $reload) {
-			$condif = new EasyConfig();
-			$condif->readFile($this->getConfigFile());
-			$this->_config = $condif->getData();
+			$config = new EasyConfig();
+			$config->readFile($this->getConfigFile());
+			$this->_config = $config->getData();
 			$version = isset($data['version']) ? $data['version'] : '1.0';
 			if (version_compare($version, VERSION, '>')) {
 				throw new Exception(PROGRAMM . ' version (' . VERSION . ') is less than project version (' . $version . ')');
 			}
 		}
 		return $this->_config;
+	}
+	
+	protected function getGlobalConfig($reload=false)
+	{
+		if (null === $this->_config_global || $reload) {
+			if (is_file($this->getGlobalConfigFile())) {
+				$config = new EasyConfig();
+				$config->readFile($this->getGlobalConfigFile());
+				$this->_config_global = $config->getData();
+			} else {
+				$this->_config_global = array();
+			}
+		}
+		return $this->_config_global;
 	}
 	
 	protected function updateConfig()
@@ -253,15 +341,53 @@ abstract class Command
 		}
 	}
 	
+	protected function updateGlobalConfig()
+	{
+		if (is_array($this->_config_global)) {
+			$config = new EasyConfig($this->_config_global);
+			$dir = dirname($this->getGlobalConfigFile());
+			if (!is_dir($dir)) {
+				if (!@mkdir($dir, 0700, true)) {
+					throw new Exception(sprintf('Can not create directory `%s`', $dir));
+				}
+			}
+			$config->writeToFile($this->getGlobalConfigFile());
+		}
+	}
+	
 	protected function getConfigOption($name=null, $default=null)
 	{
 		if (null === $this->_config) {
 			$this->getConfig();
 		}
 		if ($name) {
-			return isset($this->_config['options'][$name]) ? $this->_config['options'][$name] : $default;
+			if (isset($this->_config['options'][$name])) {
+				return $this->_config['options'][$name];
+			} else {
+				return $this->getGlobalConfigOption($name, $default);
+			}
 		} else {
-			return isset($this->_config['options']) ? $this->_config['options'] : array();
+			$result = $this->getGlobalConfigOption();
+			if (isset($this->_config['options'])) {
+				$result = array_merge($result, $this->_config['options']);
+			}
+			return $result;
+		}
+	}
+	
+	protected function getGlobalConfigOption($name=null, $default=null)
+	{
+		if (null === $this->_config_global) {
+			$this->getGlobalConfig();
+		}
+		if ($name) {
+			if (isset($this->_config_global[$name])) {
+				return $this->_config_global[$name];
+			} else {
+				return $default;
+			}
+		} else {
+			return $this->_config_global;
 		}
 	}
 	
@@ -276,6 +402,17 @@ abstract class Command
 		}
 	}
 	
+	protected function setGlobalConfigOption($name, $value, $update=true)
+	{
+		if (null === $this->_config_global) {
+			$this->getGlobalConfig();
+		}
+		$this->_config_global[$name] = $value;
+		if ($update) {
+			$this->updateGlobalConfig();
+		}
+	}
+	
 	protected function unsetConfigOption($name, $update=true)
 	{
 		if (null === $this->_config) {
@@ -284,6 +421,17 @@ abstract class Command
 		unset($this->_config['options'][$name]);
 		if ($update) {
 			$this->updateConfig();
+		}
+	}
+	
+	protected function unsetGlobalConfigOption($name, $update=true)
+	{
+		if (null === $this->_config_global) {
+			$this->getGlobalConfig();
+		}
+		unset($this->_config_global[$name]);
+		if ($update) {
+			$this->updateGlobalConfig();
 		}
 	}
 	
@@ -365,5 +513,20 @@ abstract class Command
 			$this->setConfigOption($name, $val);
 		}
 		return $val;
+	}
+	
+	public function assureVar($name, $prompt, $accept_empty=false)
+	{
+		$prev = $this->getConfigOption($name, '');
+		if (!empty($prev)) {
+			$prompt .= sprintf(' (%s)', $prev);
+		}
+		$val = $this->ask($prompt, $accept_empty || !empty($prev));
+		if (empty($val)) {
+			return $prev;
+		} elseif ($val !== $prev) {
+			$this->setConfigOption($name, $val);
+			return $val;
+		}
 	}
 }

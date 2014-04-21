@@ -10,14 +10,19 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 	
 	public function tableName()
 	{
-		return '{{{%= strtolower($model->getName()) %}}}';
+		return '{{{%= table_name($model) %}}}';
 	}
 	
 	public function attributeLabels()
 	{
 		return array(
 {% start_attr_list %}
+{% if (attribute_id($attribute) != $attribute->getName()): %}
 			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', '{%= attribute_label($attribute) %}'),
+			'{%= $attribute->getName() %}' => Yii::t('{%= lcfirst($model->getName()) %}', '{%= attribute_label($attribute) %}'),
+{% else: %}
+			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', '{%= attribute_label($attribute) %}'),
+{% endif %}
 {% end_attr_list %}
 		);
 	}
@@ -29,8 +34,10 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 			array('	{%= implode(",\n\t\t\t\t\t", $attribs) %}', 
 					{%= $rule %}),
 {% endforeach %}
-			array('	{%= implode(",\n\t\t\t\t\t", array_map('attribute_id', $model->getAttributes())) %}', 
+{% if(count($searchable = searchable_attributes($model))): %}
+			array('	{%= implode(",\n\t\t\t\t\t", array_map('attribute_id', $searchable)) %}', 
 					'safe', 'on' => 'search'),
+{% endif %}
 		);
 	}
 	
@@ -45,13 +52,41 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
+	public function behaviors()
+	{
+		return array(
+{% foreach(behaviors($model) as $behavior): %}
+			{%= escape_value($behavior, 3) %},
+{% endforeach %}
+		);
+	}
+	
+	protected function beforeSave()
+	{
+		if (parent::beforeSave()) {
+			if ($this->getIsNewRecord()) {
+{% start_attr_list %}
+{% foreach(attribute_initialization($attribute) as $initialization): %}
+				{%= $initialization %} 
+{% endforeach %}
+{% end_attr_list %}
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public function search($params=array(), $defaultAttribs=array())
 	{
 		$criteria = new DbCriteria($params);
 		$criteria->applyFilterModel($this, array(
-{% start_attr_list %}
+{% foreach(searchable_attributes($model) as $attribute): %}
+{% if ($attribute->getType() == Attribute::TYPE_CHAR || $attribute->getType() == Attribute::TYPE_TEXT): %}
+			'{%= attribute_id($attribute) %}' => true,
+{% else: %}
 			'{%= attribute_id($attribute) %}',
-{% end_attr_list %}
+{% endif %}
+{% endforeach %}
 		), $defaultAttribs);
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,

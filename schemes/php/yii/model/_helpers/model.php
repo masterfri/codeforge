@@ -2,66 +2,76 @@
 
 $this->registerHelper('superclass', function ($invoker, $model)
 {
-	return sprintf('extends %s', $model->getIsSubclass() ? current($model->getSupermodels()) : 'CActiveRecord');
+	$super = $model->getHint('superclass', 'CActiveRecord');
+	return sprintf('extends %s', $super);
 });
 
 $this->registerHelper('interfaces', function ($invoker, $model)
 {
-	return $model->getIsImplementation() ? sprintf('implements %s', implode(', ', $model->getInterfaces())) : '';
+	$interfaces = $model->getHint('interface');
+	$interfaces = preg_split('/\s*,\s*/', $interfaces, -1, PREG_SPLIT_NO_EMPTY);
+	return count($interfaces) ? sprintf('implements %s', implode(', ', $interfaces)) : '';
 });
 
 $this->registerHelper('attribute_validation_rules', function ($invoker, $attribute)
 {
-	$rules = array();
-	switch ($attribute->getType()) {
-		case Attribute::TYPE_INT:
-			if ($attribute->getIsUnsigned()) {
-				$rules[] = "'numerical', 'integerOnly' => true, 'min' => 0";
-			} else {
-				$rules[] = "'numerical', 'integerOnly' => true";
-			}
-			break;
+	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+		$relation = $invoker->refer('attribute_relation', $attribute);
+		if ('many-to-one' == $relation || 'many-to-many' == $relation) {
+			return $attribute->getBoolHint('required') ? array("'required'") : array("'safe'");
+		} else {
+			return array();
+		}
+	} else {
+		$rules = array();
+		switch ($attribute->getType()) {
+			case Attribute::TYPE_INT:
+				if ($attribute->getIsUnsigned()) {
+					$rules[] = "'numerical', 'integerOnly' => true, 'min' => 0";
+				} else {
+					$rules[] = "'numerical', 'integerOnly' => true";
+				}
+				break;
+				
+			case Attribute::TYPE_DECIMAL:
+				if ($attribute->getIsUnsigned()) {
+					$rules[] = "'numerical', 'min' => 0";
+				} else {
+					$rules[] = "'numerical'";
+				}
+				break;
+				
+			case Attribute::TYPE_CHAR:
+				$rules[] = sprintf("'length', 'max' => %d", $attribute->getSize() ? $attribute->getSize() : 250);
+				break;
+				
+			case Attribute::TYPE_TEXT:
+				$rules[] = "'length', 'max' => 16000";
+				break;
+				
+			case Attribute::TYPE_BOOL:
+				$rules[] = "'boolean'";
+				break;
 			
-		case Attribute::TYPE_DECIMAL:
-			if ($attribute->getIsUnsigned()) {
-				$rules[] = "'numerical', 'min' => 0";
-			} else {
-				$rules[] = "'numerical'";
-			}
-			break;
-			
-		case Attribute::TYPE_CHAR:
-			$rules[] = sprintf("'length', 'max' => %d", $attribute->getSize() ? $attribute->getSize() : 250);
-			break;
-			
-		case Attribute::TYPE_TEXT:
-			$rules[] = "'length', 'max' => 16000";
-			break;
-			
-		case Attribute::TYPE_BOOL:
-			$rules[] = "'boolean'";
-			break;
-		
-		case Attribute::TYPE_INTOPTION:
-			$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', array_keys($attribute->getOptions()))));
-			break;
-			
-		case Attribute::TYPE_STROPTION:
-			$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', $attribute->getOptions())));
-			break;
-		
-		default:
-			if (!$attribute->getIsRequired()) {
-				$rules[] = "'safe'";
-			}
-			break;
+			case Attribute::TYPE_INTOPTION:
+				$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', array_keys($attribute->getOptions()))));
+				break;
+				
+			case Attribute::TYPE_STROPTION:
+				$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', $attribute->getOptions())));
+				break;
+		}
+		if ($attribute->getBoolHint('required')) {
+			$rules[] = "'required'";
+		}
+		if ($pattern = $attribute->getHint('pattern')) {
+			$rules[] = sprintf("'match', 'pattern' => '%s'", addslashes($pattern));
+		}
+		if (empty($rules)) {
+			$rules[] = "'safe'";
+		}
+		return $rules;
 	}
-	
-	if ($attribute->getIsRequired()) {
-		$rules[] = "'required'";
-	}
-	
-	return $rules;
 });
 
 $this->registerHelper('validation_rules', function ($invoker, $model)
@@ -80,41 +90,74 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 {
 	$relations = array();
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
-		if ($attribute->getIsCollection()) {
-			if ($attribute->getIsOwn()) {
-				$relations[] = sprintf("array(self::HAS_MANY, '%s', '%s_id')", $attribute->getCustomType(), strtolower($model->getName()));
+		$relation = $invoker->refer('attribute_relation', $attribute);
+		if ('many-to-one' == $relation) {
+			$relations[] = sprintf("array(self::BELONGS_TO, '%s', '%s_id')", $attribute->getCustomType(), $attribute->getName());
+		} elseif ('one-to-many' == $relation) {
+			$backreference = $invoker->refer('attribute_back_reference', $attribute);
+			if ($backreference) {
+				$fk = sprintf('%s_id', $backreference->getName());
 			} else {
-				$table = $invoker->refer('many_many_table', $model, $attribute);
-				$fk1 = $invoker->refer('many_many_fk1', $model, $attribute);
-				$fk2 = $invoker->refer('many_many_fk2', $model, $attribute);
-				$relations[] = sprintf("array(self::MANY_MANY, '%s', '{{%s}}(%s,%s)')", $attribute->getCustomType(), $table, $fk1, $fk2);
+				$fk = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
 			}
-		} else {
-			if ($attribute->getIsOwn()) {
-				$relations[] = sprintf("array(self::HAS_ONE, '%s', '%s')", $attribute->getCustomType(), sprintf('%s_id', strtolower($model->getName())));
+			$relations[] = sprintf("array(self::HAS_MANY, '%s', '%s')", $attribute->getCustomType(), $fk);
+		} elseif ('one-to-one' == $relation) {
+			$backreference = $invoker->refer('attribute_back_reference', $attribute);
+			if ($backreference) {
+				$fk = sprintf('%s_id', $backreference);
 			} else {
-				$relations[] = sprintf("array(self::BELONGS_TO, '%s', '%s')", $attribute->getCustomType(), $invoker->refer('attribute_id', $attribute));
+				$fk = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
 			}
+			$relations[] = sprintf("array(self::HAS_ONE, '%s', '%s')", $attribute->getCustomType(), $fk);
+		} elseif ('many-to-many' == $relation) {
+			$link = $attribute->getHint('manymanylink');
+			if ($link && preg_match('#([a-z0-9_]+)\s*[(]\s*([a-z0-9_]+)\s*,\s*([a-z0-9_]+)\s*[)]#i', $link, $matches)) {
+				$table_name = $invoker->refer('table_name', $matches[1]);
+				$fk1 = sprintf('%s_id', $matches[2]);
+				$fk2 = sprintf('%s_id', $matches[3]);
+			} else {
+				$table_name = sprintf('%s_%s_%s', $invoker->refer('table_name', $attribute->getOwner()), $invoker->refer('table_name', $attribute->getCustomType()), $attribute->getName());
+				$fk1 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
+				$fk2 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getCustomType()));
+			}
+			$relations[] = sprintf("array(self::MANY_MANY, '%s', '{{%s}}(%s,%s)')", $attribute->getCustomType(), $table_name, $fk1, $fk2);
 		}
 	}
 	return $relations;
 });
 
-$this->registerHelper('many_many_table', function ($invoker, $model, $attribute) 
+$this->registerHelper('behaviors', function ($invoker, $model)
 {
-	return implode('_', array_map('strtolower', array(
-		$model->getName(),
-		$attribute->getCustomType(),
-		$attribute->getName(),
-	)));
+	$result = array();
+	foreach ($model->getBehaviors() as $behavior) {
+		$params = $behavior->getParam();
+		if (!isset($params['class'])) {
+			$params = array_merge(
+				array('class' => $behavior->getName()),
+				$params
+			);
+		}
+		$result[] = $params;
+	}
+	return $result;
 });
 
-$this->registerHelper('many_many_fk1', function ($invoker, $model, $attribute) 
+$this->registerHelper('table_name', function ($invoker, $model) 
 {
-	return sprintf('%s_id', strtolower($model->getName()));
+	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
 });
 
-$this->registerHelper('many_many_fk2', function ($invoker, $model, $attribute) 
+$this->registerHelper('attribute_initialization', function ($invoker, $attribute) 
 {
-	return sprintf('%s_id', strtolower($attribute->getCustomType()));
+	$default = $attribute->getDefaultValue();
+	if ($default instanceof Behavior) {
+		$initializer = $invoker->getGenerator()->invokeHelper($default->getName(), false, true);
+		$initial = $initializer->call($attribute, $default);
+		if (is_array($initial)) {
+			return $initial;
+		} elseif (is_string($initial)) {
+			return array($initial);
+		}
+	}
+	return array();
 });

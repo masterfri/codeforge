@@ -12,6 +12,7 @@ $this->menu = array(
 		'label' => '<i class="glyphicon glyphicon-plus"></i> ' . Yii::t('admin.crud', 'Create {%= model_label($model) %}'), 
 		'url' => array('create'),
 	),
+{% if(count(searchable_attributes($model))): %}
 	array(
 		'label' => '<i class="glyphicon glyphicon-search"></i> ' . Yii::t('admin.crud', 'Search'), 
 		'url' => '#',
@@ -20,10 +21,12 @@ $this->menu = array(
 			'data-toggle' => 'search-form',
 		),
 	),
+{% endif %}
 );
 
 ?>
 
+{% if(count(searchable_attributes($model))): %}
 <div class="panel panel-default search-form" style="display: none;">
 	<div class="panel-heading">
 		<h3 class="panel-title"><?php echo Yii::t('admin.crud', 'Search'); ?></h3>
@@ -34,6 +37,7 @@ $this->menu = array(
 		)); ?>
 	</div>
 </div>
+{% endif %}
 
 <div class="panel panel-default">
 	<div class="panel-heading">

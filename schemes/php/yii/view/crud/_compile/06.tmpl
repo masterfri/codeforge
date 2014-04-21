@@ -1,20 +1,30 @@
+{% if(count($searchable = searchable_attributes($model))): %}
 {% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/_search.php') %}
 <div class="form-content">
 
-	<?php $form = $this->beginWidget('CActiveForm', array(
+	<?php $form = $this->beginWidget('ActiveForm', array(
 		'action' => Yii::app()->createUrl($this->route),
-		'htmlOptions' => array('class'=>'form-horizontal'),
+		'htmlOptions' => array(
+			'class'=>'form-horizontal',
+			'role' => 'search-form',
+			'data-target' => '{%= strtolower($model->getName()) %}-grid',
+		),
 		'method' => 'get',
 	)); ?>
-{% start_attr_list_natural_order %}
-{% if($attribute->getMode() == Attribute::MODE_NOACCESS) continue %}
+{% foreach($searchable as $attribute): %}
+{% if($control = form_control($attribute, 'search')): %}
 		<div class="form-group">
 			<?php echo $form->label($model, '{%= attribute_id($attribute) %}', array('class'=>'col-sm-3 control-label')); ?>
 			<div class="col-sm-9">
-				<?php echo {%= form_control($attribute, array('line_ending' => "\n\t\t\t", 'prompt' => "''")) %}; ?>
+{% if(is_array($control)): %}
+				{% partial($control[0], $control[1], 4) %} 
+{% else: %}
+				{%= $control %} 
+{% endif %}
 			</div>
 		</div>
-{% end_attr_list %}
+{% endif %}
+{% endforeach %}
 		
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-9">
@@ -26,3 +36,4 @@
 
 </div>
 {% close_file() %}
+{% endif %}

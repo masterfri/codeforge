@@ -1,7 +1,7 @@
 {% open_file('protected/modules/admin/controllers/OptionsController.php') %}
 <?php
 
-class OptionsController extends {%= env('controllerBaseClass', 'AdminController') %} 
+class OptionsController extends {%= env('php.yii.controller.superclass', 'AdminController') %} 
 {
 {% join_partial('options.controller.actions') %}
 

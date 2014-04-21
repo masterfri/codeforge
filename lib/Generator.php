@@ -26,6 +26,7 @@ class Generator
 	protected $cache_dir = 'cache/';
 	protected $work_dir;
 	protected $partial_dir = 'partial/';
+	protected $static_partial_dir = array();
 	protected $mode = '_compile';
 	protected $current_file;
 	protected $messages;
@@ -34,6 +35,7 @@ class Generator
 	protected $env = array();
 	protected $active_namespace = '::';
 	protected $command;
+	protected $models = array();
 	
 	protected static $schemes = array();
 	protected static $loaded_helper_groups = array();
@@ -93,13 +95,43 @@ class Generator
 		}
 	}
 	
-	public function compile(Lex $lex, $outdir)
+	public function setModels($models)
+	{
+		$models = is_array($models) ? $models : array($models);
+		$this->models = array();
+		foreach ($models as $model) {
+			$this->models[$model->getName()] = $model;
+		}
+		foreach ($this->models as $model) {
+			$references = array();
+			foreach ($this->models as $another_model) {
+				foreach ($another_model->getAttributes() as $attribute) {
+					if ($attribute->getType() == Attribute::TYPE_CUSTOM && $attribute->getCustomType() == $model->getName()) {
+						$references[] = $attribute;
+					}
+				}
+			}
+			$model->setReferences($references);
+		}
+	}
+	
+	public function getModels()
+	{
+		return $this->models;
+	}
+	
+	public function getModel($name)
+	{
+		return isset($this->models[$name]) ? $this->models[$name] : null;
+	}
+	
+	public function compile($outdir)
 	{
 		Registry::getSingleton()->set('generator', $this);
 		$this->messages = array();
 		$this->loadCommonHelpers();
 		$this->loadExtensions();
-		foreach ($lex->getModels() as $model) {
+		foreach ($this->getModels() as $model) {
 			foreach ($model->getSchemes() as $scheme) {
 				$this->applyScheme($model, $scheme, $outdir);
 			}
@@ -112,8 +144,7 @@ class Generator
 	
 	public function build($schemes, $outdir)
 	{
-		global $the_generator;
-		$the_generator = $this;
+		Registry::getSingleton()->set('generator', $this);
 		$this->messages = array();
 		$this->loadCommonHelpers();
 		$this->loadExtensions();
@@ -187,14 +218,33 @@ class Generator
 	public function setPartialDir($dir)
 	{
 		if (! is_dir($dir) || !is_writable($dir)) {
-			throw new Exception("Directory `$dir` is not exists or is not writable");
+			throw new Exception("Directory `$dir` not exists or it's not writable");
 		}
 		$this->partial_dir = rtrim($dir, '/') . '/';
+	}
+	
+	public function setStaticPartialDir($dirs)
+	{
+		$this->static_partial_dir = array();
+		if (! is_array($dirs)) {
+			$dirs = array($dirs);
+		}
+		foreach ($dirs as $dir) {
+			if (! is_dir($dir)) {
+				throw new Exception("Directory `$dir` not exists");
+			}
+			$this->static_partial_dir[] = rtrim($dir, '/') . '/';
+		}
 	}
 	
 	public function getPartialDir()
 	{
 		return $this->partial_dir;
+	}
+	
+	public function getStaticPartialDir()
+	{
+		return $this->static_partial_dir;
 	}
 	
 	public function applyScheme(Model $model, $scheme, $outdir)
@@ -251,11 +301,12 @@ class Generator
 						$part = substr($part, 2, -3);
 						$part = preg_replace('/^\s*start_attr_list_natural_order/', 'foreach($model->getAttributes(false) as $attribute):', $part);
 						$part = preg_replace('/^\s*start_attr_list/', 'foreach($model->getAttributes() as $attribute):', $part);
-						$part = preg_replace('/^\s*end_attr_list/', 'endforeach;', $part);
+						$part = preg_replace('/^\s*start_model_list/', 'foreach($this->getModels() as $another_model):', $part);
+						$part = preg_replace('/^\s*end_(attr|model)_list/', 'endforeach;', $part);
 						$part = preg_replace('/^\s*=/', 'echo ', $part);
 						$part = preg_replace_callback('/(?<!->|::)\b([a-zA-Z_][a-zA-Z0-9_]*)\s*[(]/', function($m) {
 							$n = strtolower($m[1]);
-							if (in_array($n, array('if', 'elseif', 'while', 'switch', 'foreach', 'for', 'function', 'array'))) {
+							if (in_array($n, array('if', 'elseif', 'while', 'switch', 'foreach', 'for', 'function', 'array', 'list'))) {
 								return $m[0];
 							} elseif ('env' == $n) {
 								return '$this->getEnv(';
@@ -273,6 +324,8 @@ class Generator
 								return '$this->arrayMap(';
 							} elseif ('ask' == $n) {
 								return '$this->askVar(';
+							} elseif ('partial' == $n) {
+								return '$this->renderPartial(';
 							} else {
 								return sprintf('$this->invokeHelper("%s")->call(', $m[1]);
 							}
@@ -353,12 +406,20 @@ class Generator
 	
 	protected function joinPartial($partial_id)
 	{
-		$dir = $this->partial_dir . $partial_id;
-		if (!is_dir($dir)) {
-			$this->message("Partial not found `$partial_id`");
-			return;
+		$dirs = array($this->partial_dir . $partial_id);
+		foreach ($this->static_partial_dir as $dir) {
+			$dirs[] = $dir . $partial_id;
 		}
-		foreach (glob($dir . '/*.part') as $file) {
+		$parts = array();
+		foreach ($dirs as $dir) {
+			if (is_dir($dir)) {
+				foreach (glob($dir . '/*.part') as $file) {
+					$parts[basename($file)] = $file;
+				}
+			}
+		}
+		ksort($parts);
+		foreach ($parts as $file) {
 			readfile($file);
 		}
 	}
@@ -414,12 +475,23 @@ class Generator
 	{
 		$this->active_namespace = '::';
 		foreach ($this->extensions_dir as $dir) {
-			foreach (glob($dir . '*.php') as $file) {
-				$ext_name = basename($file, 'php');
-				if (!in_array($ext_name, self::$loaded_extensions)) {
-					require_once($file);
-					self::$loaded_extensions[] = $ext_name;
+			$h = @opendir($dir);
+			if ($h) {
+				while (($file = readdir($h)) !== false) {
+					$extdir = $dir . '/' . $file;
+					if ('.' == $file || '..' == $file || !is_dir($extdir)) {
+						continue;
+					}
+					if (!isset(self::$loaded_extensions[$file])) {
+						self::$loaded_extensions[$file] = $extdir;
+						foreach (glob($extdir . '/_helpers/*.php') as $helper) {
+							require_once($helper);
+						}
+					}
 				}
+				closedir($h);
+			} else {
+				throw new Exception("Can't load extensions from `$dir`");
 			}
 		}
 	}
@@ -460,7 +532,7 @@ class Generator
 		$chain->add($function, $priority);
 	}
 	
-	public function invokeHelper($name, $reusable=false)
+	public function invokeHelper($name, $reusable=false, $quiet=false)
 	{
 		$candidates = array();
 		$namespaces = explode('::', $this->active_namespace);
@@ -479,7 +551,7 @@ class Generator
 		if (function_exists($name)) {
 			$candidates[] = new FunctionCaller($name);
 		}
-		if (empty($candidates)) {
+		if (empty($candidates) && false == $quiet) {
 			$this->message("Unknow helper: $name");
 		}
 		return new HelperInvoker($this, $candidates, $reusable);
@@ -509,5 +581,59 @@ class Generator
 	public function registerType($name, $based_on=Attribute::TYPE_CUSTOM, $size=false, $unsigned=false)
 	{
 		Attribute::registerCustomType($name, $based_on, $size, $unsigned);
+	}
+	
+	public function renderPartial($name, $data=array(), $padding=false)
+	{
+		$original_name = $name;
+		if (strpos($name, '.') === false) {
+			$namespaces = explode('::', $this->active_namespace);
+			array_shift($namespaces);
+		} else {
+			$namespaces = explode('.', $name);
+			$name = array_pop($namespaces);
+			if ($namespaces[0] =='extensions') {
+				array_shift($namespaces);
+				$extension = array_shift($namespaces);
+				if (isset(self::$loaded_extensions[$extension])) {
+					$file = self::$loaded_extensions[$extension] . '/_partial/' . $name . '.tmpl';
+					if (is_file($file)) {
+						$this->renderPartialFile($file, $data, $padding);
+						return true;
+					}
+				}
+				$this->message(sprintf('Error: template not found `%s`', $original_name));
+				return false;
+			}
+		}
+		while (count($namespaces) > 0) {
+			$path = implode('/', $namespaces);
+			foreach ($this->scheme_dir as $dir) {
+				$file = $dir . $path . '/_partial/' . $name . '.tmpl';
+				if (is_file($file)) {
+					$this->renderPartialFile($file, $data, $padding);
+					return true;
+				}
+			}
+			array_pop($namespaces);
+		}
+		$this->message(sprintf('Error: template not found `%s`', $original_name));
+		return false;
+	}
+	
+	protected function renderPartialFile($__file__, $__data__=array(), $padding=false)
+	{
+		extract($__data__);
+		ob_start();
+		include $this->complieTemplate($__file__);
+		$output = ob_get_clean();
+		if ($padding) {
+			if (is_int($padding)) {
+				$padding = str_repeat("\t", $padding);
+			} 
+			echo str_replace("\n", "\n$padding", rtrim($output, "\n"));
+		} else {
+			echo $output;
+		}
 	}
 }
