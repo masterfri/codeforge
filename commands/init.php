@@ -92,6 +92,7 @@ class InitCommand extends Command
 		FileHelper::checkdir($this->getCompiledDir());
 		FileHelper::checkdir($this->getStaticDir());
 		FileHelper::checkdir($this->getPartialDir());
+		FileHelper::checkdir($this->getStaticPartialDir());
 		FileHelper::checkdir($this->getSrcDir());
 		FileHelper::checkdir($this->getCustomSchemeDir());
 		FileHelper::checkdir($this->getCustomExtensionsDir());

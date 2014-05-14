@@ -17,7 +17,12 @@ class {%= $model->getName() %} extends {%= env('php.yii.model.option.superclass'
 	{
 		return array(
 {% start_attr_list %}
-			'{%= attribute_id($attribute) %}' => Yii::t('admin.{%= lcfirst($model->getName()) %}', '{%= attribute_label($attribute) %}'),
+{% if (attribute_id($attribute) != $attribute->getName()): %}
+			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+			'{%= $attribute->getName() %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+{% else: %}
+			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+{% endif %}
 {% end_attr_list %}
 		);
 	}
