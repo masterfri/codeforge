@@ -3,7 +3,7 @@
 
 return array(
 {% start_attr_list %}
-	'{%= attribute_label($attribute) %}' => '{%= attribute_label($attribute) %}',
+	'{%= attribute_label($attribute) %}' => '{%= $attribute->getHint('ru', attribute_label($attribute)) %}',
 {% end_attr_list %}
 );
 {% close_file() %}

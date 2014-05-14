@@ -83,14 +83,12 @@ class User extends CActiveRecord
 		}
 	}
 	
-	public function search($params=array(), $defaultAttribs=array())
+	public function search($params=array())
 	{
-		$criteria = new DbCriteria();
-		$criteria->applyFilterModel($this, array(
-			'username' => true, 
-			'email' => true, 
-			'role'
-		), $defaultAttribs);
+		$criteria = new CDbCriteria($params);
+		$criteria->compare('t.username', $this->username, true);
+		$criteria->compare('t.email', $this->email, true);
+		$criteria->compare('t.role', $this->role, true);
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
 		));
@@ -154,5 +152,15 @@ class User extends CActiveRecord
 	public function getRoleName()
 	{
 		return Yii::app()->authManager->getRoleDescription($this->role);
+	}
+	
+	public function __toString()
+	{
+		return $this->getDisplayName();
+	}
+	
+	public function getDisplayName()
+	{
+		return $this->username;
 	}
 }

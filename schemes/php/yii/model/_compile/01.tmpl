@@ -61,33 +61,16 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
-	protected function beforeSave()
-	{
-		if (parent::beforeSave()) {
-			if ($this->getIsNewRecord()) {
-{% start_attr_list %}
-{% foreach(attribute_initialization($attribute) as $initialization): %}
-				{%= $initialization %} 
-{% endforeach %}
-{% end_attr_list %}
-			}
-			return true;
-		}
-		return false;
-	}
-	
 	public function search($params=array(), $defaultAttribs=array())
 	{
-		$criteria = new DbCriteria($params);
-		$criteria->applyFilterModel($this, array(
+		$criteria = new CDbCriteria($params);
 {% foreach(searchable_attributes($model) as $attribute): %}
 {% if ($attribute->getType() == Attribute::TYPE_CHAR || $attribute->getType() == Attribute::TYPE_TEXT): %}
-			'{%= attribute_id($attribute) %}' => true,
+		$criteria->compare('t.{%= attribute_id($attribute) %}', $this->{%= attribute_id($attribute) %}, true);
 {% else: %}
-			'{%= attribute_id($attribute) %}',
+		$criteria->compare('t.{%= attribute_id($attribute) %}', $this->{%= attribute_id($attribute) %});
 {% endif %}
 {% endforeach %}
-		), $defaultAttribs);
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
 		));

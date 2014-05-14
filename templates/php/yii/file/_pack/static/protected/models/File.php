@@ -339,13 +339,11 @@ class File extends CActiveRecord
 		));
 	}
 	
-	public function search($params=array(), $defaultAttribs=array())
+	public function search($params=array())
 	{
-		$criteria = new DbCriteria($params);
-		$criteria->applyFilterModel($this, array(
-			'title' => true, 
-			'category_id',
-		), $defaultAttribs);
+		$criteria = new CDbCriteria($params);
+		$criteria->compare('t.title', $this->title, true);
+		$criteria->compare('t.category_id', $this->category_id);
 		$criteria->compare('parent_id', 0);
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,

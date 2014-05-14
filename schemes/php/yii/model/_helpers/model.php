@@ -146,18 +146,3 @@ $this->registerHelper('table_name', function ($invoker, $model)
 {
 	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
 });
-
-$this->registerHelper('attribute_initialization', function ($invoker, $attribute) 
-{
-	$default = $attribute->getDefaultValue();
-	if ($default instanceof Behavior) {
-		$initializer = $invoker->getGenerator()->invokeHelper($default->getName(), false, true);
-		$initial = $initializer->call($attribute, $default);
-		if (is_array($initial)) {
-			return $initial;
-		} elseif (is_string($initial)) {
-			return array($initial);
-		}
-	}
-	return array();
-});

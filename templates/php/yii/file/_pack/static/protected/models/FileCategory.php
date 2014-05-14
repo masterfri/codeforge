@@ -37,12 +37,10 @@ class FileCategory extends CActiveRecord
 		);
 	}
 	
-	public function search($params=array(), $defaultAttribs=array())
+	public function search($params=array())
 	{
-		$criteria = new DbCriteria($params);
-		$criteria->applyFilterModel($this, array(
-			'title',
-		), $defaultAttribs);
+		$criteria = new CDbCriteria($params);
+		$criteria->compare('t.title', $this->title, true);
 		return new CActiveDataProvider($this, array(
 			'criteria' => $criteria,
 		));
