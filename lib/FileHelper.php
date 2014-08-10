@@ -107,7 +107,7 @@ class FileHelper
 		$path = rtrim($path, '/') . '/';
 		$h = @opendir($path);
 		if (! $h) {
-			throw new Exception("Access dinied to path `$path`");
+			throw new Exception("Access denied to path `$path`");
 		}
 		// list directory contents
 		while (($file = readdir($h)) !== false) {
@@ -164,7 +164,7 @@ class FileHelper
 			self::checkdir($copyname, fileperms($file) & 0777);
 			$h = @opendir($file);
 			if (! $h) {
-				throw new Exception("Access dinied to path `$file`");
+				throw new Exception("Access denied to path `$file`");
 			}
 			$dir = rtrim($file, '/');
 			// list directory contents
@@ -194,7 +194,7 @@ class FileHelper
 		$to = rtrim($to, '/');
 		$h = @opendir($from);
 		if (! $h) {
-			throw new Exception("Access dinied to path `$from`");
+			throw new Exception("Access denied to path `$from`");
 		}
 		while (($name = readdir($h)) !== false) {
 			if ('.' == $name || '..' == $name) {
@@ -242,7 +242,7 @@ class FileHelper
 		if (is_dir($path)) {
 			$h = @opendir($path);
 			if (! $h) {
-				throw new Exception("Access dinied to path `$file`");
+				throw new Exception("Access denied to path `$file`");
 			}
 			$path = rtrim($path, '/');
 			while (($name = readdir($h)) !== false) {

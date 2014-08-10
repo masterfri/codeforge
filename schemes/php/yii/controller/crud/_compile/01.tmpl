@@ -58,5 +58,28 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 			'postOnly + delete', 
 		);
 	}
+	
+	public function accessRules()
+	{
+		return array(
+			array('allow',
+				'actions' => array('create'),
+				'roles' => array('{%= permission('create', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('view', 'index'),
+				'roles' => array('{%= permission('view', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('update'),
+				'roles' => array('{%= permission('update', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('delete'),
+				'roles' => array('{%= permission('delete', $model) %}'),
+			),
+			array('deny'),
+		);
+	}
 }
 {% close_file() %}

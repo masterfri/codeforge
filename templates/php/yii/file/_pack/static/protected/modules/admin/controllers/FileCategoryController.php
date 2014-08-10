@@ -57,4 +57,27 @@ class FileCategoryController extends AdminController
 			'postOnly + delete', 
 		);
 	}
+	
+	public function accessRules()
+	{
+		return array(
+			array('allow',
+				'actions' => array('create'),
+				'roles' => array('create_file_category'),
+			),
+			array('allow',
+				'actions' => array('view', 'index'),
+				'roles' => array('view_file_category'),
+			),
+			array('allow',
+				'actions' => array('update'),
+				'roles' => array('update_file_category'),
+			),
+			array('allow',
+				'actions' => array('delete'),
+				'roles' => array('delete_file_category'),
+			),
+			array('deny'),
+		);
+	}
 }

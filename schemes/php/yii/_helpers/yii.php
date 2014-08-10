@@ -1,5 +1,10 @@
 <?php
 
+$this->registerHelper('permission', function ($invoker, $action, $model) 
+{
+	return strtolower($action) . '_' . strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
+});
+
 $this->registerHelper('attribute_id', function ($invoker, $attribute)
 {
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM && 'many-to-one' == $invoker->refer('attribute_relation', $attribute)) {

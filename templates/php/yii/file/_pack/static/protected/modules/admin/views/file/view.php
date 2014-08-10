@@ -3,7 +3,7 @@
 $this->pageHeading = Yii::t('admin.crud', 'File Information');
 
 $this->breadcrumbs = array(
-	Yii::t('admin.crud', 'Files') => array('index'), 
+	Yii::t('admin.crud', 'Files') => Yii::app()->user->checkAccess('view_file') ? array('index') : false, 
 	Yii::t('admin.crud', 'File Information'),
 );
 
@@ -11,10 +11,12 @@ $this->menu = array(
 	array(
 		'label' => '<i class="glyphicon glyphicon-upload"></i> ' . Yii::t('admin.crud', 'Upload'), 
 		'url' => array('create'),
+		'visible' => Yii::app()->user->checkAccess('create_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-pencil"></i> ' . Yii::t('admin.crud', 'Update File'), 
 		'url' => array('update', 'id' => $model->id),
+		'visible' => Yii::app()->user->checkAccess('update_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-trash"></i> ' . Yii::t('admin.crud', 'Delete File'), 
@@ -23,10 +25,12 @@ $this->menu = array(
 			'submit' => array('delete', 'id' => $model->id),
 			'confirm' => Yii::t('admin.crud', 'Are you sure you want to delete this file?'),
 		),
+		'visible' => Yii::app()->user->checkAccess('delete_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-wrench"></i> ' . Yii::t('admin.crud', 'Manage Files'), 
 		'url'=>array('index'),
+		'visible' => Yii::app()->user->checkAccess('view_file'),
 	),
 );
 

@@ -608,12 +608,16 @@ class Generator
 		}
 		while (count($namespaces) > 0) {
 			$path = implode('/', $namespaces);
+			$candidate = false;
 			foreach ($this->scheme_dir as $dir) {
 				$file = $dir . $path . '/_partial/' . $name . '.tmpl';
 				if (is_file($file)) {
-					$this->renderPartialFile($file, $data, $padding);
-					return true;
+					$candidate = $file;
 				}
+			}
+			if ($candidate) {
+				$this->renderPartialFile($candidate, $data, $padding);
+				return true;
 			}
 			array_pop($namespaces);
 		}

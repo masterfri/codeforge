@@ -10,10 +10,12 @@ $this->menu = array(
 	array(
 		'label' => '<i class="glyphicon glyphicon-plus"></i> ' . Yii::t('admin.crud', 'Create File Category'), 
 		'url' => array('create'),
+		'visible' => Yii::app()->user->checkAccess('create_file_category'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-file"></i> ' . Yii::t('admin.crud', 'Files'), 
 		'url' => array('file/index'),
+		'visible' => Yii::app()->user->checkAccess('view_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-search"></i> ' . Yii::t('admin.crud', 'Search'), 
@@ -50,6 +52,9 @@ $this->menu = array(
 			array(
 				'class' => 'ButtonColumn',
 				'deleteConfirmation' => Yii::t('admin.crud', 'Are you sure you want to delete this file category?'),
+				'template' => '{view}'.
+					(Yii::app()->user->checkAccess('update_file_category') ? '{update}' : '').
+					(Yii::app()->user->checkAccess('delete_file_category') ? '{delete}' : ''),
 			),
 		),
 	)); ?>

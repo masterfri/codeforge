@@ -57,4 +57,27 @@ class UserController extends AdminController
 			'postOnly + delete', 
 		);
 	}
+	
+	public function accessRules()
+	{
+		return array(
+			array('allow',
+				'actions' => array('create'),
+				'roles' => array('create_user'),
+			),
+			array('allow',
+				'actions' => array('view', 'index'),
+				'roles' => array('view_user'),
+			),
+			array('allow',
+				'actions' => array('update'),
+				'roles' => array('update_user'),
+			),
+			array('allow',
+				'actions' => array('delete'),
+				'roles' => array('delete_user'),
+			),
+			array('deny'),
+		);
+	}
 }

@@ -1,0 +1,6 @@
+{% open_partial('crud.authitems.assigned', $model->getName()) %}
+			'{%= permission('view', $model) %}',
+			'{%= permission('create', $model) %}',
+			'{%= permission('update', $model) %}',
+			'{%= permission('delete', $model) %}',
+{% close_file() %}

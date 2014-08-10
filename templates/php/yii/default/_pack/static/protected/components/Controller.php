@@ -7,7 +7,18 @@ class Controller extends CController
 	
 	public function setBreadcrumbs(array $value)
 	{
-		$this->_breadcrumbs = $value;
+		$this->_breadcrumbs = array();
+		foreach ($value as $label => $url) {
+			if(is_string($label)) {
+				if (false !== $url) {
+					$this->_breadcrumbs[$label] = $url;
+				} else {
+					$this->_breadcrumbs[] = $label;
+				}
+			} else {
+				$this->_breadcrumbs[] = $url;
+			}
+		}
 	}
 	
 	public function getBreadcrumbs()

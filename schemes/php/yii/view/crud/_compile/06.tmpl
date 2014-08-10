@@ -1,4 +1,4 @@
-{% if(count($searchable = searchable_attributes($model))): %}
+{% if(count($searchable = searchable_attributes($model, false))): %}
 {% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/_search.php') %}
 <div class="form-content">
 

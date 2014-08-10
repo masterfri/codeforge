@@ -11,5 +11,13 @@ class OptionsController extends {%= env('php.yii.controller.superclass', 'AdminC
 			'accessControl',
 		);
 	}
+	
+	public function accessRules()
+	{
+		return array(
+{% join_partial('options.controller.accessrules') %}
+			array('deny'),
+		);
+	}
 }
 {% close_file() %}

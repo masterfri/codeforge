@@ -1,0 +1,11 @@
+{% open_partial('crud.authitems', $model->getName()) %}
+	/**
+	 * {%= $model->getName() %} 
+	 */
+	'{%= permission('update', $model) %}' => array(
+		'type' => CAuthItem::TYPE_OPERATION,
+		'description' => 'Edit {%= strtolower(model_label($model, true)) %}',
+		'bizRule' => null,
+		'data' => null
+	),
+{% close_file() %}

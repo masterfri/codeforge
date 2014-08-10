@@ -11,6 +11,7 @@ $this->menu = array(
 	array(
 		'label' => '<i class="glyphicon glyphicon-plus"></i> ' . Yii::t('admin.crud', 'Create {%= model_label($model) %}'), 
 		'url' => array('create'),
+		'visible' => Yii::app()->user->checkAccess('{%= permission('create', $model) %}'),
 	),
 {% if(count(searchable_attributes($model))): %}
 	array(
@@ -55,6 +56,9 @@ $this->menu = array(
 			array(
 				'class' => 'ButtonColumn',
 				'deleteConfirmation' => Yii::t('admin.crud', 'Are you sure you want to delete this {%= strtolower(model_label($model)) %}?'),
+				'template' => '{view}'.
+					(Yii::app()->user->checkAccess('{%= permission('update', $model) %}') ? '{update}' : '').
+					(Yii::app()->user->checkAccess('{%= permission('delete', $model) %}') ? '{delete}' : ''),
 			),
 		),
 	)); ?>

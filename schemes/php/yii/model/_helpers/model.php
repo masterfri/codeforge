@@ -78,9 +78,11 @@ $this->registerHelper('validation_rules', function ($invoker, $model)
 {
 	$rules = array();
 	foreach ($model->getAttributes() as $attribute) {
-		$attribute_id = $invoker->refer('attribute_id', $attribute);
-		foreach ($invoker->refer('attribute_validation_rules', $attribute) as $rule) {
-			$rules[$rule][] = $attribute_id;
+		if (!$attribute->getBoolHint('readonly')) {
+			$attribute_id = $invoker->refer('attribute_id', $attribute);
+			foreach ($invoker->refer('attribute_validation_rules', $attribute) as $rule) {
+				$rules[$rule][] = $attribute_id;
+			}
 		}
 	}
 	return $rules;

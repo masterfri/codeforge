@@ -3,7 +3,7 @@
 $this->pageHeading = Yii::t('admin.crud', 'Updating File');
 
 $this->breadcrumbs = array(
-	Yii::t('admin.crud', 'Files') => array('index'), 
+	Yii::t('admin.crud', 'Files') => Yii::app()->user->checkAccess('view_file') ? array('index') : false, 
 	Yii::t('admin.crud', 'Update'),
 );
 
@@ -11,14 +11,17 @@ $this->menu = array(
 	array(
 		'label' => '<i class="glyphicon glyphicon-upload"></i> ' . Yii::t('admin.crud', 'Upload'), 
 		'url' => array('create'),
+		'visible' => Yii::app()->user->checkAccess('create_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-eye-open"></i> ' . Yii::t('admin.crud', 'View File'), 
 		'url' => array('view', 'id' => $model->id),
+		'visible' => Yii::app()->user->checkAccess('view_file'),
 	),
 	array(
 		'label' => '<i class="glyphicon glyphicon-wrench"></i> ' . Yii::t('admin.crud', 'Manage Files'), 
 		'url'=>array('index'),
+		'visible' => Yii::app()->user->checkAccess('view_file'),
 	),
 );
 

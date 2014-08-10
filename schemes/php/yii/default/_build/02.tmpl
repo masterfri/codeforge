@@ -17,7 +17,7 @@
 			<i class="glyphicon glyphicon-user"></i> <?php echo  Yii::t('admin.crud', 'You are logged as'); ?> <b><?php echo Yii::app()->user->name; ?></b>
 		</p>
 		
-		<?php $this->widget('zii.widgets.CMenu', array(
+		<?php $this->widget('Menu', array(
 			'items' => array(
 				array(
 					'label' => '<i class="glyphicon glyphicon-globe"></i> ' . Yii::t('admin.crud', 'View the site'),
@@ -26,6 +26,7 @@
 				array(
 					'label' => '<i class="glyphicon glyphicon-user"></i> ' . Yii::t('admin.crud', 'Users'),
 					'url' => array('/admin/user'),
+					'visible' => Yii::app()->user->checkAccess('view_user'),
 				),
 				array(
 					'label' => '<i class="glyphicon glyphicon-folder-open"></i> ' . Yii::t('admin.crud', 'Manage Content') . ' <b class="caret"></b>',
