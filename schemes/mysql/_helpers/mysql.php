@@ -61,7 +61,7 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 						$definition .= ' DEFAULT NULL';
 					}
 				} elseif ($default instanceof Behavior) {
-					$initializer = $invoker->getGenerator()->invokeHelper($default->getName(), false, true);
+					$initializer = $invoker->getBuilder()->invokeHelper($default->getName(), false, true);
 					$initial = $initializer->call($attribute, $default);
 					if (null !== $initial) {
 						$definition .= sprintf(' DEFAULT %s', $initial);
@@ -159,7 +159,7 @@ $this->registerHelper('model_missing_references', function ($invoker, $model)
 $this->registerHelper('many_many_tables', function ($invoker) 
 {
 	$result = array();
-	$models = $invoker->getGenerator()->getModels();
+	$models = $invoker->getBuilder()->getModels();
 	foreach ($models as $model) {
 		foreach ($model->getAttributes() as $attribute) {
 			if ($attribute->getIsCollection()) {

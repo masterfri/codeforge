@@ -2,14 +2,14 @@
 
 class HelperInvoker
 {
-	protected $generator;
+	protected $builder;
 	protected $candidates;
 	protected $original_candidates;
 	protected $args;
 	
-	public function __construct($generator, $candidates, $reusable=false)
+	public function __construct($builder, $candidates, $reusable=false)
 	{
-		$this->generator = $generator;
+		$this->builder = $builder;
 		$this->candidates = $candidates;
 		if ($reusable) {
 			$this->original_candidates = $candidates;
@@ -53,18 +53,18 @@ class HelperInvoker
 	{
 		$args = func_get_args();
 		$name = array_shift($args);
-		$invoker = $this->generator->invokeHelper($name);
+		$invoker = $this->builder->invokeHelper($name);
 		return call_user_func_array(array($invoker, 'call'), $args);
 	}
 	
 	public function getEnv($name=null, $default='')
 	{
-		return $this->generator->getEnv($name, $default);
+		return $this->builder->getEnv($name, $default);
 	}
 	
 	public function arrayMap($name, $array)
 	{
-		return $this->generator->arrayMap($name, $array);
+		return $this->builder->arrayMap($name, $array);
 	}
 	
 	public function reuse()
@@ -72,8 +72,8 @@ class HelperInvoker
 		$this->candidates = $this->original_candidates;
 	}
 	
-	public function getGenerator()
+	public function getBuilder()
 	{
-		return $this->generator;
+		return $this->builder;
 	}
 }

@@ -60,7 +60,7 @@ then open `codeforge/src/GlobalOptions.model` and fill it with something like th
     	
 ### Step 4 - Build and release
 
-	sh > cf build build php.yii.default
+	sh > cf build mysql php.yii.default
 	
 first time you need to answer several questions.
 	

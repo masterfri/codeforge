@@ -19,7 +19,7 @@ require_once LIB_DIR . '/HelperInvoker.php';
 require_once LIB_DIR . '/FunctionCaller.php';
 require_once LIB_DIR . '/HelperChain.php';
 
-class Generator
+class Builder
 {
 	protected $scheme_dir = array('schemes/');
 	protected $extensions_dir = array('extensions/');

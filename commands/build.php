@@ -15,7 +15,7 @@
 */
 
 require_once LIB_DIR . '/Parser.php';
-require_once LIB_DIR . '/Generator.php';
+require_once LIB_DIR . '/Builder.php';
 
 class BuildCommand extends Command
 {
@@ -44,7 +44,7 @@ class BuildCommand extends Command
 			return;
 		}
 		$options = $this->getConfigOption();
-		$generator = new Generator($this);
+		$generator = new Builder($this);
 		$generator->setSchemesDir($this->filterDirs(array(
 			$this->getDefaultSchemeDir(),
 			$this->getUserSchemeDir(),
