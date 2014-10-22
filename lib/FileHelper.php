@@ -19,18 +19,23 @@ class FileHelper
 	public static function realpart($path, &$unreal=null)
 	{
 		$unreal = array();
-		$components = explode('/', rtrim(self::realpath($path), '/'));
+        $startWith = '';
+        if (IS_WINDOWS) {
+            $startWith = substr($path, 0, 2);
+            $path = substr($path, 2);
+        }
+		$components = explode( DIR_SEPARATOR, rtrim(self::realpath($path),  DIR_SEPARATOR));
 		while (! empty($components)) {
-			$part = implode('/', $components);
+			$part = implode( DIR_SEPARATOR, $components);
 			if ('' === $part) {
 				break;
 			}
-			if (is_file($part) || is_dir($part)) {
-				return $part;
+			if (is_file($startWith . $part) || is_dir($startWith . $part)) {
+				return $startWith . $part;
 			}
 			array_unshift($unreal, array_pop($components));
 		}
-		return '/';
+		return  DIR_SEPARATOR;
 	}
 	
 	public static function mkdir($path, $permissions=0700, $recursive=false) 
@@ -51,9 +56,9 @@ class FileHelper
 			}
 			// create missing components
 			foreach ($need_create as $dir) {
-				$realpart .= "/$dir";
-				if (! @mkdir($realpart)) {
-					throw new Exception("Error while creating directory `$realpart`");
+				$realpart .= DIR_SEPARATOR . "$dir";
+                if (! @mkdir($realpart)) {
+                    throw new Exception("Error while creating directory `$realpart`");
 				}
 				self::chmod($realpart, $permissions);
 			}
@@ -104,7 +109,7 @@ class FileHelper
 	public static function cleanup($path, $recursive=false, $files_only=true)
 	{
 		$parent_is_writable = is_writable($path);
-		$path = rtrim($path, '/') . '/';
+		$path = rtrim($path,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 		$h = @opendir($path);
 		if (! $h) {
 			throw new Exception("Access denied to path `$path`");
@@ -158,7 +163,7 @@ class FileHelper
 		if (! is_writable($destination)) {
 			throw new Exception("Error while copying file or directory: path `$destination` is not writable");
 		}
-		$copyname = $destination . '/' . basename($newname);
+		$copyname = $destination .  DIR_SEPARATOR . basename($newname);
 		if (is_dir($file)) {
 			// copy the directory and its contents
 			self::checkdir($copyname, fileperms($file) & 0777);
@@ -166,14 +171,14 @@ class FileHelper
 			if (! $h) {
 				throw new Exception("Access denied to path `$file`");
 			}
-			$dir = rtrim($file, '/');
+			$dir = rtrim($file,  DIR_SEPARATOR);
 			// list directory contents
 			while (($name = readdir($h)) !== false) {
 				if ('.' == $name || '..' == $name) {
 					continue;
 				}
 				try {
-					self::copy($dir . '/' . $name, $copyname . '/' . $name);
+					self::copy($dir .  DIR_SEPARATOR . $name, $copyname .  DIR_SEPARATOR . $name);
 				} catch (Exception $e) {
 					closedir($h);
 					throw $e;
@@ -190,8 +195,8 @@ class FileHelper
 	
 	public static function copyContents($from, $to, $dirPerms=0700)
 	{
-		$from = rtrim($from, '/');
-		$to = rtrim($to, '/');
+		$from = rtrim($from,  DIR_SEPARATOR);
+		$to = rtrim($to,  DIR_SEPARATOR);
 		$h = @opendir($from);
 		if (! $h) {
 			throw new Exception("Access denied to path `$from`");
@@ -201,7 +206,7 @@ class FileHelper
 				continue;
 			}
 			try {
-				self::copy($from . '/' . $name, $to . '/' . $name);
+				self::copy($from .  DIR_SEPARATOR . $name, $to .  DIR_SEPARATOR . $name);
 			} catch (Exception $e) {
 				closedir($h);
 				throw $e;
@@ -216,7 +221,7 @@ class FileHelper
 		if (! $move) {
 			// just renaming
 			$dirto = $dirfrom;
-			$newname = $dirto . '/' . $newname;
+			$newname = $dirto .  DIR_SEPARATOR . $newname;
 		} elseif ($file != $newname) {
 			// move to another destination
 			$dirto = dirname($newname);
@@ -244,13 +249,13 @@ class FileHelper
 			if (! $h) {
 				throw new Exception("Access denied to path `$file`");
 			}
-			$path = rtrim($path, '/');
+			$path = rtrim($path,  DIR_SEPARATOR);
 			while (($name = readdir($h)) !== false) {
 				if ('.' == $name || '..' == $name) {
 					continue;
 				}
-				$fullpath = $path . '/' . $name;
-				$shortpath = ('' == $prefix ? '' : ($prefix . '/')) . $name;
+				$fullpath = $path .  DIR_SEPARATOR . $name;
+				$shortpath = ('' == $prefix ? '' : ($prefix .  DIR_SEPARATOR)) . $name;
 				if (is_dir($fullpath)) {
 					$list[] = $shortpath;
 					try {
@@ -281,12 +286,12 @@ class FileHelper
 	
 	public static function realpath($path)
 	{
-		if ('' == $path || '/' != $path{0}) {
+		if ('' == $path ||  DIR_SEPARATOR != $path{0}) {
 			// make path absolute
-			$path = getcwd() . '/' . $path;
+			$path = getcwd() .  DIR_SEPARATOR . $path;
 		}
 		$realpath = array();
-		foreach (explode('/', $path) as $component) {
+		foreach (explode( DIR_SEPARATOR, $path) as $component) {
 			if ('' == $component || '.' == $component) {
 				// empty component or `this directory` component
 				continue;
@@ -298,7 +303,7 @@ class FileHelper
 			}
 			$realpath[] = $component;
 		}
-		return '/' . implode('/', $realpath);
+		return  DIR_SEPARATOR . implode( DIR_SEPARATOR, $realpath);
 	}
 	
 	public static function str2perms($perms) 

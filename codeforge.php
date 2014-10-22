@@ -24,6 +24,8 @@ define('VERSION', '2.0-dev');
 define('THISDIR', dirname(__FILE__));
 define('WORKDIR', getcwd());
 define('LIB_DIR', THISDIR . '/lib');
+define('IS_WINDOWS', strstr($_SERVER['OS'], 'Windows') !== false);
+define('DIR_SEPARATOR', IS_WINDOWS ? '\\' : '/');
 
 require_once LIB_DIR . '/Command.php';
 

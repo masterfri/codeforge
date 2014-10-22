@@ -54,7 +54,7 @@ class ReleaseCommand extends Command
 	
 	public function run()
 	{
-		$this->output = rtrim($this->output, '/');
+		$this->output = rtrim($this->output, DIR_SEPARATOR);
 		$this->getChecksumList();
 		$ignored = $this->getIgnoreList();
 		FileHelper::lsr($this->getCompiledDir(), $compiled);
@@ -87,10 +87,10 @@ class ReleaseCommand extends Command
 	{
 		$checksumlist = $this->getChecksumList();
 		foreach ($filelist as $n => $file) {
-			if (!is_file($srcdir . '/' . $file)) {
+			if (!is_file($srcdir .  DIR_SEPARATOR . $file)) {
 				continue;
 			}
-			$fullpath = $this->output . '/' . $file;
+			$fullpath = $this->output .  DIR_SEPARATOR . $file;
 			$safe = true;
 			if (is_file($fullpath)) {
 				if (!isset($checksumlist[$file])) {
@@ -115,7 +115,7 @@ class ReleaseCommand extends Command
 							$this->say("Mergetool is not set");
 							$this->say("Skipped: %s", $file);
 						} else {
-							$frompath = $srcdir . '/' . $file;
+							$frompath = $srcdir .  DIR_SEPARATOR . $file;
 							$cmd = strtr($tool, array(
 								':original' => escapeshellarg($frompath),
 								':mine' => escapeshellarg($fullpath),
@@ -183,8 +183,8 @@ class ReleaseCommand extends Command
 	protected function copyFiles(&$list, $srcdir)
 	{
 		foreach ($list as $file) {
-			$from = $srcdir . '/' . $file;
-			$to = $this->output . '/' . $file;
+			$from = $srcdir .  DIR_SEPARATOR . $file;
+			$to = $this->output .  DIR_SEPARATOR . $file;
 			if (is_dir($from)) {
 				FileHelper::checkdir($to, fileperms($from) & 0777);
 			} else {

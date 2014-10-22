@@ -115,13 +115,13 @@ class InitCommand extends Command
 			$basedirs = $this->getTemplateDirs($feature);
 			$has_pack = false;
 			foreach ($basedirs as $basedir) {
-				$dir =  $basedir . '/_pack';
+				$dir =  $basedir . DIR_SEPARATOR . '_pack';
 				if (!is_dir($dir)) {
 					continue;
 				}
 				$has_pack = true;
 				$this->_requirements[$feature] = $dir;
-				$requirements = $basedir . '/_deps.list';
+				$requirements = $basedir . DIR_SEPARATOR . '_deps.list';
 				if (is_file($requirements)) {
 					$list = new EasyConfig();
 					$list->readFile($requirements);
