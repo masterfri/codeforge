@@ -9,7 +9,7 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 	
 	public function tableName()
 	{
-		return '{{{%= table_name($model) %}}}';
+		return '{%= table_name($model) %}';
 	}
 	
 	public function attributeLabels()
@@ -17,10 +17,10 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		return array(
 {% start_attr_list %}
 {% if (attribute_id($attribute) != $attribute->getName()): %}
-			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
-			'{%= $attribute->getName() %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+			'{%= attribute_id($attribute) %}' => {%= escape_value(attribute_label($attribute)) %},
+			'{%= $attribute->getName() %}' => {%= escape_value(attribute_label($attribute)) %},
 {% else: %}
-			'{%= attribute_id($attribute) %}' => Yii::t('{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+			'{%= attribute_id($attribute) %}' => {%= escape_value(attribute_label($attribute)) %},
 {% endif %}
 {% end_attr_list %}
 		);

@@ -1,13 +1,12 @@
-{% open_file('protected/controllers/'.$model->getName().'Controller.php') %}
-<?php
+{% open_file('protected/controllers/'.$model->getName().'Controller.php') %}<?php
 
-class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'AdminController') %} 
+class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'Controller') %}
 {
-	public function actionIndex()
+	public function actionAdmin()
 	{
 		$model = $this->createSearchModel('{%= $model->getName() %}');
 		$provider = $model->search();
-		$this->render('index', array(
+		$this->render('admin', array(
 			'model' => $model,
 			'provider' => $provider,
 		));
@@ -26,7 +25,7 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 	
 	public function actionUpdate($id)
 	{
-		$model = $this->loadModel($id, '{%= $model->getName() %}');
+		$model = $this->loadModel($id');
 		if ($this->saveModel($model)) {
 			$this->redirect(array('view', 'id' => $model->id));
 		}
@@ -37,10 +36,10 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 	
 	public function actionDelete($id)
 	{
-		$model = $this->loadModel($id, '{%= $model->getName() %}');
+		$model = $this->loadModel($id);
 		$model->delete();
 		if(!isset($_GET['ajax'])) {
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('index'));
+			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
 		}
 	}
 	
@@ -67,8 +66,12 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 				'roles' => array('{%= permission('create', $model) %}'),
 			),
 			array('allow',
-				'actions' => array('view', 'index'),
+				'actions' => array('view'),
 				'roles' => array('{%= permission('view', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('view'),
+				'roles' => array('{%= permission('manage', $model) %}'),
 			),
 			array('allow',
 				'actions' => array('update'),

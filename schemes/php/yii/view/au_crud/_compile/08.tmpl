@@ -1,0 +1,13 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_details.php') %}<?php
+<?php $this->widget('zii.widgets.CDetailView', array(
+		'data' => $model,
+		'attributes' => array(
+{% start_attr_list_natural_order %}
+{% foreach(detail_view_attributes($attribute) as $str): %}
+			{%= $str %},
+{% endforeach %}
+{% end_attr_list %}
+		),
+	)); ?>
+
+{% close_file() %}

@@ -83,7 +83,7 @@ class InitCommand extends Command
 		} else {
 			FileHelper::mkdir($dir);
 		}
-		
+
 		foreach ($this->_requirements as $feature) {
 			FileHelper::copyContents($feature, $dir);
 		}

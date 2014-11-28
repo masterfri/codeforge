@@ -1,12 +1,4 @@
-{% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/create.php') %}
-<?php
-
-$this->pageHeading = Yii::t('admin.crud', 'New {%= model_label($model) %}');
-
-$this->breadcrumbs = array(
-	Yii::t('admin.crud', '{%= model_label($model, true) %}') => Yii::app()->user->checkAccess('{%= permission('view', $model) %}') ? array('index') : false, 
-	Yii::t('admin.crud', 'Create'),
-);
+{% open_file('protected/views/'.lcfirst($model->getName()).'/create.php') %}<?php
 
 $this->menu = array(
 	array(
@@ -17,14 +9,18 @@ $this->menu = array(
 );
 
 ?>
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h3 class="panel-title"><?php echo $this->pageHeading; ?></h3>
-	</div>
-	<div class="panel-body">
-		<?php $this->renderPartial('_form', array(
-			'model' => $model,
-		)); ?>
-	</div>
+<div class="box altbox"><!-- .altbox for alternative box's color -->
+	<div class="boxin">
+		<div class="header indented">
+			<h3>CREATE</h3>
+                        <?php
+                    $this->widget('zii.widgets.CMenu', array(
+                    'htmlOptions' => array('class' => 'header-btns'),
+                    'encodeLabel' => false,
+                    'items' => $this->menu,
+                    ));
+                ?>
+		</div>
+		<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>	</div>
 </div>
 {% close_file() %}

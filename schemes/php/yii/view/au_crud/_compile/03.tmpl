@@ -1,0 +1,92 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/admin.php') %}<?php
+
+$this->menu = array(
+    array('label' => '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>', 'url' => '#', 'items' => array(
+        array(
+            'label' => '<i class="glyphicon glyphicon-plus"></i> Create',
+            'url' => array('create'),
+            'visible' => Yii::app()->user->checkAccess('{%= permission('create', $model) %}'),
+        ),
+{% if(count(searchable_attributes($model))): %}
+        array('label' => '<i class="glyphicon glyphicon-search"></i> Search',
+            'itemOptions' => array('class' => 'search-button'),
+            'url' => '#'
+        ),
+{% endif %}
+    ),
+        'linkOptions' => array('class' => 'dropdown-toggle navbar-toggle', 'data-toggle' => 'dropdown'),
+        'itemOptions' => array('class' => 'dropdown'), 'submenuOptions' => array('class' => 'dropdown-menu'),
+    ),
+);
+
+
+
+Yii::app()->clientScript->registerScript('search', "
+$('.search-button').click(function(){
+	$('.search-form').toggle();
+	return false;
+});
+$('.search-form form').submit(function(){
+	$.fn.yiiGridView.update('employee-grid', {
+		data: $(this).serialize()
+	});
+	return false;
+});
+");
+
+?>
+
+{% if(count(searchable_attributes($model))): %}
+<div class="box search-form " style="display:none">
+    <div class="boxin">
+        <div class="header">
+            <h3>SEARCH</h3>
+            <div class="header-icons">
+                <ul>
+                    <li><a href="#" class="closeSearchForm" data-title="Close" data-placement="bottom" rel="tooltip"><i class="glyphicon glyphicon-remove"></i></a></li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <?php $this->renderPartial('_search',array(
+                'model'=>$model,
+            )); ?>
+        </div><!-- search-form -->
+    </div>
+</div>
+{% endif %}
+
+<div class="box altbox"><!-- .altbox for alternative box's color -->
+	<div class="boxin">
+		<div class="header"><h3>MANAGE <?php echo strtoupper($model->getName()); ?></h3>
+            <?php
+            $this->widget('zii.widgets.CMenu', array(
+            'htmlOptions' => array('class' => 'header-btns'),
+            'encodeLabel' => false,
+            'items' => $this->menu,
+            ));
+            ?>
+		</div>
+		<?php $this->widget('zii.widgets.grid.CGridView', array(
+			'id' => 'contact-grid',
+			'dataProvider' => $provider,
+            'htmlOptions'=>array('class'=>'content'),
+            'itemsCssClass'=>'table table-striped table-condensed',
+			'columns' => array(
+                {% start_attr_list_natural_order %}
+                {% foreach(grid_view_attributes($attribute) as $str): %}
+                    {%= $str %},
+                {% endforeach %}
+                {% end_attr_list %}
+                array(
+                    'class' => 'ButtonColumn',
+                    'deleteConfirmation' => Yii::t('admin.crud', 'Are you sure you want to delete this {%= strtolower(model_label($model)) %}?'),
+                    'template' => '{view}'.
+                        (Yii::app()->user->checkAccess('{%= permission('update', $model) %}') ? '{update}' : '').
+                        (Yii::app()->user->checkAccess('{%= permission('delete', $model) %}') ? '{delete}' : ''),
+                ),
+			),
+		)); ?>
+	</div>
+</div>
+{% close_file() %}
