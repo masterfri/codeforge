@@ -96,5 +96,9 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		$criteria = new CDbCriteria();
 		return CHtml::listData(self::model()->findAll($criteria), 'id', 'displayName');
 	}
+
+	public function getName() {
+	    return {%= $model->getName() %};
+	}
 }
 {% close_file() %}

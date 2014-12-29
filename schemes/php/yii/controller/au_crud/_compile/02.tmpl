@@ -6,30 +6,49 @@
 		'type' => CAuthItem::TYPE_OPERATION,
 		'description' => 'View {%= strtolower(model_label($model, true)) %}',
 		'bizRule' => null,
-		'data' => null
+		'data' => null,
+		'position' = 1,
 	),
 	'{%= permission('create', $model) %}' => array(
 		'type' => CAuthItem::TYPE_OPERATION,
 		'description' => 'Create {%= strtolower(model_label($model, true)) %}',
 		'bizRule' => null,
-		'data' => null
+		'data' => null,
+        'position' = 2,
 	),
 	'{%= permission('update', $model) %}' => array(
 		'type' => CAuthItem::TYPE_OPERATION,
 		'description' => 'Edit {%= strtolower(model_label($model, true)) %}',
 		'bizRule' => null,
-		'data' => null
+		'data' => null,
+        'position' = 3,
 	),
 	'{%= permission('delete', $model) %}' => array(
 		'type' => CAuthItem::TYPE_OPERATION,
 		'description' => 'Delete {%= strtolower(model_label($model, true)) %}',
 		'bizRule' => null,
-		'data' => null
+		'data' => null,
+        'position' = 4,
 	),
 	'{%= permission('manage', $model) %}' => array(
 		'type' => CAuthItem::TYPE_OPERATION,
 		'description' => 'Manage {%= strtolower(model_label($model, true)) %}',
 		'bizRule' => null,
-		'data' => null
+		'data' => null,
+        'position' = 5,
+	),
+	'{%= permission('csv', $model) %}' => array(
+		'type' => CAuthItem::TYPE_OPERATION,
+		'description' => 'Manage {%= strtolower(model_label($model, true)) %}',
+		'bizRule' => null,
+		'data' => null,
+        'position' = 6,
+	),
+	'{%= permission('print', $model) %}' => array(
+		'type' => CAuthItem::TYPE_OPERATION,
+		'description' => 'Manage {%= strtolower(model_label($model, true)) %}',
+		'bizRule' => null,
+		'data' => null,
+        'position' = 7,
 	),
 {% close_file() %}

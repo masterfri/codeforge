@@ -216,5 +216,5 @@ $this->registerHelper('optimal_option_len', function ($invoker, $options, $divis
 
 $this->registerHelper('table_name', function ($invoker, $model) 
 {
-	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
+	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getTableName()));
 });

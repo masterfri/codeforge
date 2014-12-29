@@ -39,7 +39,6 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 {
 	switch ($attribute->getType()) {
 		case Attribute::TYPE_INT: return 'int';
-		case Attribute::TYPE_TINYINT: return 'int';
 		case Attribute::TYPE_DECIMAL: return 'float';
 		case Attribute::TYPE_CHAR:
 		case Attribute::TYPE_TEXT: return 'string';

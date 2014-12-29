@@ -1,13 +1,13 @@
 {% open_file('protected/views/'.lcfirst($model->getName()).'/_details.php') %}<?php
-<?php $this->widget('zii.widgets.CDetailView', array(
-		'data' => $model,
-		'attributes' => array(
+$this->widget('zii.widgets.CDetailView', array(
+'data' => $model,
+'htmlOptions' => array('class' => 'table table-striped table-bordered table-condensed'),
+'attributes' => array(
 {% start_attr_list_natural_order %}
 {% foreach(detail_view_attributes($attribute) as $str): %}
-			{%= $str %},
+        {%= $str %},
 {% endforeach %}
 {% end_attr_list %}
-		),
-	)); ?>
-
+),
+)); ?>
 {% close_file() %}

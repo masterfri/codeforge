@@ -27,7 +27,6 @@ class Attribute extends Entity
 	const TYPE_INTOPTION = 6;
 	const TYPE_STROPTION = 7;
 	const TYPE_CUSTOM = 8;
-	const TYPE_TINYINT = 9;
 
 	protected $isCollection = false;
 	protected $isUnsigned = false;

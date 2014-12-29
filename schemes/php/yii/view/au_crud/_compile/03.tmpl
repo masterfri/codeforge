@@ -13,6 +13,12 @@ $this->menu = array(
             'url' => '#'
         ),
 {% endif %}
+        array(
+            'label' => '<i class="glyphicon glyphicon-save"></i> Download',
+            'linkOptions' => array('onclick' => 'location.href = this.href + "&" + $(".search-form form").serialize(); return false;'),
+            'url' => array('csv'),
+            'visible' => Yii::app()->user->checkAccess('{%= permission('csv', $model) %}'),
+        ),
     ),
         'linkOptions' => array('class' => 'dropdown-toggle navbar-toggle', 'data-toggle' => 'dropdown'),
         'itemOptions' => array('class' => 'dropdown'), 'submenuOptions' => array('class' => 'dropdown-menu'),
@@ -75,12 +81,12 @@ $('.search-form form').submit(function(){
 			'columns' => array(
                 {% start_attr_list_natural_order %}
                 {% foreach(grid_view_attributes($attribute) as $str): %}
-                    {%= $str %},
+                {%= $str %},
                 {% endforeach %}
                 {% end_attr_list %}
                 array(
-                    'class' => 'ButtonColumn',
-                    'deleteConfirmation' => Yii::t('admin.crud', 'Are you sure you want to delete this {%= strtolower(model_label($model)) %}?'),
+                    'class' => 'CButtonColumn',
+                    'deleteConfirmation' => 'Are you sure you want to delete this {%= strtolower(model_label($model)) %}?',
                     'template' => '{view}'.
                         (Yii::app()->user->checkAccess('{%= permission('update', $model) %}') ? '{update}' : '').
                         (Yii::app()->user->checkAccess('{%= permission('delete', $model) %}') ? '{delete}' : ''),

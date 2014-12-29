@@ -109,7 +109,7 @@ $this->registerHelper('attribute_relation', function ($invoker, $attribute)
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 		$relation = $attribute->getHint('relation');
 		if ($relation) {
-			return strtolower($relation);
+			return trim(strtolower($relation));
 		}
 		$backreference = $invoker->refer('attribute_back_reference', $attribute);
 		if ($backreference) {

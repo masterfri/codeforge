@@ -12,6 +12,12 @@ $this->menu = array(
             'visible' => Yii::app()->user->checkaccess('{%= permission('update', $model) %}'),
         ),
         array(
+            'label' => '<i class=" glyphicon glyphicon-print"></i> Print',
+            'linkOptions' => array('target' => '_blank'),
+            'url' => array('print', 'id' => $model->id),
+            'visible' => Yii::app()->user->checkaccess('{%= permission('print', $model) %}')
+        ),
+        array(
             'label' => '<i class=" glyphicon glyphicon-remove"></i> Delete',
             'url' => '#',
             'linkOptions' => array(

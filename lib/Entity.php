@@ -39,6 +39,10 @@ abstract class Entity
 	{
 		return $this->name;
 	}
+
+    public function getTableName(){
+        return $this->getHint('table') ? trim($this->getHint('table')) : $this->getName();
+    }
 	
 	public function addComments(array $comments)
 	{

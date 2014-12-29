@@ -77,7 +77,7 @@ class AttributeParser extends AbstractParser
 			default:
 				$this->unexpected($token);
 		}
-		if (Attribute::TYPE_INT == $type || Attribute::TYPE_CHAR == $type) {
+		if (Attribute::TYPE_INT == $type || Attribute::TYPE_CHAR == $type || Attribute::TYPE_TEXT == $type) {
 			$size = $this->parseSize();
 			$attribute->setType($type, $size);
 		} elseif (Attribute::TYPE_DECIMAL == $type) {

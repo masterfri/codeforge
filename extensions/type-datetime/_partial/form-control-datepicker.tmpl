@@ -1,11 +1,14 @@
 <?php $this->widget('zii.widgets.jui.CJuiDatePicker', array(
-	'attribute' => '{%= attribute_id($attribute) %}',
+    'attribute' => '{%= attribute_id($attribute) %}',
 	'model' => $model,
 	'options' => array(
-		'dateFormat' => '{%= env('type.datetime.format.datepicker', 'yy-mm-dd') %}',
+        'dateFormat' => 'dd-mm-yy',
+        'showOn'=>'both',
+        'buttonImage'=>Yii::app()->baseUrl.'/img/icons/calendar_24.png',
+        'buttonImageOnly'=>true,
 	),
 	'htmlOptions' => array(
-		'class' => 'form-control datepicker-form-control',
-		'readonly' => true,
-	),
+        'class' => 'form-control timepicker-control',
+        'readOnly'=>'readOnly'.
+	 ),
 )); ?>

@@ -46,7 +46,7 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
 				break;
 				
 			case Attribute::TYPE_TEXT:
-				$rules[] = "'length', 'max' => 16000";
+                $rules[] = sprintf("'length', 'max' => %d", $attribute->getSize() ? $attribute->getSize() : 16000);
 				break;
 				
 			case Attribute::TYPE_BOOL:
@@ -146,5 +146,5 @@ $this->registerHelper('behaviors', function ($invoker, $model)
 
 $this->registerHelper('table_name', function ($invoker, $model) 
 {
-	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
+	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getTableName()));
 });
