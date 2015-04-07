@@ -68,6 +68,11 @@ $this->registerHelper('form_control', function ($invoker, $attribute, $mode='')
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
+	} elseif($attribute->getType() == Attribute::TYPE_FILE) {
+		return array('form-control-file', array(
+			'attribute' => $attribute,
+			'mode' => $mode,
+		));
 	} elseif ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 		$relation = $invoker->refer('attribute_relation', $attribute);
 		if ('many-to-one' == $relation) {

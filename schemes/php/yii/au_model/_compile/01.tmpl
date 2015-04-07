@@ -1,19 +1,19 @@
 {% open_file('protected/models/'.nice_path($model, 'php')) %}<?php
+class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) %} {
 
-class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) %} 
-{
-	public static function model($className=__CLASS__)
-	{
+    {% foreach(local_attributes($model) as $attr): %}
+    {%= $attr %}
+    {% endforeach %}
+
+	public static function model($className=__CLASS__) {
 		return parent::model($className);
 	}
 	
-	public function tableName()
-	{
+	public function tableName() {
 		return '{%= table_name($model) %}';
 	}
 	
-	public function attributeLabels()
-	{
+	public function attributeLabels() {
 		return array(
 {% start_attr_list %}
 {% if (attribute_id($attribute) != $attribute->getName()): %}
@@ -26,8 +26,7 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
-	public function rules()
-	{
+	public function rules() {
 		return array(
 {% foreach(validation_rules($model) as $rule => $attribs): %}
 			array('	{%= implode(",\n\t\t\t\t\t", $attribs) %}', 
@@ -40,8 +39,7 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
-	public function relations()
-	{
+	public function relations() {
 		return array(
 {% start_attr_list %}
 {% foreach (relations($attribute, $model) as $relation): %}
@@ -51,8 +49,7 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
-	public function behaviors()
-	{
+	public function behaviors() {
 		return array(
 {% foreach(behaviors($model) as $behavior): %}
 			{%= escape_value($behavior, 3) %},
@@ -60,8 +57,7 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		);
 	}
 	
-	public function search($params=array(), $defaultAttribs=array())
-	{
+	public function search($params=array()) {
 		$criteria = new CDbCriteria($params);
 {% foreach(searchable_attributes($model) as $attribute): %}
 {% if ($attribute->getType() == Attribute::TYPE_CHAR || $attribute->getType() == Attribute::TYPE_TEXT): %}
@@ -75,30 +71,14 @@ class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) 
 		));
 	}
 	
-	public function __toString()
-	{
-		return $this->getDisplayName();
+	public function __toString() {
+		return (string) $this->primaryKey;
 	}
 	
-	public function getDisplayName()
-	{
-{% if ($model->hasAttribute('title')): %}
-		return $this->title;
-{% elseif ($model->hasAttribute('name')): %}
-		return $this->name;
-{% else: %}
-		return "#".$this->primaryKey;
-{% endif %}
-	}
-	
-	public static function getList()
-	{
+	public static function getList() {
 		$criteria = new CDbCriteria();
-		return CHtml::listData(self::model()->findAll($criteria), 'id', 'displayName');
+		return CHtml::listData(self::model()->findAll($criteria), 'id', 'id');
 	}
 
-	public function getName() {
-	    return {%= $model->getName() %};
-	}
 }
 {% close_file() %}

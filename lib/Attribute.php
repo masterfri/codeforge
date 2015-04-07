@@ -26,7 +26,8 @@ class Attribute extends Entity
 	const TYPE_BOOL = 5;
 	const TYPE_INTOPTION = 6;
 	const TYPE_STROPTION = 7;
-	const TYPE_CUSTOM = 8;
+	const TYPE_FILE = 8;
+	const TYPE_CUSTOM = 100;
 
 	protected $isCollection = false;
 	protected $isUnsigned = false;
@@ -139,4 +140,8 @@ class Attribute extends Entity
 		}
 		return false;
 	}
+
+    public function getName() {
+        return $this->name;
+    }
 }

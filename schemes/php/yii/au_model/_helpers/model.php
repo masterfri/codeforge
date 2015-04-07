@@ -60,6 +60,10 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
 			case Attribute::TYPE_STROPTION:
 				$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', $attribute->getOptions())));
 				break;
+
+            case Attribute::TYPE_FILE:
+				$rules[] = sprintf("'file', 'allowEmpty' => %s", $attribute->getBoolHint('required') ? '!empty($this->' . $attribute->getName() . ')' : 'true');
+				break;
 		}
 		if ($attribute->getBoolHint('required')) {
 			$rules[] = "'required'";
@@ -86,6 +90,23 @@ $this->registerHelper('validation_rules', function ($invoker, $model)
 		}
 	}
 	return $rules;
+});
+
+$this->registerHelper('local_attributes', function ($invoker, $model)
+{
+	$attributes = array();
+	foreach ($model->getAttributes() as $attribute) {
+		if ($attribute->getBoolHint('local')) {
+			$attribute_id = $invoker->refer('attribute_id', $attribute);
+            if (!is_null($attribute->getDefaultValue())) {
+                $default = $attribute->getDefaultValue();
+                $attributes[] = sprintf("public $".$attribute_id." = %s;", is_string($default) ? '"' . $default . '"' : $default);
+            } else {
+                $attributes[] = "public $".$attribute_id.";";
+            }
+		}
+	}
+	return $attributes;
 });
 
 $this->registerHelper('relations', function ($invoker, $attribute, $model)

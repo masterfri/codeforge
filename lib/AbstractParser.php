@@ -34,6 +34,7 @@ abstract class AbstractParser
 	const TOK_UNSIGNED = 'TOK_UNSIGNED';
 	const TOK_COLLECTION = 'TOK_COLLECTION';
 	const TOK_INTEGER = 'TOK_INTEGER';
+	const TOK_FILE = 'TOK_FILE';
 	const TOK_DECIMAL = 'TOK_DECIMAL';
 	const TOK_CHAR = 'TOK_CHAR';
 	const TOK_TEXT = 'TOK_TEXT';

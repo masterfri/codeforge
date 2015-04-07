@@ -74,6 +74,9 @@ class AttributeParser extends AbstractParser
 			case self::TOK_STROPTION:
 				$type = Attribute::TYPE_STROPTION;
 				break;
+            case self::TOK_FILE:
+				$type = Attribute::TYPE_FILE;
+				break;
 			default:
 				$this->unexpected($token);
 		}

@@ -1,5 +1,9 @@
 {% open_file('protected/views/'.lcfirst($model->getName()).'/admin.php') %}<?php
-
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ * @var $provider CDataProvider
+ */
 $this->menu = array(
     array('label' => '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>', 'url' => '#', 'items' => array(
         array(
@@ -30,12 +34,16 @@ $this->menu = array(
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
 	$('.search-form').toggle();
-	return false;
 });
 $('.search-form form').submit(function(){
-	$.fn.yiiGridView.update('employee-grid', {
+	$.fn.yiiGridView.update('{%= strtolower($model->getName()) %}-grid', {
 		data: $(this).serialize()
 	});
+	return false;
+});
+$('.reset-button').click(function(){
+	$(this).parents('form').trigger('reset').find('select').change();
+	$(this).parents('form').trigger('submit');
 	return false;
 });
 ");
@@ -64,7 +72,7 @@ $('.search-form form').submit(function(){
 
 <div class="box altbox"><!-- .altbox for alternative box's color -->
 	<div class="boxin">
-		<div class="header"><h3>MANAGE <?php echo strtoupper($model->getName()); ?></h3>
+		<div class="header"><h3>MANAGE {%= $model->getName() %}</h3>
             <?php
             $this->widget('zii.widgets.CMenu', array(
             'htmlOptions' => array('class' => 'header-btns'),
@@ -74,7 +82,7 @@ $('.search-form form').submit(function(){
             ?>
 		</div>
 		<?php $this->widget('zii.widgets.grid.CGridView', array(
-			'id' => 'contact-grid',
+			'id' => '{%= strtolower($model->getName()) %}-grid',
 			'dataProvider' => $provider,
             'htmlOptions'=>array('class'=>'content'),
             'itemsCssClass'=>'table table-striped table-condensed',

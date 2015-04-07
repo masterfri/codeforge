@@ -1,0 +1,10 @@
+<?php echo $form->fileField($model, '{%= attribute_id($attribute) %}'); ?>
+
+<?php if (!empty($model->{%= attribute_id($attribute) %})): ?>
+    <div class="checkboxlist">
+        <?php echo $form->checkbox($model, 'keep_{%= attribute_id($attribute) %}'); ?>
+        <label for="{%= model_name($attribute) %}_keep_{%= attribute_id($attribute) %}">
+            <?php echo $model->getFileName('{%= attribute_id($attribute) %}'); ?>
+        </label>
+    </div>
+<?php endif; ?>

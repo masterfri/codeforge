@@ -35,6 +35,7 @@ class Parser extends AbstractParser
 			'unsigned\b' => self::TOK_UNSIGNED,
 			'collection\b' => self::TOK_COLLECTION,
 			'int\b' => self::TOK_INTEGER,
+			'file\b' => self::TOK_FILE,
 			'decimal\b' => self::TOK_DECIMAL,
 			'char\b' => self::TOK_CHAR,
 			'text\b' => self::TOK_TEXT,

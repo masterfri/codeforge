@@ -2,8 +2,7 @@
 
 class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'Controller') %}
 {
-	public function actionAdmin()
-	{
+	public function actionAdmin() {
 		$model = $this->createSearchModel('{%= $model->getName() %}');
 		$provider = $model->search();
 		$this->render('admin', array(
@@ -12,8 +11,7 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 		));
 	}
 	
-	public function actionCreate()
-	{
+	public function actionCreate() {
 		$model = new {%= $model->getName() %}('create');
 		if ($this->saveModel($model)) {
 			$this->redirect(array('view', 'id' => $model->id));
@@ -23,8 +21,7 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 		));
 	}
 	
-	public function actionUpdate($id)
-	{
+	public function actionUpdate($id) {
 		$model = $this->loadModel($id);
 		if ($this->saveModel($model)) {
 			$this->redirect(array('view', 'id' => $model->id));
@@ -34,8 +31,7 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 		));
 	}
 	
-	public function actionDelete($id)
-	{
+	public function actionDelete($id) {
 		$model = $this->loadModel($id);
 		$model->delete();
 		if(!isset($_GET['ajax'])) {
@@ -43,8 +39,7 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 		}
 	}
 	
-	public function actionView($id)
-	{
+	public function actionView($id) {
 		$this->render('view', array(
 			'model' => $this->loadModel($id, '{%= $model->getName() %}'),
 		));
@@ -75,16 +70,14 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
         ), '{%= lcfirst($model->getName()) %}-'.$id.'.pdf');
     }
 
-	public function filters()
-	{
+	public function filters() {
 		return array(
 			'accessControl',
 			'postOnly + delete', 
 		);
 	}
 	
-	public function accessRules()
-	{
+	public function accessRules() {
 		return array(
 			array('allow',
 				'actions' => array('create'),
@@ -118,13 +111,12 @@ class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.sup
 		);
 	}
 
-	    public function loadModel($id)
-        {
-            $model = {%= $model->getName() %}::model()->findByPk($id);
-            if ($model === null)
-                throw new CHttpException(404, 'The requested page does not exist.');
-            return $model;
-        }
+    public function loadModel($id) {
+        $model = {%= $model->getName() %}::model()->findByPk($id);
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        return $model;
+    }
 
 }
 {% close_file() %}

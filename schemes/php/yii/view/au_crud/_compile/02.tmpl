@@ -1,5 +1,8 @@
 {% open_file('protected/views/'.lcfirst($model->getName()).'/update.php') %}<?php
-
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
 $this->menu = array(
     array('label' => '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>', 'url' => '#', 'items' => array(
             array('label' => '<i class=" glyphicon glyphicon-cog"></i> Manage Table',
@@ -15,7 +18,7 @@ $this->menu = array(
 <div class="box altbox"><!-- .altbox for alternative box's color -->
 	<div class="boxin">
 		<div class="header">
-			<h3>UPDATE <?php echo strtoupper($model->getName()); ?> #<?php echo $model->id; ?></h3>
+			<h3>UPDATE {%= $model->getName() %} #<?php echo $model->id; ?></h3>
                         <?php
                     $this->widget('zii.widgets.CMenu', array(
                     'htmlOptions' => array('class' => 'header-btns'),

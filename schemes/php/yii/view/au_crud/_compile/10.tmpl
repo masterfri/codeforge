@@ -1,4 +1,8 @@
 {% open_file('protected/views/'.lcfirst($model->getName()).'/print.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
 $this->renderPartial('_details', array(
     'model' => $model,
 ));

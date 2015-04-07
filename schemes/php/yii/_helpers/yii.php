@@ -14,6 +14,14 @@ $this->registerHelper('attribute_id', function ($invoker, $attribute)
 	}
 });
 
+$this->registerHelper('model_name', function ($invoker, $attribute) {
+	if ($attribute->getOwner()) {
+		return $attribute->getOwner()->getName();
+	} else {
+		return null;
+	}
+});
+
 $this->registerHelper('searchable_attributes', function ($invoker, $model, $sorted=true) 
 {
 	$result = array();
