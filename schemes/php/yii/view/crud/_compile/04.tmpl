@@ -1,11 +1,4 @@
-{% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/view.php') %}
-<?php
-
-$this->pageHeading = Yii::t('admin.crud', '{%= model_label($model) %} Information');
-
-$this->breadcrumbs = array(
-	Yii::t('admin.crud', '{%= model_label($model, true) %}') => Yii::app()->user->checkAccess('{%= permission('view', $model) %}') ? array('index') : false, 
-);
+{% open_file('protected/views/'.lcfirst($model->getName()).'/view.php') %}<?php
 
 $this->menu = array(
 	array(
@@ -35,6 +28,15 @@ $this->menu = array(
 );
 
 ?>
+
+<?php if (Yii::app()->user->hasFlash('info')): ?>
+    <div>
+        <button type="button" class="close" data-dismiss="alert">×</button>
+    <?php echo Yii::app()->user->getFlash('info'); ?>
+    </div>
+<?php endif; ?>
+
+
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title"><?php echo $this->pageHeading; ?></h3>

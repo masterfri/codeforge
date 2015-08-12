@@ -1,0 +1,9 @@
+<?php $this->widget('MobyScrollWidget', array(
+    'model'=>$model,
+    'attribute'=>'{%= attribute_id($attribute) %}',
+    'button' => Yii::app()->baseUrl . '/img/icons/clock_24_bw.png',
+    'htmlOptions' => array(
+        'class' => 'form-control timepicker-control',
+        'readonly' => true,
+    ),
+)); ?>

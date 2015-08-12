@@ -1,7 +1,7 @@
 {% if($attribute->getType() == Attribute::TYPE_BOOL): %}
 <?php echo $form->radioButtonList($model, '{%= attribute_id($attribute) %}', array(
-	1 => Yii::t('admin.crud', 'Yes'),
-	0 => Yii::t('admin.crud', 'No'),
+	1 => 'Yes',
+	0 => 'No',
 )); ?>
 {% elseif($attribute->getType() == Attribute::TYPE_INTOPTION || $attribute->getType() == Attribute::TYPE_STROPTION): %}
 <?php echo $form->radioButtonList($model, '{%= attribute_id($attribute) %}', array(

@@ -1,0 +1,17 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_details.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
+$this->widget('DetailView', array(
+'data' => $model,
+'htmlOptions' => array('class' => 'table table-striped table-bordered table-condensed'),
+'attributes' => array(
+{% start_attr_list_natural_order %}
+{% foreach(detail_view_attributes($attribute) as $str): %}
+        {%= $str %},
+{% endforeach %}
+{% end_attr_list %}
+),
+)); ?>
+{% close_file() %}

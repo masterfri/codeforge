@@ -1,4 +1,4 @@
-{% open_file('protected/modules/admin/controllers/'.$model->getName().'Controller.php') %}
+{% open_file('protected/controllers/'.$model->getName().'Controller.php') %}
 <?php
 
 class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'AdminController') %} 

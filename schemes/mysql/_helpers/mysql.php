@@ -20,6 +20,9 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 			
 		case Attribute::TYPE_INTOPTION: 
 			return 'INTEGER';
+
+        case Attribute::TYPE_FILE:
+			return 'INTEGER UNSIGNED';
 			
 		case Attribute::TYPE_STROPTION: 
 			return sprintf('VARCHAR(%d)', $invoker->refer('optimal_option_len', $attribute->getOptions(), 10));
@@ -36,7 +39,7 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 	$columns = array();
 	$keys = array();
 	foreach ($model->getAttributes() as $attribute) {
-		if (!$attribute->getIsCollection()) {
+		if (!$attribute->getIsCollection() && !$attribute->getBoolHint('local')) {
 			if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 				if ('many-to-one' == $invoker->refer('attribute_relation', $attribute)) {
 					$definition = sprintf('`%s_id` INTEGER UNSIGNED', $attribute->getName());
@@ -216,5 +219,5 @@ $this->registerHelper('optimal_option_len', function ($invoker, $options, $divis
 
 $this->registerHelper('table_name', function ($invoker, $model) 
 {
-	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getName()));
+	return strtolower(preg_replace('/([a-z])([A-Z])/', '\1_\2', is_string($model) ? $model : $model->getTableName()));
 });

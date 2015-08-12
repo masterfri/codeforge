@@ -1,0 +1,109 @@
+/// Agency
+/// @ru Агентство
+model Agency scheme mysql, php.yii.model, php.yii.controller.crud, php.yii.view.crud:
+	
+	/// Title
+	/// @ru Название
+	/// @required
+	attr title char(200);
+	
+	/// Parent
+	/// @ru Главный офис
+	/// @relation many-to-one
+	attr parent Agency;
+	
+	/// About
+	/// @ru О компании
+	/// @required
+	attr about text;
+	
+	/// Phone
+	/// @ru Номер телефона
+	/// @required
+	attr phone char(100);
+	
+	/// Mobile
+	/// @ru Номер мобильного
+	attr mobile char(100);
+	
+	/// Fax
+	/// @ru Факс
+	attr fax char(100);
+	
+	/// Email
+	/// @ru Email
+	attr email email;
+	
+	/// Website
+	/// @ru Сайт
+	attr website char(200);
+	
+	/// Address
+	/// @ru Адрес
+	/// @required
+	attr address text;
+	
+	/// How to get
+	/// @ru Как добраться
+	attr how_to_get text;
+	
+	/// Hours start
+	/// @ru Начало рабочего дня
+	attr hours_start char(10);
+	
+	/// Hours end
+	/// @ru Конец рабочего дня
+	attr hours_end char(10);
+	
+	/// Speciality
+	/// @ru Базовая специализация
+	attr speciality option(1 = "Жилая", 2 = "Коммерческая", 3 = "Земельные участки");
+	
+	/// Type
+	/// @required
+	/// @ru Тип
+	attr type option(1 = "Эмитент", 2 = "Дистрибьютор");
+	
+	/// Form of organization
+	/// @ru Форма организации
+	attr form_of_organization char(200);
+	
+	/// Form of organization (short)
+	/// @ru Форма организации (сокращенно)
+	attr short_form_of_organization char(200);
+	
+	/// OGRN
+	/// @ru ОГРН
+	attr ogrn char(200);
+	
+	/// KPP
+	/// @ru КПП
+	attr kpp char(200);
+	
+	/// INN
+	/// @ru ИНН
+	attr inn char(200);
+	
+	/// Bank
+	/// @ru Банк
+	attr bank char(200);
+	
+	/// Account number
+	/// @ru Номер расчетного счета
+	attr account_number char(200);
+	
+	/// Kor. account number
+	/// @ru Номер кор. счета
+	attr kor_account_number char(200);
+	
+	/// Manager name
+	/// @ru Управляющий
+	attr manager_name char(200);
+	
+	/// Devolution agreement
+	/// @ru Договор передачи полномочий
+	attr devolution_agreement char(200);
+	
+	/// Logo
+	/// @ru Логотип
+	attr logo image;

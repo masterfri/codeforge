@@ -1,0 +1,60 @@
+{% open_file('protected/models/'.nice_path($model, 'php')) %}
+<?php
+
+class {%= $model->getName() %} extends {%= env('php.yii.model.option.superclass', 'OptionRecord') %} 
+{
+	public static function model($className=__CLASS__)
+	{
+		return parent::model($className);
+	}
+	
+	public static function instance($class=__CLASS__)
+	{
+		return parent::instance($class);
+	}
+	
+	public function attributeLabels()
+	{
+		return array(
+{% start_attr_list %}
+{% if (attribute_id($attribute) != $attribute->getName()): %}
+			'{%= attribute_id($attribute) %}' => Yii::t('admin.{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+			'{%= $attribute->getName() %}' => Yii::t('admin.{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+{% else: %}
+			'{%= attribute_id($attribute) %}' => Yii::t('admin.{%= lcfirst($model->getName()) %}', {%= escape_value(attribute_label($attribute)) %}),
+{% endif %}
+{% end_attr_list %}
+		);
+	}
+	
+	public function rules()
+	{
+		return array(
+{% foreach(validation_rules($model) as $rule => $attribs): %}
+			array('	{%= implode(",\n\t\t\t\t\t", $attribs) %}', 
+					{%= $rule %}),
+{% endforeach %}
+		);
+	}
+	
+	public function relations()
+	{
+		return CMap::mergeArray(parent::relations(), array(
+{% start_attr_list %}
+{% foreach (relations($attribute, $model) as $relation): %}
+			'{%= $attribute->getName() %}' => {%= $relation %},
+{% endforeach %}
+{% end_attr_list %}
+		));
+	}
+	
+	protected function metaFields()
+	{
+		return array(
+{% start_attr_list %}
+			'{%= attribute_id($attribute) %}',
+{% end_attr_list %}
+		);
+	}
+}
+{% close_file() %}

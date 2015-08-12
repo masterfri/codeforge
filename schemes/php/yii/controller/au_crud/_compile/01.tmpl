@@ -1,0 +1,122 @@
+{% open_file('protected/controllers/'.$model->getName().'Controller.php') %}<?php
+
+class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'Controller') %}
+{
+	public function actionAdmin() {
+		$model = $this->createSearchModel('{%= $model->getName() %}');
+		$provider = $model->search();
+		$this->render('admin', array(
+			'model' => $model,
+			'provider' => $provider,
+		));
+	}
+	
+	public function actionCreate() {
+		$model = new {%= $model->getName() %}('create');
+		if ($this->saveModel($model)) {
+			$this->redirect(array('view', 'id' => $model->id));
+		}
+		$this->render('create', array(
+			'model' => $model,
+		));
+	}
+	
+	public function actionUpdate($id) {
+		$model = $this->loadModel($id);
+		if ($this->saveModel($model)) {
+			$this->redirect(array('view', 'id' => $model->id));
+		}
+		$this->render('update', array(
+			'model' => $model,
+		));
+	}
+	
+	public function actionDelete($id) {
+		$model = $this->loadModel($id);
+		$model->delete();
+		if(!isset($_GET['ajax'])) {
+			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+		}
+	}
+	
+	public function actionView($id) {
+		$this->render('view', array(
+			'model' => $this->loadModel($id, '{%= $model->getName() %}'),
+		));
+	}
+
+	public function actionCsv() {
+        $model = new {%= $model->getName() %}('search');
+        $model->unsetAttributes();
+
+        if (isset($_REQUEST['{%= $model->getName() %}'])) {
+            $model->attributes = $_REQUEST['{%= $model->getName() %}'];
+        }
+
+        $provider = $model->search(array(
+            'condition' => '',
+        ));
+
+        $this->renderPartial('_csv', array(
+            'model' => $model,
+            'provider' => $provider,
+        ));
+    }
+
+    public function actionPrint($id) {
+        $model = $this->loadModel($id);
+        $this->renderPdf('print', sprintf('{%= $model->getName() %}: %s', $model->id), array(
+            'model' => $model,
+        ), '{%= lcfirst($model->getName()) %}-'.$id.'.pdf');
+    }
+
+	public function filters() {
+		return array(
+			'accessControl',
+			'postOnly + delete', 
+		);
+	}
+	
+	public function accessRules() {
+		return array(
+			array('allow',
+				'actions' => array('create'),
+				'roles' => array('{%= permission('create', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('view'),
+				'roles' => array('{%= permission('view', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('admin'),
+				'roles' => array('{%= permission('manage', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('update'),
+				'roles' => array('{%= permission('update', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('delete'),
+				'roles' => array('{%= permission('delete', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('csv'),
+				'roles' => array('{%= permission('csv', $model) %}'),
+			),
+			array('allow',
+				'actions' => array('print'),
+				'roles' => array('{%= permission('print', $model) %}'),
+			),
+			array('deny'),
+		);
+	}
+
+    public function loadModel($id) {
+        $model = {%= $model->getName() %}::model()->findByPk($id);
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        return $model;
+    }
+
+}
+{% close_file() %}

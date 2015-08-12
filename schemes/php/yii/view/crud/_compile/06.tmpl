@@ -1,5 +1,5 @@
 {% if(count($searchable = searchable_attributes($model, false))): %}
-{% open_file('protected/modules/admin/views/'.lcfirst($model->getName()).'/_search.php') %}
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_search.php') %}
 <div class="form-content">
 
 	<?php $form = $this->beginWidget('ActiveForm', array(

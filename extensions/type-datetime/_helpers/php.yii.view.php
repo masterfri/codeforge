@@ -66,11 +66,10 @@ $this->registerHelper('form_control', function ($invoker, $attribute, $mode='')
 					));
 				
 				case 'time':
-					// TODO masked field
-					return array('form-control-text', array(
-						'attribute' => $attribute,
-						'mode' => $mode,
-					));
+                    return array('extensions.type-datetime.form-control-timepicker', array(
+                        'attribute' => $attribute,
+                        'mode' => $mode,
+                    ));
 				
 				case 'datetime':
 					// TODO masked field

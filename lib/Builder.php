@@ -172,7 +172,7 @@ class Builder
 			if (! is_dir($dir) || !is_readable($dir)) {
 				throw new Exception("Directory `$dir` is not exists");
 			}
-			$this->scheme_dir[] = rtrim($dir, '/') . '/';
+			$this->scheme_dir[] = rtrim($dir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 		}
 	}
 	
@@ -193,7 +193,7 @@ class Builder
 			if (! is_dir($dir) || !is_readable($dir)) {
 				throw new Exception("Directory `$dir` is not exists");
 			}
-			$this->extensions_dir[] = rtrim($dir, '/') . '/';
+			$this->extensions_dir[] = rtrim($dir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 		}
 	}
 	
@@ -207,7 +207,7 @@ class Builder
 		if (! is_dir($dir) || !is_writable($dir)) {
 			throw new Exception("Directory `$dir` is not exists or is not writable");
 		}
-		$this->cache_dir = rtrim($dir, '/') . '/';
+		$this->cache_dir = rtrim($dir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 	}
 	
 	public function getCacheDir()
@@ -220,7 +220,7 @@ class Builder
 		if (! is_dir($dir) || !is_writable($dir)) {
 			throw new Exception("Directory `$dir` not exists or it's not writable");
 		}
-		$this->partial_dir = rtrim($dir, '/') . '/';
+		$this->partial_dir = rtrim($dir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 	}
 	
 	public function setStaticPartialDir($dirs)
@@ -233,7 +233,7 @@ class Builder
 			if (! is_dir($dir)) {
 				throw new Exception("Directory `$dir` not exists");
 			}
-			$this->static_partial_dir[] = rtrim($dir, '/') . '/';
+			$this->static_partial_dir[] = rtrim($dir, DIR_SEPARATOR) . DIR_SEPARATOR;
 		}
 	}
 	
@@ -249,7 +249,7 @@ class Builder
 	
 	public function applyScheme(Model $model, $scheme, $outdir)
 	{
-		$this->work_dir = rtrim($outdir, '/') . '/';
+		$this->work_dir = rtrim($outdir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 		$templates = $this->getSchemeFiles($scheme);
 		$this->switchNamespace($scheme);
 		foreach ($templates as $template) {
@@ -262,7 +262,7 @@ class Builder
 	
 	public function buildUsingScheme($scheme, $outdir)
 	{
-		$this->work_dir = rtrim($outdir, '/') . '/';
+		$this->work_dir = rtrim($outdir,  DIR_SEPARATOR) .  DIR_SEPARATOR;
 		$templates = $this->getSchemeFiles($scheme);
 		$this->switchNamespace($scheme);
 		foreach ($templates as $template) {
@@ -363,7 +363,7 @@ class Builder
 		if ($this->current_file !== null) {
 			throw new Exception("Only one file can be opened at same time");
 		}
-		$this->current_file = $this->work_dir . ltrim($name, '/');
+		$this->current_file = $this->work_dir . ltrim($name,  DIR_SEPARATOR);
 		$dir = dirname($this->current_file);
 		if (! is_dir($dir)) {
 			if (! @mkdir($dir, $this->dirperms, true)) {
@@ -380,7 +380,7 @@ class Builder
 		if ($this->current_file !== null) {
 			throw new Exception("Only one file can be opened at same time");
 		}
-		$this->current_file = $this->partial_dir . $partial_id . '/' . $part_id . '.part';
+		$this->current_file = $this->partial_dir . $partial_id .  DIR_SEPARATOR . $part_id . '.part';
 		$dir = dirname($this->current_file);
 		if (! is_dir($dir)) {
 			if (! @mkdir($dir, $this->dirperms, true)) {
@@ -442,11 +442,11 @@ class Builder
 			$components = explode('.', $scheme);
 			$this->active_namespace = '';
 			foreach ($components as $component) {
-				$fullpath .= $component . '/';
+				$fullpath .= $component .  DIR_SEPARATOR;
 				$this->active_namespace .= '::' . $component;
 				$this->loadHelpers($fullpath);
 			}
-			$fullpath .= $this->mode . '/';
+			$fullpath .= $this->mode .  DIR_SEPARATOR;
 			if (is_dir($fullpath)) {
 				$found = true;
 				foreach (glob($fullpath . '*.tmpl') as $file) {
@@ -478,7 +478,7 @@ class Builder
 			$h = @opendir($dir);
 			if ($h) {
 				while (($file = readdir($h)) !== false) {
-					$extdir = $dir . '/' . $file;
+					$extdir = $dir .  DIR_SEPARATOR . $file;
 					if ('.' == $file || '..' == $file || !is_dir($extdir)) {
 						continue;
 					}
@@ -607,7 +607,7 @@ class Builder
 			}
 		}
 		while (count($namespaces) > 0) {
-			$path = implode('/', $namespaces);
+			$path = implode( DIR_SEPARATOR, $namespaces);
 			$candidate = false;
 			foreach ($this->scheme_dir as $dir) {
 				$file = $dir . $path . '/_partial/' . $name . '.tmpl';

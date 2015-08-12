@@ -1,0 +1,76 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_form.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ * @var $form CActiveForm
+ */
+$cs = Yii::app()->clientScript;
+$cs->registerScriptFile('/js/liveform/expression.js');
+$cs->registerScriptFile('/js/liveform/liveform.js');
+$cs->registerScript('liveform', "
+$('#{%= strtolower($model->getName()) %}-form').liveform({
+	'inputcontainer':'.control-group',
+	'inputlabel':'.control-label'
+});
+");
+
+$cs->registerScript('funcs', "
+function required_condition(v,m,a) {
+	var e = $('#' + a.inputID);
+	var fs = e.closest('[role=fieldset]');
+	if (fs.length && fs.is(':hidden')) {
+		return false;
+	}
+	if (e.attr('data-required')) {
+		return $('#{%= strtolower($model->getName()) %}-form').liveform('getIsRequired', e);
+	}
+	return true;
+}
+", CClientScript::POS_HEAD);
+?>
+
+<div class="form-content">
+    <?php $form = $this->beginWidget('CActiveForm', array(
+        'id' => '{%= strtolower($model->getName()) %}-form',
+        'htmlOptions' => array(
+            'class' => 'form-horizontal',
+            'enctype' => 'multipart/form-data',
+        ),
+        'enableClientValidation' => true,
+        'clientOptions' => array(
+            'validateOnSubmit' => true,
+            'afterValidate' => 'js:function(f,d,e) {
+                if (e) $("html, body").animate({scrollTop: $("#{%= strtolower($model->getName()) %}-form").offset().top - 50}, 1000);
+                return true;
+            }',
+        ),
+    )); ?>
+
+	<?php echo $form->errorSummary($model, 'Your form could not be submitted due to some errors. All errors have been highlighted in red below.', null, array('class' => 'msg msg-error')); ?>
+
+{% start_attr_list_natural_order %}
+{% if($control = form_control($attribute, 'update')): %}
+	<div class="control-group form-group">
+		<?php echo $form->labelEx($model, '{%= attribute_id($attribute) %}', array('class'=>'control-label col-lg-4')); ?>
+		<div class="controls col-lg-4">
+{% if(is_array($control)): %}
+			{% partial($control[0], $control[1], 3) %} 
+{% else: %}
+			{%= $control %} 
+{% endif %}         <?php echo $form->error($model, '{%= attribute_id($attribute) %}', array('class'=>'help-inline')); ?>
+        </div>
+	</div>
+{% endif %}
+{% end_attr_list %}
+
+
+	<div class="form-group">
+        <label class="control-label col-lg-4"></label>
+
+        <div class="col-lg-4 form-buttons">
+            <?php echo CHtml::submitButton($model->isNewRecord ? 'CREATE' : 'SAVE', array('class' => 'btn btn-default')); ?>
+        </div>
+    </div>
+	<?php $this->endWidget(); ?>
+</div>
+{% close_file() %}

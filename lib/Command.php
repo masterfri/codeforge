@@ -54,7 +54,7 @@ abstract class Command
 	
 	public static function factory($args)
 	{
-		$path = THISDIR . '/commands';
+		$path = THISDIR . DIR_SEPARATOR . 'commands';
 		
 		$commands = array();
 		do {
@@ -69,7 +69,7 @@ abstract class Command
 			if (!preg_match(self::COMMAND_NAME_PATTERN, $command)) {
 				throw new Exception("Invalid command: " . implode(' ', $commands));
 			}
-			$path = $path . '/' . $command;
+			$path = $path . DIR_SEPARATOR . $command;
 		} while (is_dir($path));
 		
 		$path = $path . '.php';
@@ -179,92 +179,92 @@ abstract class Command
 	
 	protected function getUserDir()
 	{
-		return $_SERVER['HOME'] . '/.codeforge';
+		return $_SERVER['HOME'] . DIR_SEPARATOR . '.codeforge';
 	}
 	
 	protected function getProjectDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME;
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME;
 	}
 	
 	protected function getCacheDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/cache';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'cache';
 	}
 	
 	protected function getCompiledDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/compiled';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'compiled';
 	}
 	
 	protected function getStaticDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'static';
 	}
 	
 	protected function getPartialDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/partial';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'partial';
 	}
 	
 	protected function getStaticPartialDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static-partial';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'static-partial';
 	}
 	
 	protected function getSrcDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/src';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'src';
 	}
 	
 	protected function getDefaultSchemeDir()
 	{
-		return THISDIR . '/schemes';
+		return THISDIR . DIR_SEPARATOR . 'schemes';
 	}
 	
 	protected function getCustomSchemeDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/schemes';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'schemes';
 	}
 	
 	protected function getUserSchemeDir()
 	{
-		return $this->getUserDir() . '/schemes';
+		return $this->getUserDir() . DIR_SEPARATOR . 'schemes';
 	}
 	
 	protected function getDefaultExtensionsDir()
 	{
-		return THISDIR . '/extensions';
+		return THISDIR . DIR_SEPARATOR . 'extensions';
 	}
 	
 	protected function getCustomExtensionsDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/extensions';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'extensions';
 	}
 	
 	protected function getUserExtensionsDir()
 	{
-		return $this->getUserDir() . '/extensions';
+		return $this->getUserDir() . DIR_SEPARATOR . 'extensions';
 	}
 	
 	protected function getConfigFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/project.manifest';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'project.manifest';
 	}
 	
 	protected function getGlobalConfigFile()
 	{
-		return $this->getUserDir() . '/globals.manifest';
+		return $this->getUserDir() . DIR_SEPARATOR . 'globals.manifest';
 	}
 	
 	protected function getIgnoreListFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/ignore.list';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'ignore.list';
 	}
 	
 	protected function getChecksumListFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/checksum.list';
+		return WORKDIR . DIR_SEPARATOR . self::PROJECT_DIR_NAME . DIR_SEPARATOR . 'checksum.list';
 	}
 	
 	protected function filterDirs($dirs)
@@ -283,26 +283,26 @@ abstract class Command
 	
 	protected function getTemplateDirs($name)
 	{
-		$basename = str_replace('.', '/', $name);
+		$basename = str_replace('.', DIR_SEPARATOR, $name);
 		return $this->filterDirs(array(
-			$this->getUserDir() . '/templates/' . $basename,
-			THISDIR . '/templates/' . $basename,
+			$this->getUserDir() . DIR_SEPARATOR . 'templates'. DIR_SEPARATOR . $basename,
+			THISDIR . DIR_SEPARATOR . 'templates'. DIR_SEPARATOR . $basename,
 		));
 	}
 	
 	protected function getBlank($name)
 	{
-		$basename = str_replace('.', '/', $name) . '.tmpl';
+		$basename = str_replace('.', DIR_SEPARATOR, $name) . '.tmpl';
 		$files = $this->filterFiles(array(
-			$this->getUserDir() . '/templates/' . $basename,
-			THISDIR . '/templates/' . $basename,
+			$this->getUserDir() . DIR_SEPARATOR . 'templates'. DIR_SEPARATOR . $basename,
+			THISDIR . DIR_SEPARATOR . 'templates'. DIR_SEPARATOR . $basename,
 		));
 		return current($files);
 	}
 	
 	protected function getModelFile($name)
 	{
-		return $this->getSrcDir() . '/' . $name . '.model';
+		return $this->getSrcDir() . DIR_SEPARATOR . $name . '.model';
 	}
 	
 	protected function getConfig($reload=false)

@@ -1,0 +1,38 @@
+{% if(count($searchable = searchable_attributes($model, false))): %}
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_search.php') %}
+<div class="form-content">
+	<?php $form=$this->beginWidget('CActiveForm', array(
+    	'action'=>Yii::app()->createUrl($this->route),
+    	'htmlOptions'=>array('class'=>'form-horizontal'),
+    	'method'=>'get',
+    )); ?>
+
+
+{% foreach($searchable as $attribute): %}
+{% if($control = form_control($attribute, 'search')): %}
+		<div class="control-group form-group">
+			<?php echo $form->label($model, '{%= attribute_id($attribute) %}', array('class'=>'control-label col-lg-4')); ?>
+			<div class="controls col-lg-4">
+{% if(is_array($control)): %}
+				{% partial($control[0], $control[1], 4) %} 
+{% else: %}
+				{%= $control %} 
+{% endif %}
+			</div>
+		</div>
+{% endif %}
+{% endforeach %}
+
+		<div class="form-group">
+            <label class="control-label col-lg-4"></label>
+            <div class="col-lg-4 form-buttons">
+                <?php echo CHtml::submitButton('SEARCH', array('class'=>'btn btn-default')); ?>
+                <?php echo CHtml::link('RESET', array($this->route), array('class'=>'btn btn-default reset-button')); ?>
+            </div>
+        </div>
+
+	<?php $this->endWidget(); ?>
+
+</div>
+{% close_file() %}
+{% endif %}

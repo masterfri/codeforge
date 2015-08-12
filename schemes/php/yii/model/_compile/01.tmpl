@@ -1,5 +1,4 @@
-{% open_file('protected/models/'.nice_path($model, 'php')) %}
-<?php
+{% open_file('protected/models/'.nice_path($model, 'php')) %}<?php
 
 class {%= $model->getName() %} {%= superclass($model) %} {%= interfaces($model) %} 
 {

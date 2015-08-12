@@ -67,9 +67,12 @@ $this->registerHelper('pluralize', function ($invoker, $name)
 $this->registerHelper('attribute_type', function ($invoker, $attribute) 
 {
 	switch ($attribute->getType()) {
+        case Attribute::TYPE_FILE:
+            return 'file';
+
 		case Attribute::TYPE_INT:
 			return 'int';
-					
+
 		case Attribute::TYPE_DECIMAL: 
 			return 'decimal';
 		
@@ -109,7 +112,7 @@ $this->registerHelper('attribute_relation', function ($invoker, $attribute)
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 		$relation = $attribute->getHint('relation');
 		if ($relation) {
-			return strtolower($relation);
+			return trim(strtolower($relation));
 		}
 		$backreference = $invoker->refer('attribute_back_reference', $attribute);
 		if ($backreference) {

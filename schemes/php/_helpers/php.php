@@ -45,6 +45,7 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 		case Attribute::TYPE_BOOL: return 'boolean';
 		case Attribute::TYPE_INTOPTION: return 'int';
 		case Attribute::TYPE_STROPTION: return 'string';
+		case Attribute::TYPE_FILE: return 'file';
 		case Attribute::TYPE_CUSTOM: return $attribute->getCustomType();
 	}
 	return 'mixed';
