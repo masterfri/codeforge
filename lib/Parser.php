@@ -14,10 +14,12 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/AbstractParser.php';
-require_once LIB_DIR . '/AttributeParser.php';
-require_once LIB_DIR . '/BehaviorParser.php';
-require_once LIB_DIR . '/Model.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/AbstractParser.php';
+require_once CF_LIB_DIR . '/AttributeParser.php';
+require_once CF_LIB_DIR . '/BehaviorParser.php';
+require_once CF_LIB_DIR . '/Model.php';
 
 class Parser extends AbstractParser
 {

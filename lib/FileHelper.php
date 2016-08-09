@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class FileHelper
 {
 	public static function realpart($path, &$unreal=null)
@@ -36,37 +38,37 @@ class FileHelper
 	public static function mkdir($path, $permissions=0700, $recursive=false) 
 	{
 		if (is_dir($path)) {
-			throw new Exception("Directory `$path` already exists");
+			throw new \Exception("Directory `$path` already exists");
 		}
 		if (is_file($path)) {
-			throw new Exception("The path `$path` is a file");
+			throw new \Exception("The path `$path` is a file");
 		}
 		if ($recursive) {
 			$realpart = self::realpart($path, $need_create);
 			if (is_file($realpart)) {
-				throw new Exception("The path `$realpart` is a file");
+				throw new \Exception("The path `$realpart` is a file");
 			}
 			if (! is_writable($realpart)) {
-				throw new Exception("Can't create directory: path `$realpart` is not writable");
+				throw new \Exception("Can't create directory: path `$realpart` is not writable");
 			}
 			// create missing components
 			foreach ($need_create as $dir) {
 				$realpart .= "/$dir";
 				if (! @mkdir($realpart)) {
-					throw new Exception("Error while creating directory `$realpart`");
+					throw new \Exception("Error while creating directory `$realpart`");
 				}
 				self::chmod($realpart, $permissions);
 			}
 		} else {
 			$dirname = dirname($path);
 			if (is_file($dirname)) {
-				throw new Exception("The path `$dirname` is a file");
+				throw new \Exception("The path `$dirname` is a file");
 			}
 			if (! is_writable($dirname)) {
-				throw new Exception("Can't create directory: path `$dirname` is not writable");
+				throw new \Exception("Can't create directory: path `$dirname` is not writable");
 			}
 			if (! @mkdir($path)) {
-				throw new Exception("Error while creating directory `$path`");
+				throw new \Exception("Error while creating directory `$path`");
 			}
 			self::chmod($path, $permissions);
 		}		
@@ -84,20 +86,20 @@ class FileHelper
 		// check is the directory can be deleted
 		$dirname = dirname($path);
 		if (! is_writable($dirname)) {
-			throw new Exception("Error while removing file or directory: path `$dirname` is not writable");
+			throw new \Exception("Error while removing file or directory: path `$dirname` is not writable");
 		}
 		if (is_dir($path)) {
 			// remove directory contents
 			self::cleanup($path, true, false);
 			if (! @rmdir($path)) {
-				throw new Exception("Error while removing directory `$path`");
+				throw new \Exception("Error while removing directory `$path`");
 			}
 		} elseif (is_file($path)) {
 			if (! @unlink($path)) {
-				throw new Exception("Error while removing file `$path`");
+				throw new \Exception("Error while removing file `$path`");
 			}
 		} else {
-			throw new Exception("Error while removing file or directory: path `$path` not exists");
+			throw new \Exception("Error while removing file or directory: path `$path` not exists");
 		}
 	}
 	
@@ -107,7 +109,7 @@ class FileHelper
 		$path = rtrim($path, '/') . '/';
 		$h = @opendir($path);
 		if (! $h) {
-			throw new Exception("Access denied to path `$path`");
+			throw new \Exception("Access denied to path `$path`");
 		}
 		// list directory contents
 		while (($file = readdir($h)) !== false) {
@@ -120,7 +122,7 @@ class FileHelper
 					// clean-up nested directory
 					try {
 						self::cleanup($cpath, true, $files_only);
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						closedir($h);
 						throw $e;
 					}
@@ -129,22 +131,22 @@ class FileHelper
 					// try to delete the directory
 					if (! $parent_is_writable) {
 						closedir($h);
-						throw new Exception("Error while removing directory: path `$path` is not writable");
+						throw new \Exception("Error while removing directory: path `$path` is not writable");
 					}
 					if (! @rmdir($cpath)) {
 						closedir($h);
-						throw new Exception("Error while removing directory `$cpath`");
+						throw new \Exception("Error while removing directory `$cpath`");
 					}
 				}
 			} else {
 				// try to remove the file
 				if (! $parent_is_writable) {
 					closedir($h);
-					throw new Exception("Error while removing file: path `$path` is not writable");
+					throw new \Exception("Error while removing file: path `$path` is not writable");
 				}
 				if (! @unlink($cpath)) {
 					closedir($h);
-					throw new Exception("Error while removing file `$cpath`");
+					throw new \Exception("Error while removing file `$cpath`");
 				}
 			}
 		}
@@ -156,7 +158,7 @@ class FileHelper
 		$destination = dirname($newname);
 		self::checkdir($destination, $dirPerms);
 		if (! is_writable($destination)) {
-			throw new Exception("Error while copying file or directory: path `$destination` is not writable");
+			throw new \Exception("Error while copying file or directory: path `$destination` is not writable");
 		}
 		$copyname = $destination . '/' . basename($newname);
 		if (is_dir($file)) {
@@ -164,7 +166,7 @@ class FileHelper
 			self::checkdir($copyname, fileperms($file) & 0777);
 			$h = @opendir($file);
 			if (! $h) {
-				throw new Exception("Access denied to path `$file`");
+				throw new \Exception("Access denied to path `$file`");
 			}
 			$dir = rtrim($file, '/');
 			// list directory contents
@@ -174,7 +176,7 @@ class FileHelper
 				}
 				try {
 					self::copy($dir . '/' . $name, $copyname . '/' . $name);
-				} catch (Exception $e) {
+				} catch (\Exception $e) {
 					closedir($h);
 					throw $e;
 				}
@@ -183,7 +185,7 @@ class FileHelper
 		} else {
 			// try to copy the file
 			if (! @copy($file, $copyname)) {
-				throw new Exception("Error while copying file `$file`");
+				throw new \Exception("Error while copying file `$file`");
 			}
 		}
 	}
@@ -194,7 +196,7 @@ class FileHelper
 		$to = rtrim($to, '/');
 		$h = @opendir($from);
 		if (! $h) {
-			throw new Exception("Access denied to path `$from`");
+			throw new \Exception("Access denied to path `$from`");
 		}
 		while (($name = readdir($h)) !== false) {
 			if ('.' == $name || '..' == $name) {
@@ -202,7 +204,7 @@ class FileHelper
 			}
 			try {
 				self::copy($from . '/' . $name, $to . '/' . $name);
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				closedir($h);
 				throw $e;
 			}
@@ -222,16 +224,16 @@ class FileHelper
 			$dirto = dirname($newname);
 			self::checkdir($dirto, $dirPerms);
 			if (! is_writable($dirto)) {
-				throw new Exception("Error while renaming file or directory: path `$dirto` is not writable");
+				throw new \Exception("Error while renaming file or directory: path `$dirto` is not writable");
 			}
 		}
 		if ($file != $newname) {
 			// try to move file/dir
 			if (! is_writable($dirfrom)) {
-				throw new Exception("Error while renaming file or directory: path `$dirfrom` is not writable");
+				throw new \Exception("Error while renaming file or directory: path `$dirfrom` is not writable");
 			}
 			if (! @rename($file, $newname)) {
-				throw new Exception("Error while renaming file or directory `$file`");
+				throw new \Exception("Error while renaming file or directory `$file`");
 			}
 		}
 		return $newname;
@@ -242,7 +244,7 @@ class FileHelper
 		if (is_dir($path)) {
 			$h = @opendir($path);
 			if (! $h) {
-				throw new Exception("Access denied to path `$file`");
+				throw new \Exception("Access denied to path `$file`");
 			}
 			$path = rtrim($path, '/');
 			while (($name = readdir($h)) !== false) {
@@ -255,7 +257,7 @@ class FileHelper
 					$list[] = $shortpath;
 					try {
 						self::lsr($fullpath, $list, $shortpath);
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						closedir($h);
 						throw $e;
 					}
@@ -265,7 +267,7 @@ class FileHelper
 			}
 			closedir($h);
 		} else {
-			throw new Exception("Not valid directory: `$path`");
+			throw new \Exception("Not valid directory: `$path`");
 		}
 	}
 	
@@ -274,7 +276,7 @@ class FileHelper
 		// check are old and new permissions different
 		if ((fileperms($path) & 0777) != $permissions) {
 			if (! @chmod($path, $permissions)) {
-				throw new Exception("Error while changing permissions of `$path`");
+				throw new \Exception("Error while changing permissions of `$path`");
 			}
 		}
 	}

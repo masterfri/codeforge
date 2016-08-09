@@ -15,7 +15,7 @@ $this->registerHelper('interfaces', function ($invoker, $model)
 
 $this->registerHelper('attribute_validation_rules', function ($invoker, $attribute)
 {
-	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 		$relation = $invoker->refer('attribute_relation', $attribute);
 		if ('many-to-one' == $relation || 'many-to-many' == $relation) {
 			return $attribute->getBoolHint('required') ? array("'required'") : array("'safe'");
@@ -25,7 +25,7 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
 	} else {
 		$rules = array();
 		switch ($attribute->getType()) {
-			case Attribute::TYPE_INT:
+			case Codeforge\Attribute::TYPE_INT:
 				if ($attribute->getIsUnsigned()) {
 					$rules[] = "'numerical', 'integerOnly' => true, 'min' => 0";
 				} else {
@@ -33,7 +33,7 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
 				}
 				break;
 				
-			case Attribute::TYPE_DECIMAL:
+			case Codeforge\Attribute::TYPE_DECIMAL:
 				if ($attribute->getIsUnsigned()) {
 					$rules[] = "'numerical', 'min' => 0";
 				} else {
@@ -41,23 +41,23 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
 				}
 				break;
 				
-			case Attribute::TYPE_CHAR:
+			case Codeforge\Attribute::TYPE_CHAR:
 				$rules[] = sprintf("'length', 'max' => %d", $attribute->getSize() ? $attribute->getSize() : 250);
 				break;
 				
-			case Attribute::TYPE_TEXT:
+			case Codeforge\Attribute::TYPE_TEXT:
 				$rules[] = "'length', 'max' => 16000";
 				break;
 				
-			case Attribute::TYPE_BOOL:
+			case Codeforge\Attribute::TYPE_BOOL:
 				$rules[] = "'boolean'";
 				break;
 			
-			case Attribute::TYPE_INTOPTION:
+			case Codeforge\Attribute::TYPE_INTOPTION:
 				$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', array_keys($attribute->getOptions()))));
 				break;
 				
-			case Attribute::TYPE_STROPTION:
+			case Codeforge\Attribute::TYPE_STROPTION:
 				$rules[] = sprintf("'in', 'range' => array(%s)", implode(', ', $invoker->arrayMap('escape_value', $attribute->getOptions())));
 				break;
 		}
@@ -91,7 +91,7 @@ $this->registerHelper('validation_rules', function ($invoker, $model)
 $this->registerHelper('relations', function ($invoker, $attribute, $model)
 {
 	$relations = array();
-	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 		$relation = $invoker->refer('attribute_relation', $attribute);
 		if ('many-to-one' == $relation) {
 			$relations[] = sprintf("array(self::BELONGS_TO, '%s', '%s_id')", $attribute->getCustomType(), $attribute->getName());

@@ -14,8 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Tokenizer.php';
+namespace Codeforge;
 
+require_once CF_LIB_DIR . '/Tokenizer.php';
 
 class FileTokenizer extends Tokenizer
 {
@@ -25,7 +26,7 @@ class FileTokenizer extends Tokenizer
 	{
 		$text = @file_get_contents($file);
 		if (false === $text) {
-			throw new Exception("File not exists: $file");
+			throw new \Exception("File not exists: $file");
 		}
 		$this->file = $file;
 		parent::__construct($text, $tokens, $unescape);

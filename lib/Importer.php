@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 abstract class Importer
 {
 	protected $_in;
@@ -26,7 +28,7 @@ abstract class Importer
 	{
 		$this->_in = @fopen($infile, 'r');
 		if (!$this->_in) {
-			throw new Exception("Can't open file $infile");
+			throw new \Exception("Can't open file $infile");
 		}
 		if ($outfile == '-') {
 			$this->_out = false;
@@ -34,7 +36,7 @@ abstract class Importer
 			$this->_out = @fopen($outfile, 'w');
 			if (!$this->_out) {
 				fclose($this->_in);
-				throw new Exception("Can't open file $outfile");
+				throw new \Exception("Can't open file $outfile");
 			}
 		}
 		$this->_options = $options;
@@ -45,7 +47,7 @@ abstract class Importer
 			if ($this->_out) {
 				fclose($this->_out);
 			}
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			fclose($this->_in);
 			if ($this->_out) {
 				fclose($this->_out);

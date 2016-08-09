@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class HelpCommand extends Command
 {
 	public $command;

@@ -14,7 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/ImporterCsv.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/ImporterCsv.php';
 
 class ImportCsvCommand extends Command
 {
@@ -33,7 +35,7 @@ class ImportCsvCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s import csv <name> <file>\n", SCRIPT);
+		printf("%s import csv <name> <file>\n", CF_SCRIPT);
 		echo "Import model from csv file.\n";
 	}
 

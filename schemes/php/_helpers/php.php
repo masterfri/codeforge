@@ -38,14 +38,14 @@ $this->registerHelper('escape_value', function($invoker, $val, $padding=false)
 $this->registerHelper('attribute_type', function ($invoker, $attribute)
 {
 	switch ($attribute->getType()) {
-		case Attribute::TYPE_INT: return 'int';
-		case Attribute::TYPE_DECIMAL: return 'float';
-		case Attribute::TYPE_CHAR:
-		case Attribute::TYPE_TEXT: return 'string';
-		case Attribute::TYPE_BOOL: return 'boolean';
-		case Attribute::TYPE_INTOPTION: return 'int';
-		case Attribute::TYPE_STROPTION: return 'string';
-		case Attribute::TYPE_CUSTOM: return $attribute->getCustomType();
+		case Codeforge\Attribute::TYPE_INT: return 'int';
+		case Codeforge\Attribute::TYPE_DECIMAL: return 'float';
+		case Codeforge\Attribute::TYPE_CHAR:
+		case Codeforge\Attribute::TYPE_TEXT: return 'string';
+		case Codeforge\Attribute::TYPE_BOOL: return 'boolean';
+		case Codeforge\Attribute::TYPE_INTOPTION: return 'int';
+		case Codeforge\Attribute::TYPE_STROPTION: return 'string';
+		case Codeforge\Attribute::TYPE_CUSTOM: return $attribute->getCustomType();
 	}
 	return 'mixed';
 });

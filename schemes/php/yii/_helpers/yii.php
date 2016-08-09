@@ -7,7 +7,7 @@ $this->registerHelper('permission', function ($invoker, $action, $model)
 
 $this->registerHelper('attribute_id', function ($invoker, $attribute)
 {
-	if ($attribute->getType() == Attribute::TYPE_CUSTOM && 'many-to-one' == $invoker->refer('attribute_relation', $attribute)) {
+	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM && 'many-to-one' == $invoker->refer('attribute_relation', $attribute)) {
 		return sprintf('%s_id', $attribute->getName());
 	} else {
 		return $attribute->getName();

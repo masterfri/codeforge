@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class EasyConfig
 {
 	protected $data;
@@ -258,6 +260,6 @@ class EasyConfig
 	}
 }
 
-class EasyConfig_Exception extends Exception
+class EasyConfig_Exception extends \Exception
 {}
 

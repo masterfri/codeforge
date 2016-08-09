@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class DefaultCommand extends Command
 {
 	public $help;
@@ -45,13 +47,13 @@ class DefaultCommand extends Command
 	public function printHelp()
 	{
 		echo "Usage:\n\n";
-		printf("%s <command> [args]\n\n", SCRIPT);
-		printf("Type %s help <command> for more information on a specific command.\n", SCRIPT);
+		printf("%s <command> [args]\n\n", CF_SCRIPT);
+		printf("Type %s help <command> for more information on a specific command.\n", CF_SCRIPT);
 	}
 	
 	public function printVersion()
 	{
-		printf("%s v%s\n", PROGRAMM, VERSION);
+		printf("%s v%s\n", CF_PROGRAMM, CF_VERSION);
 		echo "by Grigory Ponomar <http://masterfri.org.ua>.\n";
 	}
 }

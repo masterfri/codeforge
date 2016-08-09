@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 require_once dirname(__FILE__) . '/default.php';
 
 class ConfigSetCommand extends ConfigDefaultCommand

@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class AddCommand extends Command
 {
 	public $force;
@@ -43,8 +45,8 @@ class AddCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s add [-f|-r] [-t template] <name>\n", SCRIPT);
-		printf("%s add -i\n", SCRIPT);
+		printf("%s add [-f|-r] [-t template] <name>\n", CF_SCRIPT);
+		printf("%s add -i\n", CF_SCRIPT);
 		echo "Add a model to project.\nList of options:\n";
 		echo "\t-f replace old model if exists.\n";
 		echo "\t-r restore old model if exists.\n";

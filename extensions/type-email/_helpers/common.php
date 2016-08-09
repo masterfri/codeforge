@@ -1,3 +1,3 @@
 <?php
 
-$this->registerType('email', Attribute::TYPE_CHAR, 100);
+$this->registerType('email', Codeforge\Attribute::TYPE_CHAR, 100);

@@ -14,8 +14,10 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Entity.php';
-require_once LIB_DIR . '/AttributeCustomType.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/Entity.php';
+require_once CF_LIB_DIR . '/AttributeCustomType.php';
 
 class Attribute extends Entity
 {
@@ -127,6 +129,11 @@ class Attribute extends Entity
 	public static function registerCustomType($name, $based_on=self::TYPE_CUSTOM, $size=false, $unsigned=false)
 	{
 		self::$customTypes[$name] = new AttributeCustomType($name, $based_on, $size, $unsigned);
+	}
+	
+	public static function getCustomTypes()
+	{
+		return self::$customTypes;
 	}
 	
 	protected function getTypeBase()

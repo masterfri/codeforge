@@ -14,9 +14,11 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/AbstractParser.php';
-require_once LIB_DIR . '/CfonParser.php';
-require_once LIB_DIR . '/Behavior.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/AbstractParser.php';
+require_once CF_LIB_DIR . '/CfonParser.php';
+require_once CF_LIB_DIR . '/Behavior.php';
 
 class BehaviorParser extends AbstractParser
 {

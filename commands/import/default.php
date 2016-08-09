@@ -14,11 +14,13 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class ImportDefaultCommand extends Command
 {
 	public function printHelp()
 	{
-		printf("%s import <format> <import-options>\n", SCRIPT);
+		printf("%s import <format> <import-options>\n", CF_SCRIPT);
 		echo "Import model from file.\n";
 	}
 

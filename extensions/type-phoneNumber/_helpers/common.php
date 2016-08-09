@@ -1,3 +1,3 @@
 <?php
 
-$this->registerType('phoneNumber', Attribute::TYPE_CHAR, 50);
+$this->registerType('phoneNumber', Codeforge\Attribute::TYPE_CHAR, 50);

@@ -3,13 +3,13 @@
 $this->registerHelper('detail_view_attributes', function ($invoker, $attribute)
 {
 	$result = array();
-	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 		if ($attribute->getIsCollection()) {
 			$result[] = sprintf("'%s:array'", $attribute->getName());
 		} else {
 			$result[] = sprintf("'%s'", $attribute->getName());
 		}
-	} elseif ($attribute->getType() == Attribute::TYPE_BOOL) {
+	} elseif ($attribute->getType() == Codeforge\Attribute::TYPE_BOOL) {
 		$result[] = sprintf("'%s:boolean'", $invoker->refer('attribute_id', $attribute));
 	} else {
 		$result[] = sprintf("'%s'", $invoker->refer('attribute_id', $attribute));
@@ -20,13 +20,13 @@ $this->registerHelper('detail_view_attributes', function ($invoker, $attribute)
 $this->registerHelper('grid_view_attributes', function ($invoker, $attribute)
 {
 	$result = array();
-	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 		if ($attribute->getIsCollection()) {
 			$result[] = sprintf("'%s:array'", $attribute->getName());
 		} else {
 			$result[] = sprintf("'%s'", $attribute->getName());
 		}
-	} elseif ($attribute->getType() == Attribute::TYPE_BOOL) {
+	} elseif ($attribute->getType() == Codeforge\Attribute::TYPE_BOOL) {
 		$result[] = sprintf("'%s:boolean'", $invoker->refer('attribute_id', $attribute));
 	} else {
 		$result[] = sprintf("'%s'", $invoker->refer('attribute_id', $attribute));
@@ -48,27 +48,27 @@ $this->registerHelper('form_control', function ($invoker, $attribute, $mode='')
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
-	} elseif($attribute->getType() == Attribute::TYPE_TEXT) {
+	} elseif($attribute->getType() == Codeforge\Attribute::TYPE_TEXT) {
 		return array('form-control-textarea', array(
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
-	} elseif($attribute->getType() == Attribute::TYPE_BOOL) {
+	} elseif($attribute->getType() == Codeforge\Attribute::TYPE_BOOL) {
 		return array('form-control-dropdown', array(
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
-	} elseif($attribute->getType() == Attribute::TYPE_INTOPTION) {
+	} elseif($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION) {
 		return array('form-control-dropdown', array(
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
-	} elseif($attribute->getType() == Attribute::TYPE_STROPTION) {
+	} elseif($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION) {
 		return array('form-control-dropdown', array(
 			'attribute' => $attribute,
 			'mode' => $mode,
 		));
-	} elseif ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+	} elseif ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 		$relation = $invoker->refer('attribute_relation', $attribute);
 		if ('many-to-one' == $relation) {
 			return array('form-control-dropdown', array(

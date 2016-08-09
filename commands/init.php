@@ -14,7 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/FileHelper.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/FileHelper.php';
 
 class InitCommand extends Command
 {
@@ -53,7 +55,7 @@ class InitCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s init [-f] <template> ... <template> [-e <feature> ... -e <feature>] \n", SCRIPT);
+		printf("%s init [-f] <template> ... <template> [-e <feature> ... -e <feature>] \n", CF_SCRIPT);
 		echo "Initialize an empty project.\nList of options:\n";
 		echo "\t-f cleanup old project if exists;\n";
 		echo "\t-e exclude feature.\n";
@@ -75,7 +77,7 @@ class InitCommand extends Command
 		$dir = $this->getProjectDir();
 		if (is_dir($dir)) {
 			if (!$this->force) {
-				if (!$this->confirm(sprintf("Project already found in `%s`. Cleanup old project?", WORKDIR))) {
+				if (!$this->confirm(sprintf("Project already found in `%s`. Cleanup old project?", CF_WORKDIR))) {
 					return;
 				}
 			}

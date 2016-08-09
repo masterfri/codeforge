@@ -14,11 +14,13 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/FileHelper.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/FileHelper.php';
 
 class ReleaseCommand extends Command
 {
-	public $output = WORKDIR;
+	public $output = CF_WORKDIR;
 	public $skipall = false;
 	public $skipcheck = false;
 	public $nostatic = false;
@@ -44,7 +46,7 @@ class ReleaseCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s release [--skipall] [--skipcheck] [--nostatic] [-o <dir>]\n", SCRIPT);
+		printf("%s release [--skipall] [--skipcheck] [--nostatic] [-o <dir>]\n", CF_SCRIPT);
 		echo "Release project files.\nList of options:\n";
 		echo "\t-o 			- output directory\n";
 		echo "\t--skipall	- skip all modified files\n";

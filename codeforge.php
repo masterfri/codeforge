@@ -15,17 +15,19 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 $args = $_SERVER['argv'];
 array_shift($args);
 
-define('SCRIPT', 'cf');
-define('PROGRAMM', 'CodeForge');
-define('VERSION', '2.0-dev');
-define('THISDIR', dirname(__FILE__));
-define('WORKDIR', getcwd());
-define('LIB_DIR', THISDIR . '/lib');
+define('CF_SCRIPT', 'cf');
+define('CF_PROGRAMM', 'CodeForge');
+define('CF_VERSION', '2.0-dev');
+define('CF_THISDIR', dirname(__FILE__));
+define('CF_WORKDIR', getcwd());
+define('CF_LIB_DIR', CF_THISDIR . '/lib');
 
-require_once LIB_DIR . '/Command.php';
+require_once CF_LIB_DIR . '/Command.php';
 
 try {
 	Command::factory($args)->run();

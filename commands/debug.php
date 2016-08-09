@@ -14,8 +14,10 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Parser.php';
-require_once LIB_DIR . '/Builder.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/Parser.php';
+require_once CF_LIB_DIR . '/Builder.php';
 
 class DebugCommand extends Command
 {
@@ -23,7 +25,7 @@ class DebugCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s debug [model1] [model2] ...\n", SCRIPT);
+		printf("%s debug [model1] [model2] ...\n", CF_SCRIPT);
 		echo "Print debugging output.\n";
 	}
 	

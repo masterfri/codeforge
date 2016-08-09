@@ -14,8 +14,10 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Tokenizer.php';
-require_once LIB_DIR . '/FileTokenizer.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/Tokenizer.php';
+require_once CF_LIB_DIR . '/FileTokenizer.php';
 
 abstract class AbstractParser
 {
@@ -133,7 +135,7 @@ abstract class AbstractParser
 	}
 }
 
-class ErrException extends Exception
+class ErrException extends \Exception
 {
 	public function __construct($message, $place)
 	{
@@ -149,7 +151,7 @@ class SyntaxErrorException extends ErrException
 	}
 }
 
-class ModelException extends Exception
+class ModelException extends \Exception
 {
 }
 

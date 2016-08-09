@@ -3,28 +3,28 @@
 $this->registerHelper('attribute_type', function ($invoker, $attribute) 
 {
 	switch ($attribute->getType()) {
-		case Attribute::TYPE_INT: 
+		case Codeforge\Attribute::TYPE_INT: 
 			return 'INTEGER' . ($attribute->getIsUnsigned() ? ' UNSIGNED' : '');
 			
-		case Attribute::TYPE_DECIMAL: 
+		case Codeforge\Attribute::TYPE_DECIMAL: 
 			return 'DECIMAL' . (is_array($attribute->getSize()) ? sprintf('(%s)', implode(',', $attribute->getSize())) : '') . ($attribute->getIsUnsigned() ? ' UNSIGNED' : '');
 			
-		case Attribute::TYPE_CHAR:
+		case Codeforge\Attribute::TYPE_CHAR:
 			return sprintf('VARCHAR(%d)', $attribute->getSize() ? $attribute->getSize() : 250);
 			
-		case Attribute::TYPE_TEXT: 
+		case Codeforge\Attribute::TYPE_TEXT: 
 			return 'TEXT';
 			
-		case Attribute::TYPE_BOOL: 
+		case Codeforge\Attribute::TYPE_BOOL: 
 			return 'TINYINT UNSIGNED';
 			
-		case Attribute::TYPE_INTOPTION: 
+		case Codeforge\Attribute::TYPE_INTOPTION: 
 			return 'INTEGER';
 			
-		case Attribute::TYPE_STROPTION: 
+		case Codeforge\Attribute::TYPE_STROPTION: 
 			return sprintf('VARCHAR(%d)', $invoker->refer('optimal_option_len', $attribute->getOptions(), 10));
 			
-		case Attribute::TYPE_CUSTOM: 
+		case Codeforge\Attribute::TYPE_CUSTOM: 
 		default:
 			return 'TEXT';
 	}
@@ -37,7 +37,7 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 	$keys = array();
 	foreach ($model->getAttributes() as $attribute) {
 		if (!$attribute->getIsCollection()) {
-			if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+			if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 				if ('many-to-one' == $invoker->refer('attribute_relation', $attribute)) {
 					$definition = sprintf('`%s_id` INTEGER UNSIGNED', $attribute->getName());
 					if ($attribute->getBoolHint('required')) {
@@ -117,7 +117,7 @@ $this->registerHelper('model_foreign_keys', function ($invoker, $model)
 	$result = array();
 	foreach ($model->getAttributes() as $attribute) {
 		if (!$attribute->getIsCollection()) {
-			if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+			if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 				if ('many-to-one' == $invoker->refer('attribute_relation', $attribute)) {
 					$table = $invoker->refer('table_name', $model);
 					$reftable = $invoker->refer('table_name', $attribute->getCustomType());
@@ -163,7 +163,7 @@ $this->registerHelper('many_many_tables', function ($invoker)
 	foreach ($models as $model) {
 		foreach ($model->getAttributes() as $attribute) {
 			if ($attribute->getIsCollection()) {
-				if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
+				if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
 					if ('many-to-many' == $invoker->refer('attribute_relation', $attribute)) {
 						$link = $attribute->getHint('manymanylink');
 						if ($link && preg_match('#([a-z0-9_]+)\s*[(]\s*([a-z0-9_]+)\s*,\s*([a-z0-9_]+)\s*[)]#i', $link, $matches)) {

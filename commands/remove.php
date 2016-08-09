@@ -14,7 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/FileHelper.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/FileHelper.php';
 
 class RemoveCommand extends Command
 {
@@ -31,7 +33,7 @@ class RemoveCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s remove [-s] <name>\n", SCRIPT);
+		printf("%s remove [-s] <name>\n", CF_SCRIPT);
 		echo "Remove a model from project.\nList of options:\n";
 		echo "\t-s keep source file.\n";
 	}

@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * This class is correspond to ACL

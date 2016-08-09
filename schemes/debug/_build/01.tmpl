@@ -3,7 +3,7 @@ model {%= $another_model->getName() %} {
 	attributes {
 {% foreach ($another_model->getAttributes() as $attribute): %}
 		{%= $attribute->getName() %} {%= $attribute->getBoolHint('required') ? '*' : ''; %}: {% if($attribute->getIsCustomType()): %}
-{% if($attribute->getType() == Attribute::TYPE_CUSTOM && $relation = attribute_relation($attribute)): %}
+{% if($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM && $relation = attribute_relation($attribute)): %}
 {% if('many-to-many' == $relation): %}+-(N)---(N)-+ {% elseif('many-to-one' == $relation): %}
 <-(N)---(1)-+ {% elseif('one-to-many' == $relation): %}
 +-(1)---(N)-> {% else: %}
@@ -13,7 +13,7 @@ model {%= $another_model->getName() %} {
 {% else: %}
 {%= attribute_type($attribute) %}
 {% endif %}
-{% if($attribute->getType() == Attribute::TYPE_INTOPTION || $attribute->getType() == Attribute::TYPE_STROPTION): %} {
+{% if($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION || $attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %} {
 {% foreach($attribute->getOptions() as $k => $v): %}
 			{%= $k %}: {%= $v %} 
 {% endforeach %}

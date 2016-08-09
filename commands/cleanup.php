@@ -14,13 +14,15 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/FileHelper.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/FileHelper.php';
 
 class CleanupCommand extends Command
 {
 	public function printHelp()
 	{
-		printf("%s cleanup\n", SCRIPT);
+		printf("%s cleanup\n", CF_SCRIPT);
 		echo "Remove temporary files.\n";
 	}
 	

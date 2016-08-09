@@ -14,7 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/EasyConfig.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/EasyConfig.php';
 
 abstract class Command
 {
@@ -54,7 +56,7 @@ abstract class Command
 	
 	public static function factory($args)
 	{
-		$path = THISDIR . '/commands';
+		$path = CF_THISDIR . '/commands';
 		
 		$commands = array();
 		do {
@@ -67,19 +69,19 @@ abstract class Command
 			}
 			$commands[] = $command;
 			if (!preg_match(self::COMMAND_NAME_PATTERN, $command)) {
-				throw new Exception("Invalid command: " . implode(' ', $commands));
+				throw new \Exception("Invalid command: " . implode(' ', $commands));
 			}
 			$path = $path . '/' . $command;
 		} while (is_dir($path));
 		
 		$path = $path . '.php';
 		if (!is_file($path) || !is_readable($path)) {
-			throw new Exception("Invalid command: " . implode(' ', $commands));
+			throw new \Exception("Invalid command: " . implode(' ', $commands));
 		}
 		require_once $path;
 		$className = implode(array_map('ucfirst', $commands)).'Command';
 		if (!class_exists($className, false)) {
-			throw new Exception("Invalid command: " . implode(' ', $commands));
+			throw new \Exception("Invalid command: " . implode(' ', $commands));
 		}
 		
 		$command = new $className();
@@ -98,7 +100,7 @@ abstract class Command
 			} elseif (method_exists($command, $propname)) {
 				$command->$propname($value);
 			} elseif (!$command->acceptArg($propname, $value)) {
-				throw new Exception("Invalid argument: " . $argname);
+				throw new \Exception("Invalid argument: " . $argname);
 			}
 		}
 		$command->init();
@@ -150,20 +152,20 @@ abstract class Command
 	{
 		if (isset($rules[$argv])) {
 			if (empty($args) || substr(current($args), 0, 1) == '-') {
-				throw new Exception("Option $argv requires an argument");
+				throw new \Exception("Option $argv requires an argument");
 			}
 			$rule = $rules[$argv];
 			$value = array_shift($args);
 			if ('i' == $rule) {
 				if (!preg_match('/^[0-9]+$/', $value)) {
-					throw new Exception("Option $argv requires an integer value as argument");
+					throw new \Exception("Option $argv requires an integer value as argument");
 				}
 			} elseif ('n' == $rule) {
 				if (!is_numeric($value)) {
-					throw new Exception("Option $argv requires numerical argument");
+					throw new \Exception("Option $argv requires numerical argument");
 				}
 			} elseif ('s' != $rule) {
-				throw new Exception("Invalid option rule: $rule");
+				throw new \Exception("Invalid option rule: $rule");
 			}
 			return $value;
 		} else {
@@ -184,47 +186,47 @@ abstract class Command
 	
 	protected function getProjectDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME;
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME;
 	}
 	
 	protected function getCacheDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/cache';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/cache';
 	}
 	
 	protected function getCompiledDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/compiled';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/compiled';
 	}
 	
 	protected function getStaticDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static';
 	}
 	
 	protected function getPartialDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/partial';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/partial';
 	}
 	
 	protected function getStaticPartialDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static-partial';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/static-partial';
 	}
 	
 	protected function getSrcDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/src';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/src';
 	}
 	
 	protected function getDefaultSchemeDir()
 	{
-		return THISDIR . '/schemes';
+		return CF_THISDIR . '/schemes';
 	}
 	
 	protected function getCustomSchemeDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/schemes';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/schemes';
 	}
 	
 	protected function getUserSchemeDir()
@@ -234,12 +236,12 @@ abstract class Command
 	
 	protected function getDefaultExtensionsDir()
 	{
-		return THISDIR . '/extensions';
+		return CF_THISDIR . '/extensions';
 	}
 	
 	protected function getCustomExtensionsDir()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/extensions';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/extensions';
 	}
 	
 	protected function getUserExtensionsDir()
@@ -249,7 +251,7 @@ abstract class Command
 	
 	protected function getConfigFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/project.manifest';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/project.manifest';
 	}
 	
 	protected function getGlobalConfigFile()
@@ -259,12 +261,12 @@ abstract class Command
 	
 	protected function getIgnoreListFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/ignore.list';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/ignore.list';
 	}
 	
 	protected function getChecksumListFile()
 	{
-		return WORKDIR . '/' . self::PROJECT_DIR_NAME . '/checksum.list';
+		return CF_WORKDIR . '/' . self::PROJECT_DIR_NAME . '/checksum.list';
 	}
 	
 	protected function filterDirs($dirs)
@@ -286,7 +288,7 @@ abstract class Command
 		$basename = str_replace('.', '/', $name);
 		return $this->filterDirs(array(
 			$this->getUserDir() . '/templates/' . $basename,
-			THISDIR . '/templates/' . $basename,
+			CF_THISDIR . '/templates/' . $basename,
 		));
 	}
 	
@@ -295,7 +297,7 @@ abstract class Command
 		$basename = str_replace('.', '/', $name) . '.tmpl';
 		$files = $this->filterFiles(array(
 			$this->getUserDir() . '/templates/' . $basename,
-			THISDIR . '/templates/' . $basename,
+			CF_THISDIR . '/templates/' . $basename,
 		));
 		return current($files);
 	}
@@ -312,8 +314,8 @@ abstract class Command
 			$config->readFile($this->getConfigFile());
 			$this->_config = $config->getData();
 			$version = isset($data['version']) ? $data['version'] : '1.0';
-			if (version_compare($version, VERSION, '>')) {
-				throw new Exception(PROGRAMM . ' version (' . VERSION . ') is less than project version (' . $version . ')');
+			if (version_compare($version, CF_VERSION, '>')) {
+				throw new \Exception(CF_PROGRAMM . ' version (' . CF_VERSION . ') is less than project version (' . $version . ')');
 			}
 		}
 		return $this->_config;
@@ -348,7 +350,7 @@ abstract class Command
 			$dir = dirname($this->getGlobalConfigFile());
 			if (!is_dir($dir)) {
 				if (!@mkdir($dir, 0700, true)) {
-					throw new Exception(sprintf('Can not create directory `%s`', $dir));
+					throw new \Exception(sprintf('Can not create directory `%s`', $dir));
 				}
 			}
 			$config->writeToFile($this->getGlobalConfigFile());

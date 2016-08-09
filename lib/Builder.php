@@ -14,10 +14,12 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Registry.php';
-require_once LIB_DIR . '/HelperInvoker.php';
-require_once LIB_DIR . '/FunctionCaller.php';
-require_once LIB_DIR . '/HelperChain.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/Registry.php';
+require_once CF_LIB_DIR . '/HelperInvoker.php';
+require_once CF_LIB_DIR . '/FunctionCaller.php';
+require_once CF_LIB_DIR . '/HelperChain.php';
 
 class Builder
 {
@@ -80,7 +82,7 @@ class Builder
 	public function setEnv($name, $value='')
 	{
 		if (is_array($name)) {
-			$this->env = $value;
+			$this->env = $name;
 		} else {
 			$this->env[$name] = $value;
 		}
@@ -170,7 +172,7 @@ class Builder
 		
 		foreach ($dirs as $dir) {
 			if (! is_dir($dir) || !is_readable($dir)) {
-				throw new Exception("Directory `$dir` is not exists");
+				throw new \Exception("Directory `$dir` is not exists");
 			}
 			$this->scheme_dir[] = rtrim($dir, '/') . '/';
 		}
@@ -191,7 +193,7 @@ class Builder
 		
 		foreach ($dirs as $dir) {
 			if (! is_dir($dir) || !is_readable($dir)) {
-				throw new Exception("Directory `$dir` is not exists");
+				throw new \Exception("Directory `$dir` is not exists");
 			}
 			$this->extensions_dir[] = rtrim($dir, '/') . '/';
 		}
@@ -205,7 +207,7 @@ class Builder
 	public function setCacheDir($dir)
 	{
 		if (! is_dir($dir) || !is_writable($dir)) {
-			throw new Exception("Directory `$dir` is not exists or is not writable");
+			throw new \Exception("Directory `$dir` is not exists or is not writable");
 		}
 		$this->cache_dir = rtrim($dir, '/') . '/';
 	}
@@ -218,7 +220,7 @@ class Builder
 	public function setPartialDir($dir)
 	{
 		if (! is_dir($dir) || !is_writable($dir)) {
-			throw new Exception("Directory `$dir` not exists or it's not writable");
+			throw new \Exception("Directory `$dir` not exists or it's not writable");
 		}
 		$this->partial_dir = rtrim($dir, '/') . '/';
 	}
@@ -231,7 +233,7 @@ class Builder
 		}
 		foreach ($dirs as $dir) {
 			if (! is_dir($dir)) {
-				throw new Exception("Directory `$dir` not exists");
+				throw new \Exception("Directory `$dir` not exists");
 			}
 			$this->static_partial_dir[] = rtrim($dir, '/') . '/';
 		}
@@ -361,16 +363,16 @@ class Builder
 	protected function openFile($name)
 	{
 		if ($this->current_file !== null) {
-			throw new Exception("Only one file can be opened at same time");
+			throw new \Exception("Only one file can be opened at same time");
 		}
 		$this->current_file = $this->work_dir . ltrim($name, '/');
 		$dir = dirname($this->current_file);
 		if (! is_dir($dir)) {
 			if (! @mkdir($dir, $this->dirperms, true)) {
-				throw new Exception("Can't create directory `$dir`");
+				throw new \Exception("Can't create directory `$dir`");
 			}
 		} elseif (! is_writable($dir)) {
-			throw new Exception("Directory `$dir` is not writable");
+			throw new \Exception("Directory `$dir` is not writable");
 		}
 		ob_start();
 	}
@@ -378,16 +380,16 @@ class Builder
 	protected function openPartial($partial_id, $part_id)
 	{
 		if ($this->current_file !== null) {
-			throw new Exception("Only one file can be opened at same time");
+			throw new \Exception("Only one file can be opened at same time");
 		}
 		$this->current_file = $this->partial_dir . $partial_id . '/' . $part_id . '.part';
 		$dir = dirname($this->current_file);
 		if (! is_dir($dir)) {
 			if (! @mkdir($dir, $this->dirperms, true)) {
-				throw new Exception("Can't create directory `$dir`");
+				throw new \Exception("Can't create directory `$dir`");
 			}
 		} elseif (! is_writable($dir)) {
-			throw new Exception("Directory `$dir` is not writable");
+			throw new \Exception("Directory `$dir` is not writable");
 		}
 		ob_start();
 	}
@@ -395,11 +397,11 @@ class Builder
 	protected function closeFile()
 	{
 		if ($this->current_file === null) {
-			throw new Exception("Trying to close file, but file is not opened");
+			throw new \Exception("Trying to close file, but file is not opened");
 		}
 		file_put_contents($this->current_file, ob_get_clean());
 		if (!@chmod($this->current_file, $this->fileperms)) {
-			throw new Exception("Can't change permissions for `{$this->current_file}`");
+			throw new \Exception("Can't change permissions for `{$this->current_file}`");
 		}
 		$this->current_file = null;
 	}
@@ -456,7 +458,7 @@ class Builder
 		}
 		
 		if (!$found) {
-			throw new Exception("Scheme `$scheme` not found");
+			throw new \Exception("Scheme `$scheme` not found");
 		}
 		
 		ksort($result);
@@ -491,7 +493,7 @@ class Builder
 				}
 				closedir($h);
 			} else {
-				throw new Exception("Can't load extensions from `$dir`");
+				throw new \Exception("Can't load extensions from `$dir`");
 			}
 		}
 	}

@@ -14,7 +14,9 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/AbstractParser.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/AbstractParser.php';
 
 class CfonParser extends AbstractParser
 {

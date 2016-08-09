@@ -14,8 +14,10 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
-require_once LIB_DIR . '/Parser.php';
-require_once LIB_DIR . '/Builder.php';
+namespace Codeforge;
+
+require_once CF_LIB_DIR . '/Parser.php';
+require_once CF_LIB_DIR . '/Builder.php';
 
 class BuildCommand extends Command
 {
@@ -32,7 +34,7 @@ class BuildCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s build [scheme] ... \n", SCRIPT);
+		printf("%s build [scheme] ... \n", CF_SCRIPT);
 		echo "Build project.\n";
 	}
 

@@ -14,6 +14,8 @@
 	GNU General Public License for more details (http://www.gnu.org).
 */
 
+namespace Codeforge;
+
 class ConfigDefaultCommand extends Command
 {
 	public function printHelp()
@@ -29,28 +31,28 @@ class ConfigDefaultCommand extends Command
 	
 	public function printHelpGet()
 	{
-		printf("%s config get [-g] <name>\n", SCRIPT);
+		printf("%s config get [-g] <name>\n", CF_SCRIPT);
 		echo "Display project option.\nList of options:\n";
 		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpSet()
 	{
-		printf("%s config set [-g] <name> <value>\n", SCRIPT);
+		printf("%s config set [-g] <name> <value>\n", CF_SCRIPT);
 		echo "Set project option.\nList of options:\n";
 		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpUnset()
 	{
-		printf("%s config unset [-g] <name>\n", SCRIPT);
+		printf("%s config unset [-g] <name>\n", CF_SCRIPT);
 		echo "Unset project option.\nList of options:\n";
 		echo "\t-g use global config.\n";
 	}
 	
 	public function printHelpShow()
 	{
-		printf("%s config show [-g]\n", SCRIPT);
+		printf("%s config show [-g]\n", CF_SCRIPT);
 		echo "Display all project options.\nList of options:\n";
 		echo "\t-g use global config.\n";
 	}
