@@ -6,4 +6,11 @@ class SiteController extends Controller
 	{
 		$this->render('index');
 	}
+	
+	public function actionError()
+	{
+		$this->render('error', array(
+			'error' => Yii::app()->errorHandler->error,
+		));
+	}
 }

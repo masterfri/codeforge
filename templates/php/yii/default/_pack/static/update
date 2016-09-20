@@ -2,7 +2,13 @@
 
 if [ ! -f "yii/yii.php" ]
 then
-	ln -s "" "yii"
+	if [ -f "$YII_PATH/yii.php" ]
+	then
+		ln -s "$YII_PATH" "yii"
+	else
+		echo "Error: Path to Yii framework is wrong!"
+		exit;
+	fi
 fi
 
 if [ ! -d "public_html/assets" ]
