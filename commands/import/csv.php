@@ -46,6 +46,7 @@ class ImportCsvCommand extends Command
 		}
 		if (!preg_match(self::MODEL_NAME_PATTERN, $this->name)) {
 			$this->say("Invalid model name: %s", $this->name);
+			$this->setExitCode(1);
 			return;
 		} 
 		
@@ -54,12 +55,14 @@ class ImportCsvCommand extends Command
 		}
 		if (!is_file($this->file) || !is_readable($this->file)) {
 			$this->say("Can't open import file: `%s`", $this->file);
+			$this->setExitCode(2);
 			return;
 		} 
 		
 		$file = $this->getModelFile($this->name);
 		if (!$this->force && $this->isProjectHasFile($file)) {
 			if (!$this->confirm(sprintf("Model %s already added to project. Overwrite it?", $this->name))) {
+				$this->setExitCode(3);
 				return;
 			}
 		}

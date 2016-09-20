@@ -30,9 +30,12 @@ define('CF_LIB_DIR', CF_THISDIR . '/lib');
 require_once CF_LIB_DIR . '/Command.php';
 
 try {
-	Command::factory($args)->run();
+	$command = Command::factory($args);
+	$command->run();
+	exit($command->getExitCode());
 } catch (Exception $e) {
 	echo "[CF] Error: ";
 	echo $e->getMessage();
 	echo ".\n";
+	exit(-1);
 }

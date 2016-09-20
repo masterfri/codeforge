@@ -1,0 +1,11 @@
+{% open_partial('php.yii.migration.create', $model->getName()) %}
+		/*
+		 * Table structure for {%= $model->getName(); %} model
+		 */
+		$this->createTable('{%= table_name($model) %}', array(
+			'id' => 'pk',
+{% foreach(model_columns($model) as $definition): %}
+			{%= $definition %},
+{% endforeach %}
+        ), 'AUTO_INCREMENT=1 CHARSET=utf8 COLLATE=utf8_unicode_ci');
+{% close_file() %}

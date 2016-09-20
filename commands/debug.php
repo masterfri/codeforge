@@ -47,11 +47,13 @@ class DebugCommand extends Command
 			foreach ($this->names as $name) {
 				if (!preg_match(self::MODEL_NAME_PATTERN, $name)) {
 					$this->say("Invalid model name: %s", $name);
+					$this->setExitCode(1);
 					return;
 				}
 				$file = $this->getModelFile($name);
 				if (!$this->isProjectHasFile($file)) {
 					$this->say("Model %s is not in project", $name);
+					$this->setExitCode(2);
 					return;
 				}
 				$input[] = $file;

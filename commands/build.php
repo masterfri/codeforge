@@ -43,6 +43,7 @@ class BuildCommand extends Command
 		$input = $this->getProjectFiles();
 		if (empty($input)) {
 			$this->say("Nothing to compile");
+			$this->setExitCode(1);
 			return;
 		}
 		$options = $this->getConfigOption();

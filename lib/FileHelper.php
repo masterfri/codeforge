@@ -187,6 +187,7 @@ class FileHelper
 			if (! @copy($file, $copyname)) {
 				throw new \Exception("Error while copying file `$file`");
 			}
+			self::chmod($copyname, fileperms($file) & 0777);
 		}
 	}
 	

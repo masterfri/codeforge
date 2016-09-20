@@ -45,12 +45,14 @@ class RemoveCommand extends Command
 		}
 		if (!preg_match(self::MODEL_NAME_PATTERN, $this->name)) {
 			$this->say("Invalid model name: %s", $this->name);
+			$this->setExitCode(1);
 			return;
 		}
 		
 		$file = $this->getModelFile($this->name);
 		if (!$this->isProjectHasFile($file)) {
 			$this->say("Model %s is not in project", $this->name);
+			$this->setExitCode(2);
 			return;
 		}
 		

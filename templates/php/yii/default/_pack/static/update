@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ ! -f "yii/yii.php" ]
+then
+	ln -s "" "yii"
+fi
+
+if [ ! -d "public_html/assets" ]
+then
+	mkdir "public_html/assets"
+	chmod a+w "public_html/assets"
+fi
+
+if [ ! -d "protected/runtime" ]
+then
+	mkdir "protected/runtime"
+	chmod a+w "protected/runtime"
+fi
+
+php protected/yiic.php migrate --interactive=0

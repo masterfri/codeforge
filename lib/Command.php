@@ -28,6 +28,8 @@ abstract class Command
 	protected $_config;
 	protected $_config_global;
 	
+	protected $_exit_code = 0;
+	
 	abstract public function run();
 	
 	public function printHelp()
@@ -79,7 +81,7 @@ abstract class Command
 			throw new \Exception("Invalid command: " . implode(' ', $commands));
 		}
 		require_once $path;
-		$className = implode(array_map('ucfirst', $commands)).'Command';
+		$className = '\\Codeforge\\'.implode(array_map('ucfirst', $commands)).'Command';
 		if (!class_exists($className, false)) {
 			throw new \Exception("Invalid command: " . implode(' ', $commands));
 		}
@@ -530,5 +532,15 @@ abstract class Command
 			$this->setConfigOption($name, $val);
 			return $val;
 		}
+	}
+	
+	protected function setExitCode($code)
+	{
+		$this->_exit_code = $code;
+	}
+	
+	public function getExitCode()
+	{
+		return $this->_exit_code;
 	}
 }

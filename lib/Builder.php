@@ -43,6 +43,7 @@ class Builder
 	protected static $loaded_helper_groups = array();
 	protected static $helpers = array();
 	protected static $loaded_extensions = array();
+	protected static $loaded_namespaces = array();
 	
 	public function __construct(Command $command)
 	{
@@ -277,15 +278,15 @@ class Builder
 	
 	protected function applySchemeTemplate(Model $model, $template)
 	{
-		include $this->complieTemplate($template);
+		include $this->compileTemplate($template);
 	}
 	
 	protected function buildUsingSchemeTemplate($template)
 	{
-		include $this->complieTemplate($template);
+		include $this->compileTemplate($template);
 	}
 	
-	protected function complieTemplate($template)
+	protected function compileTemplate($template)
 	{
 		$cachefile = $this->cache_dir . md5($template).'.ctmpl';
 		if (!is_file($cachefile) || filemtime($cachefile) < filemtime($template)) {
@@ -306,7 +307,7 @@ class Builder
 						$part = preg_replace('/^\s*start_model_list/', 'foreach($this->getModels() as $another_model):', $part);
 						$part = preg_replace('/^\s*end_(attr|model)_list/', 'endforeach;', $part);
 						$part = preg_replace('/^\s*=/', 'echo ', $part);
-						$part = preg_replace_callback('/(?<!->|::)\b([a-zA-Z_][a-zA-Z0-9_]*)\s*[(]/', function($m) {
+						$part = preg_replace_callback('/(?<!->|::|\\\\)\b([a-zA-Z_][a-zA-Z0-9_]*)\s*[(]/', function($m) {
 							$n = strtolower($m[1]);
 							if (in_array($n, array('if', 'elseif', 'while', 'switch', 'foreach', 'for', 'function', 'array', 'list'))) {
 								return $m[0];
@@ -446,6 +447,7 @@ class Builder
 			foreach ($components as $component) {
 				$fullpath .= $component . '/';
 				$this->active_namespace .= '::' . $component;
+				$this->loaded_namespaces[] = $this->active_namespace;
 				$this->loadHelpers($fullpath);
 			}
 			$fullpath .= $this->mode . '/';
@@ -463,6 +465,33 @@ class Builder
 		
 		ksort($result);
 		return $result;
+	}
+	
+	protected function ensureHelpersLoaded($namespace)
+	{
+		if (!in_array($namespace, $this->loaded_namespaces)) {
+			$this->loadNamespaceHelpers($namespace);
+		}
+	}
+	
+	protected function loadNamespaceHelpers($namespace)
+	{
+		$active_namespace = $this->active_namespace;
+		
+		foreach ($this->scheme_dir as $dir) {
+			$fullpath = $dir;
+			$components = explode('::', $namespace);
+			array_shift($components);
+			$this->active_namespace = '';
+			foreach ($components as $component) {
+				$fullpath .= $component . '/';
+				$this->active_namespace .= '::' . $component;
+				$this->loaded_namespaces[] = $this->active_namespace;
+				$this->loadHelpers($fullpath);
+			}
+		}
+		
+		$this->active_namespace = $active_namespace;
 	}
 	
 	protected function loadCommonHelpers()
@@ -534,10 +563,14 @@ class Builder
 		$chain->add($function, $priority);
 	}
 	
-	public function invokeHelper($name, $reusable=false, $quiet=false)
+	public function invokeHelper($name, $reusable=false, $quiet=false, $usenamespace=null)
 	{
 		$candidates = array();
-		$namespaces = explode('::', $this->active_namespace);
+		$usednamespace = $usenamespace === null ? $this->active_namespace : $usenamespace;
+		$namespaces = explode('::', $usednamespace);
+		if ($usednamespace != $this->active_namespace) {
+			$this->ensureHelpersLoaded($usednamespace);
+		}
 		do {
 			$namespace = implode('::', $namespaces);
 			if (empty($namespace)) {
@@ -556,7 +589,7 @@ class Builder
 		if (empty($candidates) && false == $quiet) {
 			$this->message("Unknow helper: $name");
 		}
-		return new HelperInvoker($this, $candidates, $reusable);
+		return new HelperInvoker($this, $candidates, $reusable, $usednamespace);
 	}
 	
 	public function arrayMap($name, $array)
@@ -631,7 +664,7 @@ class Builder
 	{
 		extract($__data__);
 		ob_start();
-		include $this->complieTemplate($__file__);
+		include $this->compileTemplate($__file__);
 		$output = ob_get_clean();
 		if ($padding) {
 			if (is_int($padding)) {

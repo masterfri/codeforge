@@ -22,11 +22,13 @@ class HelperInvoker
 	protected $candidates;
 	protected $original_candidates;
 	protected $args;
+	protected $namespace;
 	
-	public function __construct($builder, $candidates, $reusable=false)
+	public function __construct($builder, $candidates, $reusable=false, $namespace=null)
 	{
 		$this->builder = $builder;
 		$this->candidates = $candidates;
+		$this->namespace = $namespace;
 		if ($reusable) {
 			$this->original_candidates = $candidates;
 		}
@@ -69,7 +71,16 @@ class HelperInvoker
 	{
 		$args = func_get_args();
 		$name = array_shift($args);
-		$invoker = $this->builder->invokeHelper($name);
+		$invoker = $this->builder->invokeHelper($name, false, false, $this->namespace);
+		return call_user_func_array(array($invoker, 'call'), $args);
+	}
+	
+	public function referNamespace()
+	{
+		$args = func_get_args();
+		$namespace = array_shift($args);
+		$name = array_shift($args);
+		$invoker = $this->builder->invokeHelper($name, false, false, $namespace);
 		return call_user_func_array(array($invoker, 'call'), $args);
 	}
 	

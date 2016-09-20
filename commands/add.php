@@ -58,6 +58,7 @@ class AddCommand extends Command
 		if ($this->import) {
 			if (!empty($this->name)) {
 				$this->say("Key -i can't be used with <name> argument");
+				$this->setExitCode(1);
 				return;
 			}
 			
@@ -74,12 +75,14 @@ class AddCommand extends Command
 			}
 			if (!preg_match(self::MODEL_NAME_PATTERN, $this->name)) {
 				$this->say("Invalid model name: %s", $this->name);
+				$this->setExitCode(2);
 				return;
 			}
 			
 			$file = $this->getModelFile($this->name);
 			if ($this->isProjectHasFile($file)) {
 				$this->say("Model %s already added to project", $this->name);
+				$this->setExitCode(3);
 				return;
 			}
 			
@@ -91,6 +94,7 @@ class AddCommand extends Command
 					} elseif ($answer == 'r') {
 						$this->restore = true;
 					} else {
+						$this->setExitCode(5);
 						return;
 					}
 				}
@@ -114,6 +118,7 @@ class AddCommand extends Command
 		$tmplfile = $this->getBlank($template);
 		if (!$tmplfile) {
 			$this->say("Unknow template: %s", $template);
+			$this->setExitCode(4);
 			return false;
 		}
 		$content = file_get_contents($tmplfile);

@@ -45,6 +45,7 @@ class HelpCommand extends Command
 				$c->printHelp();
 			} catch (Exception $e) {
 				$this->say("Unknow or invalid command: %s", implode(' ', $commands));
+				$this->setExitCode(1);
 			}
 		}
 	}

@@ -24,10 +24,14 @@ class ReleaseCommand extends Command
 	public $skipall = false;
 	public $skipcheck = false;
 	public $nostatic = false;
+	public $printsum = false;
+	public $flashmode = false;
+	public $overwrite = false;
 
 	protected $_ignorelist;
 	protected $_checksumlist;
 	protected $_update_ignorelist = false;
+	protected $_has_conflicts = false;
 	
 	public function argsmap()
 	{
@@ -46,12 +50,16 @@ class ReleaseCommand extends Command
 	
 	public function printHelp()
 	{
-		printf("%s release [--skipall] [--skipcheck] [--nostatic] [-o <dir>]\n", CF_SCRIPT);
+		printf("%s release [--skipall] [--skipcheck] [--nostatic] [--flashmode] [-o <dir>]\n", CF_SCRIPT);
 		echo "Release project files.\nList of options:\n";
-		echo "\t-o 			- output directory\n";
+		echo "\t-o			- output directory\n";
 		echo "\t--skipall	- skip all modified files\n";
+		echo "\t--overwrite	- overwrite all modified files\n";
 		echo "\t--skipcheck	- skip files checking\n";
 		echo "\t--nostatic	- don't copy static files\n";
+		echo "\t--printsum	- print files checksum instead of updating checksum file\n";
+		echo "\t--flashmode	- disable interaction, print conflicting files\n";
+		echo "\t			  if any and exit\n";
 	}
 	
 	public function run()
@@ -74,15 +82,25 @@ class ReleaseCommand extends Command
 			$this->checkSafeCopy($static, $this->getStaticDir());
 		}
 		
-		$this->copyFiles($compiled, $this->getCompiledDir());
-		$this->copyFiles($static, $this->getStaticDir());
-		
-		$this->updateChecksumList();
-		if ($this->_update_ignorelist) {
-			$this->updateIgnoreList();
+		if ($this->_has_conflicts) {
+			$this->setExitCode(1);
+		} else {
+			$this->copyFiles($compiled, $this->getCompiledDir());
+			$this->copyFiles($static, $this->getStaticDir());
+			
+			if ($this->_update_ignorelist) {
+				$this->updateIgnoreList();
+			}
+			if ($this->printsum) {
+				$this->printChecksumList();
+			} else {
+				$this->updateChecksumList();
+			}
+			
+			if (!$this->printsum && !$this->flashmode) {
+				$this->say("Done");
+			}
 		}
-		
-		$this->say("Done");
 	}
 	
 	protected function checkSafeCopy(&$filelist, $srcdir)
@@ -105,7 +123,12 @@ class ReleaseCommand extends Command
 				}
 			}
 			if (!$safe) {
-				if ($this->skipall) {
+				if ($this->overwrite) {
+					$this->say("Overwritten: %s", $file);
+				} elseif ($this->flashmode) {
+					$this->_has_conflicts = true;
+					printf("CONFLICT: %s\n", $file);
+				} elseif ($this->skipall) {
 					unset($filelist[$n]);
 					$this->say("Skipped: %s", $file);
 				} else {
@@ -193,6 +216,13 @@ class ReleaseCommand extends Command
 				FileHelper::copy($from, $to);
 			}
 			$this->_checksumlist[$file] = md5_file($to);
+		}
+	}
+	
+	protected function printChecksumList()
+	{
+		foreach ($this->_checksumlist as $file => $sum) {
+			echo "$sum $file\n";
 		}
 	}
 }

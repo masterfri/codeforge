@@ -78,6 +78,7 @@ class InitCommand extends Command
 		if (is_dir($dir)) {
 			if (!$this->force) {
 				if (!$this->confirm(sprintf("Project already found in `%s`. Cleanup old project?", CF_WORKDIR))) {
+					$this->setExitCode(1);
 					return;
 				}
 			}
@@ -111,6 +112,7 @@ class InitCommand extends Command
 	{
 		if (in_array($feature, $this->excluded)) {
 			$this->say("Feature is in exclude list, but it is required: %s", $feature);
+			$this->setExitCode(2);
 			return false;
 		}
 		if (!isset($this->_requirements[$feature])) {
@@ -148,6 +150,7 @@ class InitCommand extends Command
 			}
 			if (!$has_pack) {
 				$this->say("Unknow feature: %s", $feature);
+				$this->setExitCode(3);
 				return false;
 			}
 		}
