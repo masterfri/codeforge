@@ -25,6 +25,6 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 			return 'enum';
 		
 		case Codeforge\Attribute::TYPE_CUSTOM:
-			return 'custom';
+			return $attribute->getCustomType();
 	}
 });
