@@ -1,3 +1,9 @@
+<?php
+
+class m441005_033824_create_file_table extends CDbMigration
+{
+	public function up()
+	{
 		/*
 		 * Table structure for File model
 		 */
@@ -19,3 +25,10 @@
 			'KEY `parent_id` (`parent_id`)',
 			'KEY `user_id` (`user_id`)',
 		), 'AUTO_INCREMENT=1 CHARSET=utf8 COLLATE=utf8_unicode_ci');
+	}
+	
+	public function down()
+	{
+		$this->dropTable('file');
+	}
+}

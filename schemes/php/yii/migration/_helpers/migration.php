@@ -18,7 +18,7 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 					$comment = sprintf('%s, many-to-one relation, foreign key refers to %s', $invoker->refer('attribute_label', $attribute), $attribute->getCustomType());
 					$definition .= sprintf(' COMMENT %s', $invoker->referNamespace('::mysql', 'escape_value', $comment));
 					$columns[] = sprintf('\'%s_id\' => \'%s\'', $attribute->getName(), $definition);
-					$keys[] = sprintf('KEY `idx_%s_id` (`%s_id`)', $attribute->getName(), $attribute->getName());
+					$keys[] = sprintf('\'KEY `idx_%s_id` (`%s_id`)\'', $attribute->getName(), $attribute->getName());
 				}
 			} else {
 				$definition = $invoker->referNamespace('::mysql', 'attribute_type', $attribute);
@@ -45,9 +45,9 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 				if ($attribute->getBoolHint('searchable') || null !== $attribute->getHint('index')) {
 					$index_length = (int) $attribute->getHint('index');
 					if ($index_length > 0) {
-						$keys[] = sprintf('KEY `idx_%s` (`%s`(%d))', $attribute->getName(), $attribute->getName(), $index_length);
+						$keys[] = sprintf('\'KEY `idx_%s` (`%s`(%d))\'', $attribute->getName(), $attribute->getName(), $index_length);
 					} else {
-						$keys[] = sprintf('KEY `idx_%s` (`%s`)', $attribute->getName(), $attribute->getName());
+						$keys[] = sprintf('\'KEY `idx_%s` (`%s`)\'', $attribute->getName(), $attribute->getName());
 					}
 				}
 			}
@@ -68,8 +68,8 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 					$comment = sprintf('many-to-one relation, foreign key refers to %s', $attribute->getOwner()->getName());
 				}
 				$definition .= sprintf(' COMMENT %s', $invoker->referNamespace('::mysql', 'escape_value', $comment));
-				$columns[] = sprintf('\'%s\' => \'%s\'', $attribute->getName(), $definition);
-				$keys[] = sprintf('KEY `idx_%s` (`%s`)', $column_name, $column_name);
+				$columns[] = sprintf('\'%s\' => \'%s\'', $column_name, $definition);
+				$keys[] = sprintf('\'KEY `idx_%s` (`%s`)\'', $column_name, $column_name);
 			}
 		}
 	}
@@ -84,10 +84,15 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 
 $this->registerHelper('many_many_tables', function ($invoker) 
 {
-	return array(); //$invoker->referNamespace('::mysql', 'many_many_tables');
+	return $invoker->referNamespace('::mysql', 'many_many_tables');
 });
 
 $this->registerHelper('table_name', function ($invoker, $model) 
 {
 	return $invoker->referNamespace('::mysql', 'table_name', $model);
+});
+
+$this->registerHelper('migration_name', function ($invoker, $table) 
+{
+	return sprintf('m%s_create_%s_table', date('ymd_His', crc32($table)), $table);
 });

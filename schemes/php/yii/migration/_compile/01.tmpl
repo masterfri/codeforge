@@ -1,4 +1,10 @@
-{% open_partial('php.yii.migration.create', $model->getName()) %}
+{% open_file('protected/migrations/' . migration_name(table_name($model)) . '.php') %}
+<?php
+
+class {%= migration_name(table_name($model)) %} extends CDbMigration
+{
+	public function up()
+	{
 		/*
 		 * Table structure for {%= $model->getName(); %} model
 		 */
@@ -8,4 +14,11 @@
 			{%= $definition %},
 {% endforeach %}
         ), 'AUTO_INCREMENT=1 CHARSET=utf8 COLLATE=utf8_unicode_ci');
+	}
+	
+	public function down()
+	{
+		$this->dropTable('{%= table_name($model) %}');
+	}
+}
 {% close_file() %}

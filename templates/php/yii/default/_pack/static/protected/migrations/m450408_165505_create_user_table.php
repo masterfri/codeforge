@@ -1,3 +1,9 @@
+<?php
+
+class m450408_165505_create_user_table extends CDbMigration
+{
+	public function up()
+	{
 		/*
 		 * Table structure for User model
 		 */
@@ -25,3 +31,10 @@
 			'status' => 1,
 			'date_created' => time(),
 		));
+	}
+	
+	public function down()
+	{
+		$this->dropTable('user');
+	}
+}

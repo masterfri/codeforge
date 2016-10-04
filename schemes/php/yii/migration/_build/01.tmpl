@@ -1,28 +1,26 @@
-{% open_file('protected/migrations/m010101_000000_initial_structure.php') %}
+{% foreach(many_many_tables() as $params): %}
+{% list($amodel, $bmodel, $table, $fk1, $fk2) = $params; %}
+{% open_file('protected/migrations/' . migration_name($table) . '.php') %}
 <?php
 
-class m010101_000000_initial_structure extends CDbMigration
+class {%= migration_name($table) %} extends CDbMigration
 {
 	public function up()
 	{
-{% join_partial('php.yii.migration.create') %}
-
-{% foreach(many_many_tables() as $params): %}
-{% list($amodel, $bmodel, $table, $fk1, $fk2) = $params; %}
 		/*
-		 * {%= $amodel %} and {%= $bmodel %} linker table
+		 * {%= $amodel %} and {%= $bmodel %} many-to-many relation table
 		 */
 		$this->createTable('{%= $table %}', array(
 			'{%= $fk1 %}' => 'INTEGER UNSIGNED NOT NULL',
 			'{%= $fk2 %}' => 'INTEGER UNSIGNED NOT NULL',
 			'PRIMARY KEY (`{%= $fk1 %}`, `{%= $fk2 %}`)',
         ));
-{% endforeach %}
 	}
 	
 	public function down()
 	{
-		return false;
+		$this->dropTable('{%= $table %}');
 	}
 }
 {% close_file() %}
+{% endforeach %}
