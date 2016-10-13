@@ -9,7 +9,7 @@
 			"type": {%= json_encode(attribute_type($attribute)) %},
 			"required": {%= $attribute->getBoolHint('required') ? 'true' : 'false' %},
 			"relation": {%= json_encode(attribute_relation($attribute)) %},
-			"backReference": {%= json_encode(attribute_back_reference($attribute)) %},
+			"backReference": {%= json_encode(($a = attribute_back_reference($attribute)) ? $a->getName() : false) %},
 			"collection": {%= $attribute->getIsCollection() ? 'true' : 'false' %}
 
 		}

@@ -118,9 +118,24 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 				$fk1 = sprintf('%s_id', $matches[2]);
 				$fk2 = sprintf('%s_id', $matches[3]);
 			} else {
-				$table_name = sprintf('%s_%s_%s', $invoker->refer('table_name', $attribute->getOwner()), $invoker->refer('table_name', $attribute->getCustomType()), $attribute->getName());
-				$fk1 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
-				$fk2 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getCustomType()));
+				$table1 = $invoker->refer('table_name', $attribute->getOwner());
+				$table2 = $invoker->refer('table_name', $attribute->getCustomType());
+				$backreference = $invoker->refer('attribute_back_reference', $attribute);
+				if (strcmp($table1, $table2) < 0) {
+					if ($backreference) {
+						$table_name = sprintf('%s_%s', $table1, $attribute->getName());
+					} else {
+						$table_name = sprintf('%s_%s_links', $table1, $table2);
+					}
+				} else {
+					if ($backreference) {
+						$table_name = sprintf('%s_%s', $table2, $backreference->getName());
+					} else {
+						$table_name = sprintf('%s_%s_links', $table2, $table1);
+					}
+				}
+				$fk1 = sprintf('%s_id', $table1);
+				$fk2 = sprintf('%s_id', $table2);
 			}
 			$relations[] = sprintf("array(self::MANY_MANY, '%s', '{{%s}}(%s,%s)')", $attribute->getCustomType(), $table_name, $fk1, $fk2);
 		}

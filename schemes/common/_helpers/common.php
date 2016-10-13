@@ -97,7 +97,7 @@ $this->registerHelper('attribute_back_reference', function ($invoker, $attribute
 {
 	$references = $attribute->getOwner()->getReferences($attribute->getCustomType());
 	foreach ($references as $attr) {
-		if ($attr->getHint('backreference') == $attribute->getName()) {
+		if ($attr->getHint('backreference') == $attribute->getName() || $attribute->getHint('backreference') == $attr->getName()) {
 			return $attr;
 		}
 	}
