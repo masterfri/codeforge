@@ -24,8 +24,9 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
         case Attribute::TYPE_FILE:
 			return 'INTEGER UNSIGNED';
 			
-		case Attribute::TYPE_STROPTION: 
-			return sprintf('VARCHAR(%d)', $invoker->refer('optimal_option_len', $attribute->getOptions(), 10));
+		case Attribute::TYPE_STROPTION:
+            $length = $invoker->refer('optimal_option_len', $attribute->getOptions(), 10);
+			return sprintf('VARCHAR(%d)', $length > 100 ? $length: 100);
 			
 		case Attribute::TYPE_CUSTOM: 
 		default:

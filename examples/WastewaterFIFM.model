@@ -1,0 +1,431 @@
+/// @table wastewater_fifm
+model WastewaterFIFM scheme mysql, php.yii.au_model, php.yii.controller.au_crud, php.yii.view.au_crud:
+
+behavior DateAttributeBehavior({attributes=["proposed_date_of_fifm", "return_of_initial_assessment", "date_fifm_planning_meeting_was_held",
+	"proposed_fifm_start_date", "proposed_fifm_finish_date", "proposed_alternate_start_fifm_date", "schedules_fifm_start_date",
+	"scheduled_fifm_finish_date", "proposed_alternate_start_fifm_date_2", "actual_date_fifm_was_completed"]});
+
+behavior FileAttributeBehavior({attributes=["attach_hydra_schematics", "attach_details_of_flow_depth_levels", "attach_document",
+	"minutes_from_meeting", "attach_marked_up_fifm_plan_for_version", "attach_marked_up_fifm_plan_for_version_2", "attach_approved_fifm",
+	"attach_completed_fifm_plan"]});
+
+attr deleted bool = false;
+attr draft bool = false;
+attr stage int;
+attr version int;
+attr status enum("active", "deactivated") = "active";
+
+/// @realtion many-to-one
+attr parent WastewaterFIFM;
+
+/// Name
+attr name char(100);
+
+/// Contact number
+attr contact_number char(100);
+
+/// Email address
+attr email char(100);
+
+/// Business unit / Company name
+attr company_name char(100);
+
+/// Link to an existing Design Review?
+attr link_to_design_review bool;
+
+/// Link to an existing Work Request?
+attr link_to_work_request bool;
+
+/// @relation many-to-one
+/// Select Design Review
+attr design_review DesignReview;
+
+/// @relation many-to-one
+/// Select Work Request
+attr work_request WorkRequest;
+
+/// Project / Case / Plan No
+attr case_plan_no_text char(100);
+
+/// Project / Case / Plan Name
+attr case_plan_name_text char(100);
+
+/// Program Name
+attr program_name_text char(100);
+
+/// Address
+attr address_text char(100);
+
+/// Suburb & Postcode
+attr suburb_text char(100);
+
+/// Project / Case / Plan No
+attr case_plan_no char(100);
+
+/// Project / Case / Plan Name
+attr case_plan_name char(100);
+
+/// Program Name
+attr program_name char(100);
+
+/// Address
+attr address char(100);
+
+/// Suburb & Postcode
+attr suburb char(100);
+
+/// Proposed date of FIFM
+attr proposed_date_of_fifm date;
+
+/// Proposed start time of project work
+attr proposed_start_time_of_project_work time;
+
+/// Proposed duration project work
+attr proposed_duration_project_work enum("5 hrs", "7 hrs", "8 hrs", "10 hrs", "12 hrs", "24 hrs", "2 days", "3 days", "One week", "Two weeks", "Three weeks", "One month", "Two months", "Three months", "Other");
+
+/// [IF field 100 = other] Specify
+attr proposed_duration_project_work_other char(20);
+
+/// Does the work require confined space entry as defined in HSP0001 Confined Space Safety?
+attr does_work_require_confined_space_entry bool;
+
+/// Is manned entry into hydraulic asset required?
+attr is_manned_entry_into_hydraulic_asset_required bool;
+
+/// Is a site specific hydraulic engulfment hazard present (i.e. is there potential to be drowned)?
+attr is_site_specific_engulfment_hazard_present bool;
+
+/// @relation many-to-one
+/// FIFM Plan Coordinatior nominated for the project
+attr fifm_plan_coordinator Employee;
+
+/// FIFM planning kick off meeting required?
+attr fifm_planning_kick_off_meeting_required bool;
+
+/// MAXIMO workorder number for the project
+attr maximo_workorder_number char(8);
+
+/// Return of Initial Assessment of Request for FIFM is required by
+attr return_of_initial_assessment date;
+
+/// Scope (What is the work, what assets are impacted eg: SPS, overflow weir crest level, customers, gravity bypass detail proposal, time of day for works, length of works, any other detail to understand scope of works)
+attr scope text(500);
+
+/// Describe Location of work
+attr describe_location_of_work text(500);
+
+/// Attach HYDRA schematics, plans and sections of bypass detail and any other information to assist in assessment
+attr attach_hydra_schematics_1 ajaxfile;
+
+/// Attach HYDRA schematics, plans and sections of bypass detail and any other information to assist in assessment
+attr attach_hydra_schematics_2 ajaxfile;
+
+/// Attach HYDRA schematics, plans and sections of bypass detail and any other information to assist in assessment
+attr attach_hydra_schematics_3 ajaxfile;
+
+/// Details of who is doing the work
+attr details_of_who_is_doing_the_work text(500);
+
+/// Is the work being carried out above the flow?
+attr is_work_being_carried_out_above_flow bool;
+
+/// Is the work being carried out in the flow?
+attr is_work_being_carried_out_in_flow bool;
+
+/// [If field 121.42 = yes] Are flow depths levels for the time period the work is proposed available?
+attr are_flow_depths_levels_for_time_available enum("Yes", "No", "N/A");
+
+/// [If field 121.5 = yes] Attach details of flow depth levels
+attr attach_details_of_flow_depth_levels ajaxfile;
+
+/// Does the FIFM request have all required information?
+attr does_fifm_request_have_all_required_information bool;
+
+/// [IF field 124 = NO] Comments
+attr does_fifm_request_have_all_required_information_comments text(200);
+
+/// @relation many-to-one
+/// [IF field 124 = yes] Assign to SDO to carry out initial assessment
+attr sdo_to_carry_out_initial_assessment Employee;
+
+/// Select Network Area
+attr network_area enum("North", "South", "West");
+
+/// [If field 134 = yes] Can the recommended working limit for trained adults (as per the Appropriate safety criteria for people (Engineers Australia report 2010) can be met OR the manhole, chamber or shaft inlet / outlet pipes are less than 300mm?
+attr can_recommended_limit_for_trained_adults bool;
+
+/// [If field 134 = yes] Is the work is within 10 metres of a manhole, chamber or shaft, and the pipe diameter is 900mm or greater with minimum 750mm air clearance?
+attr is_the_work_is_within_ten_meters_of_manhole bool;
+
+/// [If field 134 = yes] Is work being carried out in a receiving manhole for pumped flow?
+attr is_work_being_carried_out bool;
+
+/// Does the work requires flow control / bypasses in gravity sewer greater than 300mm? (Note - 600mm and greater (FIFM plan - complex), greater than 300mm and less than 600mm (FIFM – routine))
+attr does_work_requires_flow_control bool;
+
+/// Does the work require multiple simultaneous bypasses >1?
+attr does_work_require_multiple_simultaneous bool;
+
+/// Does the work require traverse inspections on live assets?
+attr does_work_require_traverse_inspections bool;
+
+/// Does the work require FIFM of feeder SPS’s to downstream Wastewater Treatment Plants or single station flow 200L/s or greater?
+attr does_work_require_fifm_of_feeder bool;
+
+/// Does the work require FIFM to isolate of multiple (> 2)  SPS’s?
+attr does_work_require_fifm_to_isolate bool;
+
+/// Does the work require FIFM of combined sewer / stormwater systems (e.g. Bondi)?
+attr does_work_require_fifm_of_combined_sewer bool;
+
+/// Does the work require isolation of SPS’s with < 4 hours detention time?
+attr does_work_require_isolation bool;
+
+/// Does the work require any activities on pressure sewer, including rising mains, pressure and vacuum sewers?
+attr does_work_require_any_activities_on_pressure_sewer bool;
+
+/// [IF "No" for all of fields 140 to 147 then] Routine FIFM plan is required
+attr routine_fifm_plan_is_required bool;
+
+/// [IF "YES" for any of fields 140 to 147 then] Reviewed with Area Team
+attr reviewed_with_area_team bool;
+
+/// @relation many-to-one
+/// [IF "YES" for any of fields 140 to 147 then] Name of Area Team SDO who reviewed the FIFM request
+attr area_team_sdo_who_reviewed_fifm_request Employee;
+
+/// Select type of FIFM plan
+attr type_of_fifm_plan enum("FIFM Routine", "FIFM Complex");
+
+/// FIFM to be approved by
+attr fifm_to_be_approved_by enum("Operational Services", "Area Team");
+
+/// Special requirements for the requested isolation
+attr special_requirements_for_isolation text(500);
+
+/// Lead time required to isolate asset (months)
+attr lead_time_required_to_isolate_asset enum("Less than 1", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
+
+/// Is FIFM assessed as routine and involves a SPS isolation?
+attr is_fifm_assessed_as_routine bool;
+
+/// [If field 118 = yes or field 151 = FIFM complex or field 160 = yes] FIFM planning kick off meeting is required
+attr fifm_planning_kick_off_meeting_is_required bool;
+
+/// [If field 161= yes] Name(s) and contact detail(s) of Sydney Water staff to attend FIFM planning kick off meeting
+attr names_of_sw_staff text(500);
+
+/// Comments
+attr comments text(200);
+
+/// Attach document
+attr attach_document ajaxfile;
+
+/// Work can be conducted under confined space SWMS that must include:<br>a) flow monitoring as a control<br>b) how the flow will be monitored<br>c) project specific emergency response plan (ERP) with evacuation trigger levels
+attr work_can_be_conducted bool;
+
+/// Comments
+attr comments_2 text(200);
+
+/// @relation many-to-one
+/// Select person to approve Initial FIFM Assessment
+attr person_to_approve_initial_fifm_assessment Employee;
+
+/// Initial FIFM assessment reviewed and approved
+attr initial_fifm_assessment_reviewed_and_approved bool;
+
+/// Select how project is to proceed
+attr how_project_is_to_proceed enum("SWMS", "FIFM Routine", "FIFM Complex");
+
+/// Comments
+attr comments_3 text(200);
+
+/// Date FIFM planning meeting was held
+attr date_fifm_planning_meeting_was_held date;
+
+/// Minutes from meeting
+attr minutes_from_meeting ajaxfile;
+
+/// Comments
+attr comments_4 text(200);
+
+/// Attach FIFM Plan
+attr attach_fifm_plan ajaxfile;
+
+/// Proposed FIFM Start Date
+attr proposed_fifm_start_date date;
+
+/// Proposed FIFM Start Time
+attr proposed_fifm_start_time time;
+
+/// Proposed FIFM Finish Date
+attr proposed_fifm_finish_date date;
+
+/// Proposed FIFM Finish Time
+attr proposed_fifm_finish_time time;
+
+/// Proposed alternate start FIFM date in the event that the project work is delayed by wet weather
+attr proposed_alternate_start_fifm_date date;
+
+/// Contractor Company Name
+attr contractor_company_name char(100);
+
+/// Contractor Company Contact Name
+attr contractor_company_contact_name char(100);
+
+/// Contractor Company Contact number
+attr contractor_company_contact_number char(10);
+
+/// After hours Contact Name
+attr after_hours_contact_name char(100);
+
+/// After hours Contact number
+attr after_hours_contact_number char(100);
+
+/// Comments
+attr comments_5 text(200);
+
+/// @relation many-to-one
+/// Select SDO to review FIFM plan
+attr sdo_to_review_fifm_plan Employee;
+
+/// Comments
+attr comments_6 text(200);
+
+/// Is FIFM plan acceptable?
+attr is_fifm_plan_acceptable bool;
+
+/// [IF field 186 = No] Comments
+attr is_fifm_plan_acceptable_comments text(500);
+
+/// Attach marked up FIFM plan for revision
+attr attach_marked_up_fifm_plan_for_version ajaxfile;
+
+/// @relation many-to-one
+/// [If field 186 = yes and field 170 = FIFM Complex] Select SDO to arrange for Area Manager approval
+attr sdo_to_arrage_for_area_manager Employee;
+
+/// Is FIFM plan acceptable?
+attr is_fifm_plan_acceptable_2 bool;
+
+/// [If field 196 =  no] Attach marked up FIFM plan for revision
+attr attach_marked_up_fifm_plan_for_version_2 ajaxfile;
+
+/// Comments
+attr comments_7 text(200);
+
+/// [If field 196 = yes] Attach Approved FIFM
+attr attach_approved_fifm ajaxfile;
+
+/// Comments
+attr comments_8 text(200);
+
+/// Scheduled FIFM Start Date
+attr schedules_fifm_start_date date;
+
+/// Scheduled FIFM Start Time
+attr scheduled_fifm_start_time time;
+
+/// Scheduled FIFM Finish Date
+attr scheduled_fifm_finish_date date;
+
+/// Scheduled FIFM Finish Time
+attr scheduled_fifm_finish_time time;
+
+/// Proposed alternate start FIFM date in the event that the project work is delayed by wet weather
+attr proposed_alternate_start_fifm_date_2 date;
+
+/// Comments
+attr comments_9 text(200);
+
+/// Actual date FIFM was completed
+attr actual_date_fifm_was_completed date;
+
+/// Attach completed FIFM plan
+attr attach_completed_fifm_plan ajaxfile;
+
+/// Comments
+attr comments_10 text(500);
+
+/// Was FIFM successful and project work completed?
+attr was_fifm_successful bool;
+
+/// [If field 217 = no] Is additional FIFM required to complete the project work?
+attr is_additional_fifm_required bool;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_initiate_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_initiate_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_review_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_review_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_initiate_assessment_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_initiate_assessment_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_approve_assessment_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_approve_assessment_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_pre_fifm_meeting_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_pre_fifm_meeting_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_submit_fifm_plan_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_submit_fifm_plan_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_assign_to_review_fifm_plan_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_assign_to_review_fifm_plan_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_review_fifm_plan_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_review_fifm_plan_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_approve_fifm_plan_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_approve_fifm_plan_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_schedule_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_schedule_submitted_datetime datetime;
+
+/// @relation many-to-one
+/// Submitted by
+attr stage_review_fifm_implementation_submitted_by Employee;
+
+/// Submitted date and time
+attr stage_review_fifm_implementation_submitted_datetime datetime;

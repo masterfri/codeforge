@@ -1,0 +1,13 @@
+model WastewaterFIFMHazard scheme mysql, php.yii.au_model, php.yii.controller.au_crud, php.yii.view.au_crud:
+
+/// @relation many-to-one
+attr parent_id WastewaterFIFM;
+
+/// Details of site specific engulfment hazard
+attr details_of_site_hazard text(200);
+
+/// Details of control suggested by: person requesting FIFM /service provider / contractor
+attr details_of_control_suggested_by text(200);
+
+/// Are any additional a site specific hydraulic engulfment hazards present?
+attr add_another bool;

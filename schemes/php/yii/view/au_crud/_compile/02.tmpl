@@ -4,14 +4,17 @@
  * @var $this {%= $model->getName() %}Controller
  */
 $this->menu = array(
-    array('label' => '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>', 'url' => '#', 'items' => array(
-            array('label' => '<i class=" glyphicon glyphicon-cog"></i> Manage Table',
-        'url' => array('admin'), 'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}')
-    ),
+    array('label' => '<span class="glyphicon glyphicon-menu-hamburger"></span>', 'url' => '#', 'items' => array(
+            array(
+            	'label' => '<i class=" glyphicon glyphicon-cog"></i> Manage Table',
+        		'url' => array('admin'),
+        		'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}'),
+    		),
         ),
         'linkOptions' => array('class' => 'dropdown-toggle navbar-toggle', 'data-toggle' => 'dropdown'),
         'itemOptions' => array('class' => 'dropdown'), 'submenuOptions' => array('class' => 'dropdown-menu'),
-        'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}')),
+        'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}')
+	),
 );
 ?>
 

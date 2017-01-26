@@ -1,3 +1,3 @@
 <?php
 
-$this->registerType('ajaxfile', Attribute::TYPE_CHAR, 100);
+$this->registerType('ajaxfile', Attribute::TYPE_INT);

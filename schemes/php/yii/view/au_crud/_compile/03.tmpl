@@ -41,10 +41,10 @@ $('.search-form form').submit(function(){
 	});
 	return false;
 });
-$('.reset-button').click(function(){
-	$(this).parents('form').trigger('reset').find('select').change();
-	$(this).parents('form').trigger('submit');
-	return false;
+$('.search-form .reset-button').click(function(){
+	$.fn.yiiGridView.update('{%= strtolower($model->getName()) %}-grid', {
+		url: location.pathname
+	});
 });
 ");
 
@@ -92,13 +92,6 @@ $('.reset-button').click(function(){
                 {%= $str %},
                 {% endforeach %}
                 {% end_attr_list %}
-                array(
-                    'class' => 'CButtonColumn',
-                    'deleteConfirmation' => 'Are you sure you want to delete this {%= strtolower(model_label($model)) %}?',
-                    'template' => '{view}'.
-                        (Yii::app()->user->checkAccess('{%= permission('update', $model) %}') ? '{update}' : '').
-                        (Yii::app()->user->checkAccess('{%= permission('delete', $model) %}') ? '{delete}' : ''),
-                ),
 			),
 		)); ?>
 	</div>
