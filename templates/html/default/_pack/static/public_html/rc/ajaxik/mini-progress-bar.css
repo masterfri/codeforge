@@ -1,0 +1,6 @@
+.loading-bar {position: fixed; top: 0; left: 0; width: 100%; z-index: 999999; display: none;}
+.loading-bar > div {height: 5px; width: 0; background: #FF7F2A; box-shadow: 0 0 2px rgba(0,0,0, 0.5);}
+.loading-bar.loading-start, .loading-bar.loading-progress, .loading-bar.loading-finish {display: block;}
+.loading-bar.loading-start > div {width: 0; transition: none; -moz-transition: none; -webkit-transition: none;}
+.loading-bar.loading-progress > div {width: 70%; transition: width 2s linear; -moz-transition: width 2s linear; -webkit-transition: width 2s linear;}
+.loading-bar.loading-finish > div {width: 100%; transition: width .3s linear; -moz-transition: width .3s linear; -webkit-transition: width .3s linear;}

@@ -1,6 +1,0 @@
-{% open_partial('options.controller.accessrules', $model->getName()) %}
-			array('allow',
-				'actions' => array('{%= lcfirst($model->getName()) %}'),
-				'roles' => array('{%= permission('update', $model) %}'),
-			),
-{% close_file() %}

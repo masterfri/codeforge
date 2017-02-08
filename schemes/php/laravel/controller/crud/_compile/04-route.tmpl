@@ -1,0 +1,35 @@
+{% open_partial('php.laravel.routes.crud', $model->getName()) %}	
+	// {%= model_name($model) %} routes
+	Route::get('/{%= route_path($model, true) %}', [
+		'as' => 'admin/{%= route_name($model) %}/index', 
+		'uses' => '{%= model_name($model) %}Controller@index',
+	])->middleware('can:search,App\{%= model_name($model) %}');
+	Route::get('/{%= route_path($model) %}/query', [
+		'as' => 'admin/{%= route_name($model) %}/query', 
+		'uses' => '{%= model_name($model) %}Controller@query',
+	])->middleware('can:search,App\{%= model_name($model) %}');
+	Route::get('/{%= route_path($model) %}/{item}/view', [
+		'as' => 'admin/{%= route_name($model) %}/view', 
+		'uses' => '{%= model_name($model) %}Controller@view',
+	])->middleware('can:view,item');
+	Route::get('/{%= route_path($model) %}/create', [
+		'as' => 'admin/{%= route_name($model) %}/create', 
+		'uses' => '{%= model_name($model) %}Controller@create',
+	])->middleware('can:create,App\{%= model_name($model) %}');
+	Route::post('/{%= route_path($model) %}/create', [
+		'as' => 'admin/{%= route_name($model) %}/postCreate', 
+		'uses' => '{%= model_name($model) %}Controller@postCreate',
+	])->middleware('can:create,App\{%= model_name($model) %}');
+	Route::get('/{%= route_path($model) %}/{item}/update', [
+		'as' => 'admin/{%= route_name($model) %}/update', 
+		'uses' => '{%= model_name($model) %}Controller@update',
+	])->middleware('can:update,item');
+	Route::post('/{%= route_path($model) %}/{item}/update', [
+		'as' => 'admin/{%= route_name($model) %}/postUpdate', 
+		'uses' => '{%= model_name($model) %}Controller@postUpdate',
+	])->middleware('can:update,item');
+	Route::post('/{%= route_path($model) %}/{item}/delete', [
+		'as' => 'admin/{%= route_name($model) %}/delete', 
+		'uses' => '{%= model_name($model) %}Controller@delete',
+	])->middleware('can:delete,item');
+{% close_file() %}

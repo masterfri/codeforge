@@ -1,5 +1,0 @@
-						array(
-							'label' => Yii::t('admin.crud', 'Files'),
-							'url' => array('/admin/file'),
-							'visible' => Yii::app()->user->checkAccess('view_file'),
-						),

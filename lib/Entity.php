@@ -65,6 +65,7 @@ abstract class Entity
 	
 	public function getHint($name, $default=null)
 	{
+		$name = strtolower($name);
 		return isset($this->comments[$name]) ? $this->comments[$name] : $default;
 	}
 	

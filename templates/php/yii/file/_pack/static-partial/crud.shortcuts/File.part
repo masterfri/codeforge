@@ -1,8 +1,0 @@
-	<?php if(Yii::app()->user->checkAccess('view_file')): ?>
-		<div class="col-md-2 col-xs-6">
-			<a href="<?php echo $this->createUrl('/admin/file'); ?>" class="btn btn-default">
-				<i class="glyphicon glyphicon-file"></i> 
-				<?php echo Yii::t('admin.crud', 'Files'); ?>
-			</a>
-		</div>
-	<?php endif; ?>

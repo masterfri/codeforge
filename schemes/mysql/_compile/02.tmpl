@@ -1,5 +1,0 @@
-{% open_partial('mysql.foreign', $model->getName()) %}
-{% foreach(model_foreign_keys($model) as $definition): %}
-{%= $definition %};
-{% endforeach %}
-{% close_file() %}

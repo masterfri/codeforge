@@ -1,5 +1,0 @@
-						array(
-							'label' => Yii::t('admin.crud', 'File Categories'),
-							'url' => array('/admin/fileCategory'),
-							'visible' => Yii::app()->user->checkAccess('view_file_category'),
-						),

@@ -1,0 +1,96 @@
+{% open_file('app/Http/Controllers/Admin/'.nice_path($model->getName() . 'Controller', 'php')) %}
+<?php
+
+namespace App\Http\Controllers\Admin{%= rtrim('\\' . get_namespace($model), '\\') %};
+
+use App\{%= model_name($model) %};
+use Illuminate\Http\Request;
+use App\Http\Requests\{%= model_name($model) %}FormRequest;
+
+class {%= remove_namespace($model) %}Controller extends BaseAdminController
+{
+	public function index()
+	{
+		$items = {%= remove_namespace($model) %}::paginate(10);
+		return $this->listItems('admin.{%= view_name($model) %}.index', $items);
+	}
+	
+	public function query(Request $request)
+	{
+		$term = $request->get('term', '');
+		$items = {%= remove_namespace($model) %}::orderBy('{%= name_attribute_id($model) %}', 'asc')
+			->where('{%= name_attribute_id($model) %}', 'like', '%' . $term . '%')
+			->paginate(10);
+		return response()->json([
+			'items' => $items->map(function($item) {
+				return [
+					'id' => $item->id,
+					'text' => $item->{%= name_attribute_id($model) %},
+				];
+			}),
+			'more' => $items->hasMorePages(),
+		]);
+	}
+	
+	public function view({%= remove_namespace($model) %} $item)
+	{
+		return $this->displayItem('admin.{%= view_name($model) %}.view', $item);
+	}
+	
+	public function create()
+	{
+		return $this->displayItemForm('admin.{%= view_name($model) %}.form', new {%= remove_namespace($model) %}(){% start_uncertain_block() %}, [
+			'options' => [
+{% start_attr_list %}
+{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
+{% commit_block() %}
+				'{%= attribute_id($attribute) %}' => joptions({%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List()),
+{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
+{% commit_block() %}
+				'{%= attribute_id($attribute) %}' => {%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List(),
+{% endif %}
+{% end_attr_list %}
+			],
+		]{% end_uncertain_block() %});
+	}
+	
+	public function postCreate({%= remove_namespace($model) %}FormRequest $request)
+	{
+		$item = new {%= remove_namespace($model) %}($request->sanitize());
+		$item->save();
+		return jredirect(route('admin/{%= route_name($model) %}/index'), '{%= addslashes(model_label($model)) %} has been created');
+	}
+	
+	public function update({%= remove_namespace($model) %} $item)
+	{
+		return $this->displayItemForm('admin.{%= view_name($model) %}.form', $item{% start_uncertain_block() %}, [
+			'options' => [
+{% start_attr_list %}
+{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
+{% commit_block() %}
+				'{%= attribute_id($attribute) %}' => joptions({%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List()),
+{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
+{% commit_block() %}
+				'{%= attribute_id($attribute) %}' => {%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List(),
+{% endif %}
+{% end_attr_list %}
+			],
+		]{% end_uncertain_block() %});
+	}
+	
+	public function postUpdate({%= remove_namespace($model) %}FormRequest $request, {%= remove_namespace($model) %} $item)
+	{
+		$item->fill($request->sanitize());
+		$item->save();
+		return jredirect(route('admin/{%= route_name($model) %}/index'), '{%= addslashes(model_label($model)) %} has been updated');
+	}
+	
+	public function delete(Request $request, {%= remove_namespace($model) %} $item)
+	{
+		$item->delete();
+		$returnTo = $request->get('back', 'true') === 'false' ? route('admin/{%= route_name($model) %}/index') : url()->previous();
+		return jredirect($returnTo, '{%= addslashes(model_label($model)) %} has been deleted');
+	}
+}
+
+{% close_file() %}

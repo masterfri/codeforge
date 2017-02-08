@@ -1,27 +1,33 @@
 <?php
 
-$this->registerHelper('escape_value', function($invoker, $val, $padding=false) 
+$this->registerHelper('escape_value', function($invoker, $val, $padding=false, $multiline=true) 
 {
 	if (null !== $val) {
 		if (is_array($val)) {
-			if (is_int($padding)) {
+			$tab = $multiline ? "\t" : "";
+			if ($multiline && is_int($padding)) {
 				$padding = str_repeat("\t", $padding);
 			} elseif (false === $padding) {
 				$padding = '';
 			}
 			$result = array();
-			$result[] = 'array(';
 			if (($n = count($val)) > 0 && array_keys($val) !== range(0, $n - 1)) {
 				foreach($val as $k => $v) {
-					$result[] = sprintf("\t%s => %s,", $invoker->refer('escape_value', $k), $invoker->refer('escape_value', $v, "\t$padding"));
+					$result[] = sprintf("{$tab}%s => %s", $invoker->refer('escape_value', $k), $invoker->refer('escape_value', $v, "{$tab}{$padding}", $multiline));
 				}
 			} else {
 				foreach($val as $v) {
-					$result[] = sprintf("\t%s,",$invoker->refer('escape_value', $v, "\t$padding"));
+					$result[] = sprintf("{$tab}%s",$invoker->refer('escape_value', $v, "{$tab}{$padding}", $multiline));
 				}
 			}
-			$result[] = ')';
-			return implode("\n$padding", $result);
+			if ($multiline) {
+				$result = array_map(function($v) {return "$v,";}, $result);
+				array_unshift($result, '[');
+				$result[] = ']';
+				return implode("\n$padding", $result);
+			} else {
+				return '[' . implode(', ', $result) . ']';
+			}
 		} elseif (is_object($val)) {
 			return $invoker->refer('escape_value', get_object_vars($val), $padding);
 		} elseif (is_bool($val)) {
@@ -48,4 +54,22 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 		case Codeforge\Attribute::TYPE_CUSTOM: return $attribute->getCustomType();
 	}
 	return 'mixed';
+});
+
+$this->registerHelper('model_name', function ($invoker, $model) 
+{
+	return implode('\\', explode('_', is_string($model) ? $model : $model->getName()));
+});
+
+$this->registerHelper('remove_namespace', function ($invoker, $model) 
+{
+	$parts = explode('\\', is_string($model) ? $model : $model->getName());
+	return end($parts);
+});
+
+$this->registerHelper('get_namespace', function ($invoker, $model) 
+{
+	$parts = explode('\\', is_string($model) ? $model : $model->getName());
+	array_pop($parts);
+	return implode('_', $parts);
 });

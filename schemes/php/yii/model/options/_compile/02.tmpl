@@ -1,9 +1,0 @@
-{% open_file('protected/modules/admin/messages/ru/'.lcfirst($model->getName()).'.php') %}
-<?php
-
-return array(
-{% start_attr_list %}
-	'{%= attribute_label($attribute) %}' => {%= escape_value($attribute->getHint('ru', attribute_label($attribute))) %},
-{% end_attr_list %}
-);
-{% close_file() %}

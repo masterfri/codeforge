@@ -1,0 +1,62 @@
+{% open_file('resources/views/admin/layouts/default.blade.php') %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>@yield('title', 'Admin')</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		@include('partial.common-styles')
+		@include('partial.common-scripts')
+		<script type="text/javascript">
+			routing.routes = {!! jroutes() !!}
+		</script>
+	</head>
+	<body>
+		<header>
+			<div class="logo-wrapper">
+				<a href="{{ route('admin/dashboard') }}">LOGO</a>
+			</div>
+			<button type="button" class="sidebar-toggle" data-toggle="sidebar">
+				<span class="sr-only">Toggle sidebar</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			@if (!Auth::guest())
+				<div class="userbar hidden-xs">
+					<a href="{{ route('logout') }}" class="btn btn-default navbar-btn pull-right logout-btn"><i class="glyphicon glyphicon-off"></i> Logout</a>
+					<p class="pull-right navbar-text visible-lg">
+						<i class="glyphicon glyphicon-user"></i> Hello, <b>{{ Auth::user()->name }}</b>
+					</p>
+				</div>
+			@endif
+		</header>
+		<div id="wrapper">
+			<div id="sidebar-wrapper">
+				<ul class="sidebar-nav">
+					<li>
+						<a href="{{ route('admin/dashboard') }}">Dashboard</a>
+					</li>
+{% join_partial('php.laravel.navigation.crud') %}
+					@if (!Auth::guest())
+						<li class="visible-xs">
+							<a href="{{ route('logout') }}">Logout</a>
+						</li>
+					@endif
+				</ul>
+			</div>
+			<div id="page-content-wrapper">
+				<div class="container-fluid">
+					<div id="maincontainer">
+						@yield('content')
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			@yield('footjs')
+		</script>
+	</body>
+</html>
+{% close_file() %}

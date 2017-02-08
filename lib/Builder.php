@@ -31,6 +31,7 @@ class Builder
 	protected $static_partial_dir = array();
 	protected $mode = '_compile';
 	protected $current_file;
+	protected $block_comitted = false;
 	protected $messages;
 	protected $dirperms = 0755;
 	protected $fileperms = 0644;
@@ -329,6 +330,12 @@ class Builder
 								return '$this->askVar(';
 							} elseif ('partial' == $n) {
 								return '$this->renderPartial(';
+							} elseif ('start_uncertain_block' == $n) {
+								return '$this->startUncertainBlock(';
+							} elseif ('end_uncertain_block' == $n) {
+								return '$this->endUncertainBlock(';
+							} elseif ('commit_block' == $n) {
+								return '$this->commitUncertainBlock(';
 							} else {
 								return sprintf('$this->invokeHelper("%s")->call(', $m[1]);
 							}
@@ -354,6 +361,26 @@ class Builder
 			file_put_contents($cachefile, ob_get_clean());
 		}
 		return $cachefile;
+	}
+	
+	protected function startUncertainBlock($commit=false)
+	{
+		ob_start();
+		$this->block_comitted = $commit;
+	}
+	
+	protected function endUncertainBlock()
+	{
+		if ($this->block_comitted) {
+			echo ob_get_clean();
+		} else {
+			ob_end_clean();
+		}
+	}
+	
+	protected function commitUncertainBlock($commit=true)
+	{
+		$this->block_comitted = $commit;
 	}
 	
 	protected function escapeString($str)

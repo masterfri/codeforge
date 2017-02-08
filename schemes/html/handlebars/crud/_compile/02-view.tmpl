@@ -1,0 +1,34 @@
+{% open_file('public_html/rc/templates/admin/' . view_path($model->getName()) . '/view.hbs') %}
+
+<div class="view-page">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<div class="panel-toolbar">
+				<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/index"}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+				<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/update" item=item.id}}}"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+				<a class="btn btn-danger btn-sm" href="{{{route "admin/{%= route_name($model) %}/delete" item=item.id _token=token back="false"}}}" data-method="post" data-confirmation="Are you sure you want to delete this item?"><span class="glyphicon glyphicon-trash"></span> Delete</a>
+			</div>
+{% if ($name = name_attribute($model)): %}
+			<h3 class="panel-title">{{item.{%= attribute_id($name) %}}}</h3>
+{% else: %}
+			<h3 class="panel-title">{%= model_label($model) %} #{{item.id}}</h3>
+{% endif %}
+		</div>
+		{{#with item}}
+			<table class="table table-hover">
+				<tbody>
+{% start_attr_list_natural_order %}
+{% if ($attribute->getBoolHint('detailsview', true)): %}
+					<tr>
+						<th> {%= attribute_label($attribute) %} </th>
+						<td> {{{%= attribute_getter($attribute) %}}} </td>
+					</tr>
+{% endif %}
+{% end_attr_list %}
+				</tbody>
+			</table>
+		{{/with}}
+	</div>
+</div>
+
+{% close_file() %}

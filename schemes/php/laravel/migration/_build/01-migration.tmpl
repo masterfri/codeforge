@@ -1,0 +1,27 @@
+{% foreach(link_tables() as $params): %}
+{% list($amodel, $bmodel, $table, $fk1, $fk2) = $params; %}
+{% open_file('database/migrations/' . migration_prefix($amodel) . '_' . migration_name($table) . '.php') %}
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class {%= migration_class($table) %} extends Migration
+{
+	public function up()
+	{
+		Schema::create('{%= $table %}', function (Blueprint $table) {
+			$table->integer('{%= $fk1 %}')->unsigned();
+			$table->integer('{%= $fk2 %}')->unsigned();
+			$table->primary(['{%= $fk1 %}', '{%= $fk2 %}']);
+		});
+	}
+	
+	public function down()
+	{
+		Schema::dropIfExists('{%= $table %}');
+	}
+}
+{% close_file() %}
+{% endforeach %}

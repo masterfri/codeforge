@@ -1,0 +1,7 @@
+{% open_partial('php.laravel.navigation.crud', $model->getName()) %}
+					@can('search', 'App\{%= model_name($model) %}')
+						<li>
+							<a href="{{ route('admin/{%= route_name($model) %}/index') }}">{%= model_label($model, true) %}</a>
+						</li>
+					@endcan
+{% close_file() %}

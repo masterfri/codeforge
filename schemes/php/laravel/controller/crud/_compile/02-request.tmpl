@@ -1,0 +1,32 @@
+{% open_file('app/Http/Requests/'.nice_path($model->getName() . 'FormRequest', 'php')) %}
+<?php
+
+namespace App\Http\Requests{%= rtrim('\\' . get_namespace($model), '\\') %};
+
+use App\Http\Requests\BaseFormRequest;
+
+class {%= remove_namespace($model) %}FormRequest extends BaseFormRequest
+{
+	public function rules()
+	{
+		return [
+{% foreach(request_rules($model) as $attr => $rules): %}
+			'{%= $attr %}' => {%= escape_value($rules, false, false) %},
+{% endforeach %}
+		];
+	}
+{% start_uncertain_block() %}
+
+	public function sanitizers()
+	{
+		return [
+{% foreach(request_sanitizers($model) as $attr => $sanitizers): %}
+{% commit_block() %}
+			'{%= $attr %}' => '{%= $sanitizers %}',
+{% endforeach %}
+		];
+	}
+{% end_uncertain_block() %}
+}
+
+{% close_file() %}

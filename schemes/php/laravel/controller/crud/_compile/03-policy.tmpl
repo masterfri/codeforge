@@ -1,0 +1,43 @@
+{% open_file('app/Policies/'.nice_path($model->getName() . 'Policy', 'php')) %}
+<?php
+
+namespace App\Policies{%= rtrim('\\' . get_namespace($model), '\\') %};
+
+use App\User;
+use App\{%= model_name($model) %};
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class {%= remove_namespace($model) %}Policy
+{
+    use HandlesAuthorization;
+    
+    public function search(User $user)
+    {
+		return $user->isAdmin();
+    }
+
+    public function view(User $user, {%= remove_namespace($model) %} $item)
+    {
+        return $user->isAdmin();
+    }
+
+    public function create(User $user)
+    {
+        return $user->isAdmin();
+    }
+
+    public function update(User $user, {%= remove_namespace($model) %} $item)
+    {
+        return $user->isAdmin();
+    }
+
+    public function delete(User $user, {%= remove_namespace($model) %} $item)
+    {
+        return $user->isAdmin();
+    }
+}
+
+{% close_file() %}
+{% open_partial('php.laravel.policies', $model->getName()) %}
+        'App\{%= model_name($model) %}' => 'App\Policies\{%= model_name($model) %}Policy',
+{% close_file() %}
