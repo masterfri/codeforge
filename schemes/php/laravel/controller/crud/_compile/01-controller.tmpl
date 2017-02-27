@@ -12,6 +12,18 @@ class {%= remove_namespace($model) %}Controller extends BaseAdminController
 	public function index()
 	{
 		$items = {%= remove_namespace($model) %}::paginate(10);
+{% start_uncertain_block() %}
+		$items->load([
+{% start_attr_list %}
+{% if ($attribute->getBoolHint('tableview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+{% commit_block() %}
+			'{%= attribute_name($attribute) %}' => function ($query) {
+				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
+			},
+{% endif %}
+{% end_attr_list %}
+		]);
+{% end_uncertain_block() %}
 		return $this->listItems('admin.{%= view_name($model) %}.index', $items);
 	}
 	
@@ -25,7 +37,7 @@ class {%= remove_namespace($model) %}Controller extends BaseAdminController
 			'items' => $items->map(function($item) {
 				return [
 					'id' => $item->id,
-					'text' => $item->{%= name_attribute_id($model) %},
+					'text' => $item->__toString(),
 				];
 			}),
 			'more' => $items->hasMorePages(),
@@ -34,6 +46,18 @@ class {%= remove_namespace($model) %}Controller extends BaseAdminController
 	
 	public function view({%= remove_namespace($model) %} $item)
 	{
+{% start_uncertain_block() %}
+		$item->load([
+{% start_attr_list %}
+{% if ($attribute->getBoolHint('detailsview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+{% commit_block() %}
+			'{%= attribute_name($attribute) %}' => function ($query) {
+				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
+			},
+{% endif %}
+{% end_attr_list %}
+		]);
+{% end_uncertain_block() %}
 		return $this->displayItem('admin.{%= view_name($model) %}.view', $item);
 	}
 	
@@ -63,6 +87,18 @@ class {%= remove_namespace($model) %}Controller extends BaseAdminController
 	
 	public function update({%= remove_namespace($model) %} $item)
 	{
+{% start_uncertain_block() %}
+		$item->load([
+{% start_attr_list %}
+{% if (!$attribute->getBoolHint('readonly') && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+{% commit_block() %}
+			'{%= attribute_name($attribute) %}' => function ($query) {
+				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
+			},
+{% endif %}
+{% end_attr_list %}
+		]);
+{% end_uncertain_block() %}
 		return $this->displayItemForm('admin.{%= view_name($model) %}.form', $item{% start_uncertain_block() %}, [
 			'options' => [
 {% start_attr_list %}

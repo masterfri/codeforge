@@ -15,8 +15,17 @@ $this->registerHelper('table_name', function ($invoker, $model, $pluralize=true)
 	}
 });
 
-$this->registerHelper('foreign_key', function ($invoker, $model) 
+$this->registerHelper('foreign_key', function ($invoker, $model_or_attribute) 
 {
+	if ($model_or_attribute instanceof Codeforge\Attribute) {
+		$attribute = $model_or_attribute;
+		if ($backreference = $invoker->refer('attribute_back_reference', $attribute)) {
+			return $invoker->refer('attribute_id', $backreference);
+		}
+		$model = $model_or_attribute->getOwner();
+	} else {
+		$model = $model_or_attribute;
+	}
 	$name = is_string($model) ? $model : $model->getName();
 	$name = preg_replace('/([a-z])([A-Z])/', '\1_\2', $name);
 	$name = preg_replace('/[_]{2,}/', '_', $name);

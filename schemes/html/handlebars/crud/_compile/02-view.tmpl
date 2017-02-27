@@ -21,7 +21,7 @@
 {% if ($attribute->getBoolHint('detailsview', true)): %}
 					<tr>
 						<th> {%= attribute_label($attribute) %} </th>
-						<td> {{{%= attribute_getter($attribute) %}}} </td>
+						<td> {%= attribute_getter($attribute) %} </td>
 					</tr>
 {% endif %}
 {% end_attr_list %}

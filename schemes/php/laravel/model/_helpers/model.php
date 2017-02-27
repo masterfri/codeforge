@@ -26,3 +26,8 @@ $this->registerHelper('attribute_cast', function ($invoker, $attribute)
 	}
 	return false;
 });
+
+$this->registerHelper('attribute_setter', function ($invoker, $attribute)
+{
+	return sprintf('set%sAttribute', implode('', array_map('ucfirst', explode('_', is_string($attribute) ? $attribute : $attribute->getName()))));
+});

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 
-class AdminController extends Controller
+class BaseAdminController extends Controller
 {
 	protected function listItems($view, $items, $vars=[])
 	{

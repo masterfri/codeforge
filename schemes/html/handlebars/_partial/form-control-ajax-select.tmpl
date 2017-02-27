@@ -1,3 +1,5 @@
 <select name="{%= attribute_id($attribute) %}" data-plugin="select2-remote" data-params="{&quot;source&quot;:&quot;{{{route "admin/{%= route_name($attribute->getCustomType()) %}/query"}}}&quot;}" style="width: 100%;">
-
+{{#if item.{%= attribute_name($attribute) %}.id }}
+	<option selected="selected" value="{{item.{%= attribute_name($attribute) %}.id}}">{%= attribute_getter($attribute, 'item.') %}</option>
+{{/if}}
 </select>

@@ -46,9 +46,9 @@ class {%= model_name($model) %} extends Model
 
 	public function {%= attribute_name($attribute) %}()
 	{
-		return $this->belongsTo('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($attribute->getCustomType()) %}');
+		return $this->belongsTo('App\{%= model_name($attribute->getCustomType()) %}', '{%= attribute_id($attribute) %}');
 	}
-{% elseif ('belongs-to-many' == ($relation = attribute_relation($attribute))): %}
+{% elseif ('belongs-to-many' == $relation): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
@@ -58,16 +58,31 @@ class {%= model_name($model) %} extends Model
 
 	public function {%= attribute_name($attribute) %}()
 	{
-		return $this->hasOne('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($model) %}');
+		return $this->hasOne('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($attribute) %}');
 	}
 {% elseif ('has-many' == $relation): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
-		return $this->hasMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($model) %}');
+		return $this->hasMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($attribute) %}');
 	}
 {% endif %}
 {% end_attr_list %}
+{% foreach(writable_attributes($model) as $attribute): %}
+{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
+
+	public function {%= attribute_setter($attribute) %}($value)
+	{
+		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? null : $value);
+	}
+{% elseif ('belongs-to-many' == $relation || 'has-many' == $relation): %}
+	
+	public function {%= attribute_setter($attribute) %}($value)
+	{
+		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? [] : $value);
+	}
+{% endif %}
+{% endforeach %}
 {% start_attr_list %}
 {% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION || $attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
 	
@@ -111,25 +126,25 @@ class {%= model_name($model) %} extends Model
 	{
 		parent::boot();
 
-		static::deleting(function($game) {
+		static::deleting(function($item) {
 {% start_attr_list %}
 {% if ('has-one' == ($relation = attribute_relation($attribute))): %}
 {% if ($attribute->getBoolHint('cascadeDelete', true)): %}
 {% commit_block() %}
-			if ($this->{%= attribute_name($attribute) %} !== null) {
-				$this->{%= attribute_name($attribute) %}->delete();
+			if ($item->{%= attribute_name($attribute) %} !== null) {
+				$item->{%= attribute_name($attribute) %}->delete();
 			}
 {% endif %}
 {% elseif ('has-many' == $relation): %}
 {% if ($attribute->getBoolHint('cascadeDelete', true)): %}
 {% commit_block() %}
-			foreach ($this->{%= attribute_name($attribute) %}()->cursor() as $child) {
+			foreach ($item->{%= attribute_name($attribute) %}()->cursor() as $child) {
 				$child->delete();
 			}
 {% endif %}
 {% elseif ('belongs-to-many' == $relation): %}
 {% commit_block() %}
-			$this->{%= attribute_name($attribute) %}()->detach();
+			$item->{%= attribute_name($attribute) %}()->detach();
 {% endif %}
 {% end_attr_list %}
 		});

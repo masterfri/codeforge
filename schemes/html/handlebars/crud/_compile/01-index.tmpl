@@ -26,7 +26,7 @@
 						<tr>
 {% start_attr_list_natural_order %}
 {% if ($attribute->getBoolHint('tableview', true)): %}
-							<td> {{{%= attribute_getter($attribute) %}}} </td>
+							<td> {%= attribute_getter($attribute) %} </td>
 {% endif %}
 {% end_attr_list %}
 							<td>
