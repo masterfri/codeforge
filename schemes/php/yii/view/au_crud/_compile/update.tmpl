@@ -1,0 +1,17 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/update.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
+?>
+
+<div class="box altbox"><!-- .altbox for alternative box's color -->
+	<div class="boxin">
+		<div class="header">
+			<h3>UPDATE {%= $model->getName() %} #<?php echo $model->number; ?></h3>
+			<?php echo $this->renderPartial('_burgermenu', compact('model')); ?>
+		</div>
+		<?php echo $this->renderPartial('_form', compact('model')); ?>
+    </div>
+</div>
+{% close_file() %}

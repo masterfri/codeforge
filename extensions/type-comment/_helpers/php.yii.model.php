@@ -14,4 +14,4 @@ $this->registerHelper('attribute_validation_rules', function ($invoker, $attribu
         }
     }
     return $invoker->referSuper();
-}, 100, '::php::yii::model');
+}, 100, '::php::yii::au_model');

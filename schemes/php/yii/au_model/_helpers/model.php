@@ -115,7 +115,7 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 	if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 		$relation = $invoker->refer('attribute_relation', $attribute);
 		if ('many-to-one' == $relation) {
-			$relations[] = sprintf("array(self::BELONGS_TO, '%s', '%s_id')", $attribute->getCustomType(), $attribute->getName());
+			$relations[] = sprintf("[self::BELONGS_TO, %s::class, '%s_id']", $attribute->getCustomType(), $attribute->getName());
 		} elseif ('one-to-many' == $relation) {
 			$backreference = $invoker->refer('attribute_back_reference', $attribute);
 			if ($backreference) {
@@ -123,7 +123,7 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 			} else {
 				$fk = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
 			}
-			$relations[] = sprintf("array(self::HAS_MANY, '%s', '%s')", $attribute->getCustomType(), $fk);
+			$relations[] = sprintf("[self::HAS_MANY, %s::class, '%s']", $attribute->getCustomType(), $fk);
 		} elseif ('one-to-one' == $relation) {
 			$backreference = $invoker->refer('attribute_back_reference', $attribute);
 			if ($backreference) {
@@ -131,7 +131,7 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 			} else {
 				$fk = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
 			}
-			$relations[] = sprintf("array(self::HAS_ONE, '%s', '%s')", $attribute->getCustomType(), $fk);
+			$relations[] = sprintf("[self::HAS_ONE, %s::class, '%s']", $attribute->getCustomType(), $fk);
 		} elseif ('many-to-many' == $relation) {
 			$link = $attribute->getHint('manymanylink');
 			if ($link && preg_match('#([a-z0-9_]+)\s*[(]\s*([a-z0-9_]+)\s*,\s*([a-z0-9_]+)\s*[)]#i', $link, $matches)) {
@@ -143,7 +143,7 @@ $this->registerHelper('relations', function ($invoker, $attribute, $model)
 				$fk1 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getOwner()));
 				$fk2 = sprintf('%s_id', $invoker->refer('table_name', $attribute->getCustomType()));
 			}
-			$relations[] = sprintf("array(self::MANY_MANY, '%s', '{{%s}}(%s,%s)')", $attribute->getCustomType(), $table_name, $fk1, $fk2);
+			$relations[] = sprintf("[self::MANY_MANY, %s::class, '{{%s}}(%s,%s)']", $attribute->getCustomType(), $table_name, $fk1, $fk2);
 		}
 	}
 	return $relations;

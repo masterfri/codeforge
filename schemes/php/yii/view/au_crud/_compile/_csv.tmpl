@@ -9,8 +9,6 @@ header("Expires: 0");
 header("Content-type: application/octet-stream");
 header("Content-Disposition: attachment; filename={%= lcfirst($model->getName()) %}".  date('d-m-y').".csv");
 
-$provider->pagination = false;
-
 $this->widget('CsvRenderer', array(
 	'showHeads' => true,
 	'provider' => $provider,

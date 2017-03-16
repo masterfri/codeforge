@@ -3,6 +3,4 @@
  * @var $model {%= $model->getName() %}
  * @var $this {%= $model->getName() %}Controller
  */
-$this->renderPartial('_details', array(
-    'model' => $model,
-));
+$this->renderPartial('_details', compact('model'));

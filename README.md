@@ -22,6 +22,8 @@ Run following command in work directory:
 
     sh > cf init php.yii.default
     
+Where "php.yii.default" is template name.
+    
 It creates workspace for basic Yii application.
 
 ### Step 2 - Add some entity

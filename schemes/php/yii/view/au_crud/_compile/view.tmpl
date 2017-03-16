@@ -1,0 +1,28 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/view.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
+?>
+
+<?php if (Yii::app()->user->hasFlash('info')): ?>
+    <div>
+        <button type="button" class="close" data-dismiss="alert">×</button>
+    <?php echo Yii::app()->user->getFlash('info'); ?>
+    </div>
+<?php endif; ?>
+
+<div class="box altbox">
+    <div class="boxin">
+        <div class="header">
+            <h3>VIEW {%= $model->getName() %} #<?php echo $model->number; ?></h3>
+            <?php echo $this->renderPartial('_burgermenu', compact('model')); ?>
+        </div>
+        <div class="content-view" id="content-view">
+            <?php
+            $this->renderPartial('_details', compact('model'));
+            ?>
+        </div>
+    </div>
+</div>
+{% close_file() %}

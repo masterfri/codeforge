@@ -39,7 +39,7 @@ $this->registerHelper('model_columns', function ($invoker, $model)
 	$result = array();
 	$columns = array();
 	$keys = array();
-	foreach ($model->getAttributes() as $attribute) {
+	foreach ($model->getAttributes(false) as $attribute) {
 		if (!$attribute->getIsCollection() && !$attribute->getBoolHint('local')) {
 			if ($attribute->getType() == Attribute::TYPE_CUSTOM) {
 				if ('many-to-one' == $invoker->refer('attribute_relation', $attribute)) {

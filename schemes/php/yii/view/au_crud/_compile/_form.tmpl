@@ -4,30 +4,8 @@
  * @var $this {%= $model->getName() %}Controller
  * @var $form CActiveForm
  */
-$cs = Yii::app()->clientScript;
-$cs->registerScriptFile('/js/liveform/expression.js');
-$cs->registerScriptFile('/js/liveform/liveform.js');
-$cs->registerScript('liveform', "
-$('#{%= strtolower($model->getName()) %}-form').liveform({
-	'inputcontainer':'.control-group',
-	'inputlabel':'.control-label'
-});
-");
 
-$cs->registerScript('funcs', "
-function required_condition(v,m,a) {
-	var e = $('#' + a.inputID);
-	var fs = e.closest('[role=fieldset]');
-	if (fs.length && fs.is(':hidden')) {
-		return false;
-	}
-	if (e.attr('data-required')) {
-		return $('#{%= strtolower($model->getName()) %}-form').liveform('getIsRequired', e);
-	}
-	return true;
-}
-", CClientScript::POS_HEAD);
-?>
+$this->renderPartial('_js', compact('model'));
 
 <div class="form-content">
     <?php $form = $this->beginWidget('CActiveForm', array(

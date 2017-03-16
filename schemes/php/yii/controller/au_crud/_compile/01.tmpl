@@ -2,121 +2,82 @@
 
 class {%= $model->getName() %}Controller extends {%= env('php.yii.controller.superclass', 'Controller') %}
 {
-	public function actionAdmin() {
-		$model = $this->createSearchModel('{%= $model->getName() %}');
-		$provider = $model->search();
-		$this->render('admin', array(
-			'model' => $model,
-			'provider' => $provider,
-		));
-	}
-	
-	public function actionCreate() {
-		$model = new {%= $model->getName() %}('create');
-		if ($this->saveModel($model)) {
-			$this->redirect(array('view', 'id' => $model->id));
-		}
-		$this->render('create', array(
-			'model' => $model,
-		));
-	}
-	
-	public function actionUpdate($id) {
-		$model = $this->loadModel($id);
-		if ($this->saveModel($model)) {
-			$this->redirect(array('view', 'id' => $model->id));
-		}
-		$this->render('update', array(
-			'model' => $model,
-		));
-	}
-	
-	public function actionDelete($id) {
-		$model = $this->loadModel($id);
-		$model->delete();
-		if(!isset($_GET['ajax'])) {
-			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-		}
-	}
-	
-	public function actionView($id) {
-		$this->render('view', array(
-			'model' => $this->loadModel($id, '{%= $model->getName() %}'),
-		));
-	}
 
-	public function actionCsv() {
-        $model = new {%= $model->getName() %}('search');
-        $model->unsetAttributes();
+    public function __construct($id, $module = null)
+    {
+        parent::__construct($id, $module);
+        $this->related_model = {%= $model->getName() %}::class;
+    }
 
-        if (isset($_REQUEST['{%= $model->getName() %}'])) {
-            $model->attributes = $_REQUEST['{%= $model->getName() %}'];
+    public function filters()
+    {
+        return ['accessControl', 'postOnly + delete'];
+    }
+
+    public function accessRules()
+    {
+        return [
+            ['allow', 'actions' => ['create'], 'roles' => ['{%= permission('create', $model) %}']],
+            ['allow', 'actions' => ['view'], 'roles' => ['{%= permission('view', $model) %}']],
+            ['allow', 'actions' => ['admin'], 'roles' => ['{%= permission('manage', $model) %}']],
+            ['allow', 'actions' => ['update'], 'roles' => ['{%= permission('update', $model) %}']],
+            ['allow', 'actions' => ['delete'], 'roles' => ['{%= permission('delete', $model) %}']],
+            ['allow', 'actions' => ['csv'], 'roles' => ['{%= permission('csv', $model) %}']],
+            ['allow', 'actions' => ['print'], 'roles' => ['{%= permission('print', $model) %}']],
+            ['deny'],
+        ];
+    }
+
+    public function actionCreate()
+    {
+        $model = new {%= $model->getName() %}('create');
+        if ($this->saveModel($model)) {
+            Yii::app()->user->setFlash('success', "The form was created successfully.");
+            if ($model->currentUserCanAccess()) {
+                $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                $this->refresh();
+            }
+        }
+        $this->render('create', compact('model'));
+    }
+
+	public function actionAdmin()
+	{
+		$this->baseAdmin('admin');
+	}
+	
+	public function actionUpdate($id)
+	{
+		$model = $this->loadModel($id);
+        if (!$model->currentUserCanUpdate()) {
+            throw new CHttpException(403, 'Forbidden.');
         }
 
-        $provider = $model->search(array(
-            'condition' => '',
-        ));
+		if ($this->saveModel($model)) {
+			$this->redirect(['view', 'id' => $model->id]);
+		}
+		$this->render('update', compact('model'));
+	}
 
-        $this->renderPartial('_csv', array(
-            'model' => $model,
-            'provider' => $provider,
-        ));
-    }
-
-    public function actionPrint($id) {
+	public function actionEdit($id, $stage)
+    {
         $model = $this->loadModel($id);
-        $this->renderPdf('print', sprintf('{%= $model->getName() %}: %s', $model->id), array(
-            'model' => $model,
-        ), '{%= lcfirst($model->getName()) %}-'.$id.'.pdf');
+        if (!$model->currentUserCanEdit($stage)) {
+            throw new CHttpException(403, 'Forbidden');
+        }
+        $model->active_stage = $stage;
+        $model->amend_mode = true;
+        if ($this->saveModel($model)) {
+            $this->redirect(['view', 'id' => $model->id]);
+        }
+        $this->render('amend', compact('model'));
     }
 
-	public function filters() {
-		return array(
-			'accessControl',
-			'postOnly + delete', 
-		);
-	}
-	
-	public function accessRules() {
-		return array(
-			array('allow',
-				'actions' => array('create'),
-				'roles' => array('{%= permission('create', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('view'),
-				'roles' => array('{%= permission('view', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('admin'),
-				'roles' => array('{%= permission('manage', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('update'),
-				'roles' => array('{%= permission('update', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('delete'),
-				'roles' => array('{%= permission('delete', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('csv'),
-				'roles' => array('{%= permission('csv', $model) %}'),
-			),
-			array('allow',
-				'actions' => array('print'),
-				'roles' => array('{%= permission('print', $model) %}'),
-			),
-			array('deny'),
-		);
-	}
-
-    public function loadModel($id) {
-        $model = {%= $model->getName() %}::model()->findByPk($id);
-        if ($model === null)
-            throw new CHttpException(404, 'The requested page does not exist.');
-        return $model;
+    public function actionPrint($id)
+    {
+        $model = $this->loadModel($id);
+        $this->renderPdf('print', sprintf('{%= $model->getName() %}: %s', $model->id), compact('model'), '{%= lcfirst($model->getName()) %}-'.$id.'.pdf');
     }
-
 }
 {% close_file() %}

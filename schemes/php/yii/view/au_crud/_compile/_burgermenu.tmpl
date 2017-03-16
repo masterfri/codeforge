@@ -1,0 +1,30 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_burgermenu.php') %}<?php
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
+
+$action = $this->action->id;
+$this->menu = array(
+    array(
+        'label' => '<span class="glyphicon glyphicon-menu-hamburger"></span>',
+         'url' => '#',
+         'items' => array(
+            array(
+                'label'=>'<i class=" glyphicon glyphicon-cog"></i> Manage Table',
+                'url'=>array('admin'),
+                'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}'),
+            ),
+        ),
+        'linkOptions' => array('class' => 'dropdown-toggle navbar-toggle', 'data-toggle' => 'dropdown'),
+        'itemOptions' => array('class' => 'dropdown'), 'submenuOptions' => array('class' => 'dropdown-menu'),
+        'visible' => Yii::app()->user->checkaccess('{%= permission('manage', $model) %}'),
+    ),
+);
+
+$this->widget('application.components.BurgerMenu', array(
+    'htmlOptions' => array('class' => 'header-btns'),
+    'encodeLabel' => false,
+    'items' => $this->menu,
+));
+{% close_file() %}

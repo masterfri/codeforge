@@ -1,0 +1,48 @@
+/// @table examples
+/// @interface ICrudPermission
+model Example scheme mysql, php.yii.au_model, php.yii.controller.au_crud, php.yii.view.au_crud:
+
+/// Set behaviours
+behavior AjaxUploadBehavior({});
+behavior DateAttributeBehavior({attributes=["proposed_date_of_fifm", "return_of_initial_assessment"]});
+
+
+attr stage int;
+
+/// 0 is default value
+attr deleted int=0;
+
+/// Gen Inspection Number
+/// CHAR(100). max length 100 will be added to model rules
+attr gen_inspection_number char(100);
+
+/// SLT Activity 
+attr slt_activity bool;
+
+/// Program Area
+/// int options - 0 is "Networks", 1 is "Facilities"
+attr program_area option("Networks", "Facilities");
+
+/// Program Area 2
+/// string options, DB type is CHAR(100)
+attr program_area enum("Networks", "Facilities");
+
+/// Delivery Contractor 
+/// @relation many-to-one
+/// column will have name `dc_id`
+attr dc Company;
+
+/// Comments - High risk activities identified in plans, other personnel involved in Inspection
+/// TEXT type in DB, max length 200 in model rules
+attr comments text(200);
+
+/// Upload Attachment
+/// INT(10) UNSIGNED
+attr upload_attachment_1 ajaxfile;
+
+/// Submitted By
+/// @relation many-to-one
+attr stage_1_submitted_by Employee;
+
+/// Date and time submitted
+attr stage_1_submitted_datetime datetime;

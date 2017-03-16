@@ -1,0 +1,22 @@
+{% open_file('protected/views/'.lcfirst($model->getName()).'/_js.php') %}<?php
+/**
+ * @var $cs CClientScript
+ * @var $model {%= $model->getName() %}
+ */
+$cs = Yii::app()->clientScript;
+$cs->registerScriptFile('/js/liveform/expression.js');
+$cs->registerScriptFile('/js/liveform/liveform.js');
+$cs->registerScript('liveform', "
+$('#{%= strtolower($model->getName()) %}-form').liveform({
+	'inputcontainer':'.control-group',
+	'inputlabel':'.control-label'
+});
+");
+
+$cs->registerScript('funcs', "
+function required_condition(v,m,a) {
+    return base_required_condition(v, m, a, '{%= strtolower($model->getName()) %}-form');
+}
+", CClientScript::POS_HEAD);
+?>
+{% close_file() %}

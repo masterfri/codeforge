@@ -1,5 +1,9 @@
 {% if(count($searchable = searchable_attributes($model, false))): %}
 {% open_file('protected/views/'.lcfirst($model->getName()).'/_search.php') %}
+/**
+ * @var $model {%= $model->getName() %}
+ * @var $this {%= $model->getName() %}Controller
+ */
 <div class="form-content">
 	<?php $form=$this->beginWidget('CActiveForm', array(
     	'action'=>Yii::app()->createUrl($this->route),
