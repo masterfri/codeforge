@@ -38,7 +38,7 @@
 					<li>
 						<a href="{{ route('admin/dashboard') }}">Dashboard</a>
 					</li>
-{% join_partial('php.laravel.navigation.crud') %}
+					{% join_partial('php.laravel.navigation.crud') %}
 					@if (!Auth::guest())
 						<li class="visible-xs">
 							<a href="{{ route('logout') }}">Logout</a>

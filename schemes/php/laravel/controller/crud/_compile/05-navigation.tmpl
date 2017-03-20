@@ -1,7 +1,9 @@
 {% open_partial('php.laravel.navigation.crud', $model->getName()) %}
+{% if (null == get_subordinated_by($model)): %}
 					@can('search', 'App\{%= model_name($model) %}')
 						<li>
 							<a href="{{ route('admin/{%= route_name($model) %}/index') }}">{%= model_label($model, true) %}</a>
 						</li>
 					@endcan
+{% endif %}
 {% close_file() %}

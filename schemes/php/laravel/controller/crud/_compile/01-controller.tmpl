@@ -4,29 +4,47 @@
 namespace App\Http\Controllers\Admin{%= rtrim('\\' . get_namespace($model), '\\') %};
 
 use App\{%= model_name($model) %};
+{% if (($subordination = get_subordinated_by($model)) != null): %}
+use App\{%= model_name($subordination[0]) %};	
+{% endif %}
 use Illuminate\Http\Request;
 use App\Http\Requests\{%= model_name($model) %}FormRequest;
 
 class {%= remove_namespace($model) %}Controller extends BaseAdminController
 {
+	{%if ($subordination != null): %}
+	public function index({%= remove_namespace($subordination[0]) %} $owner)
+	{
+		if ($owner->exists) {
+			$items = $owner->{%= attribute_name($subordination[1]) %}()->paginate(10);
+		} else {
+			$items = {%= remove_namespace($model) %}::paginate(10);
+		}
+	{% else: %}
 	public function index()
 	{
 		$items = {%= remove_namespace($model) %}::paginate(10);
-{% start_uncertain_block() %}
+	{% endif %}
+		{% start_uncertain_block() %}
 		$items->load([
-{% start_attr_list %}
-{% if ($attribute->getBoolHint('tableview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
-{% commit_block() %}
+		{% start_attr_list %}
+			{% if ($attribute->getBoolHint('tableview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+			{% commit_block() %}
 			'{%= attribute_name($attribute) %}' => function ($query) {
 				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
 			},
-{% endif %}
-{% end_attr_list %}
+			{% endif %}
+		{% end_attr_list %}
 		]);
-{% end_uncertain_block() %}
-		return $this->listItems('admin.{%= view_name($model) %}.index', $items);
+		{% end_uncertain_block() %}
+		return $this->listItems('admin.{%= view_name($model) %}.index', $items{% start_uncertain_block() %}, [
+			{%if ($subordination != null): %}
+			{% commit_block() %}
+			'owner' => $owner,
+			{% endif %}
+		]{% end_uncertain_block() %});
 	}
-	
+
 	public function query(Request $request)
 	{
 		$term = $request->get('term', '');
@@ -43,88 +61,121 @@ class {%= remove_namespace($model) %}Controller extends BaseAdminController
 			'more' => $items->hasMorePages(),
 		]);
 	}
-	
+
 	public function view({%= remove_namespace($model) %} $item)
 	{
-{% start_uncertain_block() %}
+		{% start_uncertain_block() %}
 		$item->load([
-{% start_attr_list %}
-{% if ($attribute->getBoolHint('detailsview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
-{% commit_block() %}
+		{% start_attr_list %}
+			{% if ($attribute->getBoolHint('detailsview', true) && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+			{% commit_block() %}
 			'{%= attribute_name($attribute) %}' => function ($query) {
 				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
 			},
-{% endif %}
-{% end_attr_list %}
+			{% endif %}
+		{% end_attr_list %}
 		]);
-{% end_uncertain_block() %}
+		{% end_uncertain_block() %}
 		return $this->displayItem('admin.{%= view_name($model) %}.view', $item);
 	}
-	
+
+	{%if ($subordination != null): %}
+	public function create({%= remove_namespace($subordination[0]) %} $owner)
+	{% else: %}
 	public function create()
+	{% endif %}
 	{
 		return $this->displayItemForm('admin.{%= view_name($model) %}.form', new {%= remove_namespace($model) %}(){% start_uncertain_block() %}, [
+			{%if ($subordination != null): %}
+			{% commit_block() %}
+			'owner' => $owner,
+			{% endif %}
+			{% if (count($option_attrs = attributes_of_type($model, array(Codeforge\Attribute::TYPE_INTOPTION, Codeforge\Attribute::TYPE_STROPTION)))): %}
+			{% commit_block() %}
 			'options' => [
-{% start_attr_list %}
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
-{% commit_block() %}
+				{% foreach ($option_attrs as $attribute): %}
+				{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
 				'{%= attribute_id($attribute) %}' => joptions({%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List()),
-{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
-{% commit_block() %}
+				{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
 				'{%= attribute_id($attribute) %}' => {%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List(),
-{% endif %}
-{% end_attr_list %}
+				{% endif %}
+				{% endforeach %}
 			],
+			{% endif %}
 		]{% end_uncertain_block() %});
 	}
-	
+
+	{%if ($subordination != null): %}
+	public function postCreate({%= remove_namespace($subordination[0]) %} $owner, {%= remove_namespace($model) %}FormRequest $request)
+	{
+		$item = new {%= remove_namespace($model) %}($request->sanitize());
+		{% if (attribute_relation($subordination[1]) == 'belongs-to-many'): %}
+		$item->save();
+		if ($owner->exists) {
+			$owner->{%= attribute_name($subordination[1]) %}()->attach($item);
+		}
+		{% elseif ($subordination[2]): %}
+		if ($owner->exists) {
+			$item->{%= attribute_name($subordination[2]) %}()->associate($owner);
+		}
+		$item->save();
+		{% endif %}
+		return jredirect(route('admin/{%= route_name($model) %}/view', ['item' => $item->id]), '{%= addslashes(model_label($model)) %} has been created');
+	}
+	{% else: %}
 	public function postCreate({%= remove_namespace($model) %}FormRequest $request)
 	{
 		$item = new {%= remove_namespace($model) %}($request->sanitize());
 		$item->save();
 		return jredirect(route('admin/{%= route_name($model) %}/index'), '{%= addslashes(model_label($model)) %} has been created');
 	}
-	
+	{% endif %}
+
 	public function update({%= remove_namespace($model) %} $item)
 	{
-{% start_uncertain_block() %}
+		{% start_uncertain_block() %}
 		$item->load([
-{% start_attr_list %}
-{% if (!$attribute->getBoolHint('readonly') && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
-{% commit_block() %}
+		{% start_attr_list %}
+			{% if (!$attribute->getBoolHint('readonly') && $attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM): %}
+			{% commit_block() %}
 			'{%= attribute_name($attribute) %}' => function ($query) {
 				$query->select('id'{% if (in_array(attribute_relation($attribute), array('has-many', 'has-one'))): %}, '{%= foreign_key($attribute) %}'{% endif %}{% if ($name_attribute_id = name_attribute_id($model)): %}, '{%= $name_attribute_id %}'{% endif %});
 			},
-{% endif %}
-{% end_attr_list %}
+			{% endif %}
+		{% end_attr_list %}
 		]);
-{% end_uncertain_block() %}
+		{% end_uncertain_block() %}
 		return $this->displayItemForm('admin.{%= view_name($model) %}.form', $item{% start_uncertain_block() %}, [
+			{% if (count($option_attrs = attributes_of_type($model, array(Codeforge\Attribute::TYPE_INTOPTION, Codeforge\Attribute::TYPE_STROPTION)))): %}
+			{% commit_block() %}
 			'options' => [
-{% start_attr_list %}
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
-{% commit_block() %}
+				{% foreach ($option_attrs as $attribute): %}
+				{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
 				'{%= attribute_id($attribute) %}' => joptions({%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List()),
-{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
-{% commit_block() %}
+				{% elseif ($attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
 				'{%= attribute_id($attribute) %}' => {%= remove_namespace($model) %}::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List(),
-{% endif %}
-{% end_attr_list %}
+				{% endif %}
+				{% endforeach %}
 			],
+			{% endif %}
 		]{% end_uncertain_block() %});
 	}
-	
+
 	public function postUpdate({%= remove_namespace($model) %}FormRequest $request, {%= remove_namespace($model) %} $item)
 	{
 		$item->fill($request->sanitize());
 		$item->save();
-		return jredirect(route('admin/{%= route_name($model) %}/index'), '{%= addslashes(model_label($model)) %} has been updated');
+		return jredirect(route('admin/{%= route_name($model) %}/view', ['item' => $item->id]), '{%= addslashes(model_label($model)) %} has been updated');
 	}
-	
+
 	public function delete(Request $request, {%= remove_namespace($model) %} $item)
 	{
 		$item->delete();
+		{%if ($subordination != null && attribute_relation($subordination[1]) == 'has-many' && $subordination[2]): %}
+		$returnTo = $request->get('back', 'true') === 'false' ? route('admin/{%= route_name($model) %}/index', ['owner' => $item->{%= attribute_id($subordination[2]) %}]) : url()->previous();
+		{% else: %}
 		$returnTo = $request->get('back', 'true') === 'false' ? route('admin/{%= route_name($model) %}/index') : url()->previous();
+		{% endif %}
 		return jredirect($returnTo, '{%= addslashes(model_label($model)) %} has been deleted');
 	}
 }

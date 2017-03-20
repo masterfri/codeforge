@@ -299,62 +299,68 @@ class Builder
 				if (preg_match('/^\s*{%%/', $line)) {
 					continue;
 				}
-				$parts = preg_split('@({%.+%})@U', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-				foreach ($parts as $part) {
-					if (substr($part, 0, 2) == '{%') {
-						$part = substr($part, 2, -3);
-						$part = preg_replace('/^\s*start_attr_list_natural_order/', 'foreach($model->getAttributes(false) as $attribute):', $part);
-						$part = preg_replace('/^\s*start_attr_list/', 'foreach($model->getAttributes() as $attribute):', $part);
-						$part = preg_replace('/^\s*start_model_list/', 'foreach($this->getModels() as $another_model):', $part);
-						$part = preg_replace('/^\s*end_(attr|model)_list/', 'endforeach;', $part);
-						$part = preg_replace('/^\s*=/', 'echo ', $part);
-						$part = preg_replace_callback('/(?<!->|::|\\\\)\b([a-zA-Z_][a-zA-Z0-9_]*)\s*[(]/', function($m) {
-							$n = strtolower($m[1]);
-							if (in_array($n, array('if', 'elseif', 'while', 'switch', 'foreach', 'for', 'function', 'array', 'list'))) {
-								return $m[0];
-							} elseif ('env' == $n) {
-								return '$this->getEnv(';
-							} elseif ('open_file' == $n) {
-								return '$this->openFile(';
-							} elseif ('open_partial' == $n) {
-								return '$this->openPartial(';
-							} elseif ('close_file' == $n) {
-								return '$this->closeFile(';
-							} elseif ('join_partial' == $n) {
-								return '$this->joinPartial(';
-							} elseif ('message' == $n) {
-								return '$this->message(';
-							} elseif ('array_map' == $n) {
-								return '$this->arrayMap(';
-							} elseif ('ask' == $n) {
-								return '$this->askVar(';
-							} elseif ('partial' == $n) {
-								return '$this->renderPartial(';
-							} elseif ('start_uncertain_block' == $n) {
-								return '$this->startUncertainBlock(';
-							} elseif ('end_uncertain_block' == $n) {
-								return '$this->endUncertainBlock(';
-							} elseif ('commit_block' == $n) {
-								return '$this->commitUncertainBlock(';
-							} else {
-								return sprintf('$this->invokeHelper("%s")->call(', $m[1]);
+				if (trim($line) === '') {
+					echo 'echo "\n";';
+				} else {
+					$line = preg_replace('/^\s+{%(?!=)/', '{%', $line);
+					$line = preg_replace('/%}\s+$/', '%}', $line);
+					$parts = preg_split('@({%.+%})@U', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+					foreach ($parts as $part) {
+						if (substr($part, 0, 2) == '{%') {
+							$part = substr($part, 2, -3);
+							$part = preg_replace('/^\s*start_attr_list_natural_order/', 'foreach($model->getAttributes(false) as $attribute):', $part);
+							$part = preg_replace('/^\s*start_attr_list/', 'foreach($model->getAttributes() as $attribute):', $part);
+							$part = preg_replace('/^\s*start_model_list/', 'foreach($this->getModels() as $another_model):', $part);
+							$part = preg_replace('/^\s*end_(attr|model)_list/', 'endforeach;', $part);
+							$part = preg_replace('/^\s*=/', 'echo ', $part);
+							$part = preg_replace_callback('/(?<!->|::|\\\\)\b([a-zA-Z_][a-zA-Z0-9_]*)\s*[(]/', function($m) {
+								$n = strtolower($m[1]);
+								if (in_array($n, array('if', 'elseif', 'while', 'switch', 'foreach', 'for', 'function', 'array', 'list'))) {
+									return $m[0];
+								} elseif ('env' == $n) {
+									return '$this->getEnv(';
+								} elseif ('open_file' == $n) {
+									return '$this->openFile(';
+								} elseif ('open_partial' == $n) {
+									return '$this->openPartial(';
+								} elseif ('close_file' == $n) {
+									return '$this->closeFile(';
+								} elseif ('join_partial' == $n) {
+									return '$this->joinPartial(';
+								} elseif ('message' == $n) {
+									return '$this->message(';
+								} elseif ('array_map' == $n) {
+									return '$this->arrayMap(';
+								} elseif ('ask' == $n) {
+									return '$this->askVar(';
+								} elseif ('partial' == $n) {
+									return '$this->renderPartial(';
+								} elseif ('start_uncertain_block' == $n) {
+									return '$this->startUncertainBlock(';
+								} elseif ('end_uncertain_block' == $n) {
+									return '$this->endUncertainBlock(';
+								} elseif ('commit_block' == $n) {
+									return '$this->commitUncertainBlock(';
+								} else {
+									return sprintf('$this->invokeHelper("%s")->call(', $m[1]);
+								}
+							}, $part);
+							$part = trim($part);
+							if (substr($part, -1) != ':') {
+								$part = trim($part, ';') . ';';
 							}
-						}, $part);
-						$part = trim($part);
-						if (substr($part, -1) != ':') {
-							$part = trim($part, ';') . ';';
-						}
-						echo "$part\n";
-						$prev_is_inline = true;
-					} else {
-						if ($prev_is_inline) {
-							$prev_is_inline = false;
-							$part = ltrim($part, "\n");
-							if (empty($part)) {
-								continue;
+							echo "$part\n";
+							$prev_is_inline = true;
+						} else {
+							if ($prev_is_inline) {
+								$prev_is_inline = false;
+								$part = ltrim($part, "\n");
+								if (empty($part)) {
+									continue;
+								}
 							}
+							echo 'echo "' . $this->escapeString($part) . '";' . "\n";
 						}
-						echo 'echo "' . $this->escapeString($part) . '";' . "\n";
 					}
 				}
 			}
@@ -697,7 +703,7 @@ class Builder
 			if (is_int($padding)) {
 				$padding = str_repeat("\t", $padding);
 			} 
-			echo str_replace("\n", "\n$padding", rtrim($output, "\n"));
+			echo $padding . str_replace("\n", "\n$padding", rtrim($output, "\n"));
 		} else {
 			echo $output;
 		}

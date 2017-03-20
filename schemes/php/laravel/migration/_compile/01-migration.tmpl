@@ -11,26 +11,26 @@ class {%= migration_class(table_name($model)) %} extends Migration
 	{
 		Schema::create('{%= table_name($model) %}', function (Blueprint $table) {
 			$table->increments('id');
-{% start_attr_list %}
-{% foreach (column_definitions($attribute) as $definition): %}
+			{% start_attr_list %}
+			{% foreach (column_definitions($attribute) as $definition): %}
 			{%= $definition %};
-{% endforeach %}
-{% end_attr_list %}
-{% foreach ($model->getReferences() as $reference): %}
-{% $relation = attribute_relation($reference) %}
-{% if ('has-many' == $relation || 'has-one' == $relation): %}
-{% if (!attribute_back_reference($reference)): %}
-{% $fk = foreign_key($reference->getOwner()) %}
-{% start_uncertain_block(true) %}
+			{% endforeach %}
+			{% end_attr_list %}
+			{% foreach ($model->getReferences() as $reference): %}
+			{% $relation = attribute_relation($reference) %}
+			{% if ('has-many' == $relation || 'has-one' == $relation): %}
+			{% if (!attribute_back_reference($reference)): %}
+			{% $fk = foreign_key($reference->getOwner()) %}
+			{% start_uncertain_block(true) %}
 			$table->integer('{%= $fk %}')->unsigned()->nullable();
 			$table->index('{%= $fk %}', 'idx_{%= $fk %}');
-{% start_attr_list %}
-{% if (attribute_id($attribute) == $kf) commit_block(false) %}
-{% end_attr_list %}
-{% end_uncertain_block() %}
-{% endif %}
-{% endif %}
-{% endforeach %}
+			{% start_attr_list %}
+			{% if (attribute_id($attribute) == $kf) commit_block(false) %}
+			{% end_attr_list %}
+			{% end_uncertain_block() %}
+			{% endif %}
+			{% endif %}
+			{% endforeach %}
 			$table->timestamps();
 		});
 	}

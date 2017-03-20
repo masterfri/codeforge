@@ -1,49 +1,85 @@
 {% open_file('public_html/rc/templates/admin/' . view_path($model->getName()) . '/form.hbs') %}
 
 <div class="form-page">
+	<ol class="breadcrumb">
+		<li><a href="{{{route "admin/dashboard"}}}">Home</a></li>
+		{% if (($subordination = get_subordinated_by($model)) != null): %}
+		{{#if owner.id}}
+			<li><a href="{{{route "admin/{%= route_name($subordination[0]) %}/index"}}}">{%= model_label($subordination[0], true) %}</a></li>
+			<li><a href="{{{route "admin/{%= route_name($subordination[0]) %}/view" item=owner.id}}}">{%= model_to_string($subordination[0], 'owner.') %}</a></li>
+			<li><a href="{{{route "admin/{%= route_name($model) %}/indexByOwner" owner=owner.id}}}">{%= model_label($model, true) %}</a></li>
+		{{else}}
+			<li><a href="{{{route "admin/{%= route_name($model) %}/index"}}}">{%= model_label($model, true) %}</a></li>
+		{{/if}}
+		{% else: %}
+			<li><a href="{{{route "admin/{%= route_name($model) %}/index"}}}">{%= model_label($model, true) %}</a></li>
+		{% endif %}
+		{{#if item.id}}
+			<li><a href="{{{route "admin/{%= route_name($model) %}/view" item=item.id}}}">{%= model_to_string($model, 'item.') %}</a></li>
+			<li class="active">Update</li>
+		{{else}}
+		<li class="active">Create</li>
+		{{/if}}
+	</ol>
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="panel-toolbar">
-				<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/index"}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+				{{#if item.id}}
+					<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/view" item=item.id}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+				{{else}}
+					{% if (get_subordinated_by($model) != null): %}
+					{{#if owner.id}}
+						<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/indexByOwner" owner=owner.id}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+					{{else}}
+						<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/index" owner=owner.id}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+					{{/if}}
+					{% else: %}
+					<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/index"}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+					{% endif %}
+				{{/if}}
 			</div>
-			{{#if_set item.id}}
+			{{#if item.id}}
 				<h3 class="panel-title">Update {%= model_label($model) %}</h3>
 			{{else}}
 				<h3 class="panel-title">Create {%= model_label($model) %}</h3>
-			{{/if_set}}
+			{{/if}}
 		</div>
 		<div class="panel-body">
-			{{#if_set item.id}}
+			{{#if item.id}}
 				<form class="form-horizontal" role="form" method="POST" action="{{{route "admin/{%= route_name($model) %}/postUpdate" item=item.id}}}">
 			{{else}}
+				{% if (get_subordinated_by($model) != null): %}
+				<form class="form-horizontal" role="form" method="POST" action="{{{route "admin/{%= route_name($model) %}/postCreate" owner=owner.id}}}">
+				{% else: %}
 				<form class="form-horizontal" role="form" method="POST" action="{{{route "admin/{%= route_name($model) %}/postCreate"}}}">
-			{{/if_set}}
+				{% endif %}
+			{{/if}}
 				<input type="hidden" name="_token" value="{{token}}" />
 				<div class="form-body">
-{% start_attr_list_natural_order %}
-{% if ($control = form_control($attribute, 'update')): %}
+					{% start_attr_list_natural_order %}
+					{% if ($control = form_control($attribute, 'update')): %}
 					<div class="form-group">
 						<label class="col-md-3 control-label">{%= attribute_label($attribute) %}</label>
 						<div class="col-md-4 input">
-{% if(is_array($control)): %}
-							{% partial($control[0], $control[1], 7) %} 
-{% else: %}
-							{%= $control %}
-{% endif %}
+							{% if(is_array($control)): %}
+							{% partial($control[0], $control[1], 7) %}{%= "\n" %}
+							{% else: %}
+							{%= $control %}{%= "\n" %}
+							{% endif %}
 						</div>
 					</div>
-{% endif %}
-{% end_attr_list %}
+					{% endif %}
+					{% end_attr_list %}
 				</div>
 				<div class="form-actions">
 					<div class="row">
 						<div class="col-md-offset-3 col-md-4">
 							<button type="submit" class="btn btn-primary">
-								{{#if_set item.id}}
+								{{#if item.id}}
 									Update
 								{{else}}
 									Create
-								{{/if_set}}
+								{{/if}}
 							</button>
 						</div>
 					</div>

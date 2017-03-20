@@ -234,3 +234,36 @@ $this->registerHelper('name_attribute_id', function ($invoker, $model, $default=
 	$attribute = $invoker->refer('name_attribute', $model);
 	return $attribute ? $invoker->refer('attribute_id', $attribute) : $default;
 });
+
+$this->registerHelper('get_subordinated', function ($invoker, $model, $sorted=true) 
+{
+	$result = array();
+	foreach ($model->getAttributes($sorted) as $attribute) {
+		if ($attribute->getIsCustomType() && $attribute->getBoolHint('subordinate')) {
+			$result[] = $attribute;
+		}
+	}
+	return $result;
+});
+
+$this->registerHelper('is_subordinated', function ($invoker, $model, $submodel) 
+{
+	$subname = is_string($submodel) ? $submodel : $submodel->getName();
+	foreach ($model->getAttributes() as $attribute) {
+		if ($attribute->getBoolHint('subordinate') && $attribute->getCustomType() == $subname) {
+			return $attribute;
+		}
+	}
+	return null;
+});
+
+$this->registerHelper('get_subordinated_by', function ($invoker, $model) 
+{
+	$models = $invoker->getBuilder()->getModels();
+	foreach ($models as $parent) {
+		if ($attr = $invoker->refer('is_subordinated', $parent, $model)) {
+			return array($parent, $attr, $invoker->refer('attribute_back_reference', $attr));
+		}
+	}
+	return null;
+});

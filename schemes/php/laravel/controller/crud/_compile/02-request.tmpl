@@ -10,23 +10,23 @@ class {%= remove_namespace($model) %}FormRequest extends BaseFormRequest
 	public function rules()
 	{
 		return [
-{% foreach(request_rules($model) as $attr => $rules): %}
+			{% foreach(request_rules($model) as $attr => $rules): %}
 			'{%= $attr %}' => {%= escape_value($rules, false, false) %},
-{% endforeach %}
+			{% endforeach %}
 		];
 	}
-{% start_uncertain_block() %}
+	{% start_uncertain_block() %}
 
 	public function sanitizers()
 	{
 		return [
-{% foreach(request_sanitizers($model) as $attr => $sanitizers): %}
-{% commit_block() %}
+			{% foreach(request_sanitizers($model) as $attr => $sanitizers): %}
+			{% commit_block() %}
 			'{%= $attr %}' => '{%= $sanitizers %}',
-{% endforeach %}
+			{% endforeach %}
 		];
 	}
-{% end_uncertain_block() %}
+	{% end_uncertain_block() %}
 }
 
 {% close_file() %}

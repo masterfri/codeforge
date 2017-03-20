@@ -8,148 +8,148 @@ use App\Database\Eloquent\Model;
 class {%= model_name($model) %} extends Model
 {
 	protected $fillable = [
-{% foreach(writable_attributes($model) as $attr): %}
+	{% foreach(writable_attributes($model) as $attr): %}
 		'{%= attribute_id($attr) %}',
-{% endforeach %}
+	{% endforeach %}
 	];
-{% start_uncertain_block() %}
+	{% start_uncertain_block() %}
 
 	protected $dates = [
-{% foreach(date_attributes($model) as $attr): %}
-{% commit_block() %}
+	{% foreach(date_attributes($model) as $attr): %}
+		{% commit_block() %}
 		'{%= attribute_id($attr) %}',
-{% endforeach %}
+	{% endforeach %}
 	];
-{% end_uncertain_block() %}
-{% start_uncertain_block() %}
-	
+	{% end_uncertain_block() %}
+	{% start_uncertain_block() %}
+
 	protected $casts = [
-{% foreach(attribute_casts($model) as $attr_id => $type): %}
-{% commit_block() %}
+	{% foreach(attribute_casts($model) as $attr_id => $type): %}
+		{% commit_block() %}
 		'{%= $attr_id %}' => '{%= $type %}',
-{% endforeach %}
+	{% endforeach %}
 	];
-{% end_uncertain_block() %}
+	{% end_uncertain_block() %}
 
 	protected $table = '{%= table_name($model) %}';
 
 	public function __toString()
 	{
-{% if ($attr = name_attribute($model)): %}
+		{% if ($attr = name_attribute($model)): %}
 		return $this->{%= attribute_id($attr) %};
-{% else: %}
+		{% else: %}
 		return sprintf('{%= model_label($model) %} #%d', $this->id);
-{% endif %}
+		{% endif %}
 	}
-{% start_attr_list %}
-{% if ('belongs-to-one' == ($relation = attribute_relation($attribute))): %}
+	{% start_attr_list %}
+	{% if ('belongs-to-one' == ($relation = attribute_relation($attribute))): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
 		return $this->belongsTo('App\{%= model_name($attribute->getCustomType()) %}', '{%= attribute_id($attribute) %}');
 	}
-{% elseif ('belongs-to-many' == $relation): %}
+	{% elseif ('belongs-to-many' == $relation): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
 		return $this->belongsToMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= pivot_table($model, $attribute->getCustomType()) %}', '{%= foreign_key($model) %}', '{%= foreign_key($attribute->getCustomType()) %}');
 	}
-{% elseif ('has-one' == $relation): %}
+	{% elseif ('has-one' == $relation): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
 		return $this->hasOne('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($attribute) %}');
 	}
-{% elseif ('has-many' == $relation): %}
+	{% elseif ('has-many' == $relation): %}
 
 	public function {%= attribute_name($attribute) %}()
 	{
 		return $this->hasMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= foreign_key($attribute) %}');
 	}
-{% endif %}
-{% end_attr_list %}
-{% foreach(writable_attributes($model) as $attribute): %}
-{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
+	{% endif %}
+	{% end_attr_list %}
+	{% foreach(writable_attributes($model) as $attribute): %}
+	{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
 
 	public function {%= attribute_setter($attribute) %}($value)
 	{
 		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? null : $value);
 	}
-{% elseif ('belongs-to-many' == $relation || 'has-many' == $relation): %}
-	
+	{% elseif ('belongs-to-many' == $relation || 'has-many' == $relation): %}
+
 	public function {%= attribute_setter($attribute) %}($value)
 	{
 		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? [] : $value);
 	}
-{% endif %}
-{% endforeach %}
-{% start_attr_list %}
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION || $attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
-	
+	{% endif %}
+	{% endforeach %}
+	{% start_attr_list %}
+	{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION || $attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
+
 	public static function get{%= ucfirst(pluralize(attribute_name($attribute))) %}List()
 	{
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
+		{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
 		return {%= escape_value($attribute->getOptions(), 2) %};
-{% else: %}
+		{% else: %}
 		return {%= escape_value(array_values($attribute->getOptions()), 2) %};
-{% endif %}
+		{% endif %}
 	}
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
+	{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
 
 	public function get{%= ucfirst(attribute_name($attribute)) %}Option()
 	{
 		return array_key_value(static::get{%= ucfirst(pluralize(attribute_name($attribute))) %}List(), $this->{%= attribute_name($attribute) %});
 	}
-{% endif %}
-{% endif %}
-{% end_attr_list %}
-{% start_uncertain_block() %}
+	{% endif %}
+	{% endif %}
+	{% end_attr_list %}
+	{% start_uncertain_block() %}
 
 	public function toArray() 
 	{
 		return array_merge(parent::toArray(), [
-{% start_attr_list %}
-{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
-{% commit_block() %}
+		{% start_attr_list %}
+			{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION): %}
+			{% commit_block() %}
 			'{%= attribute_id($attribute) %}' => [
 				'key' => $this->{%= attribute_id($attribute) %},
 				'text' => $this->get{%= ucfirst(attribute_name($attribute)) %}Option(),
 			],
-{% endif %}
-{% end_attr_list %}
+			{% endif %}
+		{% end_attr_list %}
 		]);
 	}
-{% end_uncertain_block() %}
-{% start_uncertain_block() %}
+	{% end_uncertain_block() %}
+	{% start_uncertain_block() %}
 
 	protected static function boot() 
 	{
 		parent::boot();
 
 		static::deleting(function($item) {
-{% start_attr_list %}
-{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
-{% if ($attribute->getBoolHint('cascadeDelete', true)): %}
-{% commit_block() %}
+		{% start_attr_list %}
+			{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
+			{% if ($attribute->getBoolHint('cascadeDelete', true)): %}
+			{% commit_block() %}
 			if ($item->{%= attribute_name($attribute) %} !== null) {
 				$item->{%= attribute_name($attribute) %}->delete();
 			}
-{% endif %}
-{% elseif ('has-many' == $relation): %}
-{% if ($attribute->getBoolHint('cascadeDelete', true)): %}
-{% commit_block() %}
+			{% endif %}
+			{% elseif ('has-many' == $relation): %}
+			{% if ($attribute->getBoolHint('cascadeDelete', true)): %}
+			{% commit_block() %}
 			foreach ($item->{%= attribute_name($attribute) %}()->cursor() as $child) {
 				$child->delete();
 			}
-{% endif %}
-{% elseif ('belongs-to-many' == $relation): %}
-{% commit_block() %}
+			{% endif %}
+			{% elseif ('belongs-to-many' == $relation): %}
+			{% commit_block() %}
 			$item->{%= attribute_name($attribute) %}()->detach();
-{% endif %}
-{% end_attr_list %}
+			{% endif %}
+		{% end_attr_list %}
 		});
 	}
-{% end_uncertain_block() %}
+	{% end_uncertain_block() %}
 }
 
 {% close_file() %}

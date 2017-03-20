@@ -1,10 +1,29 @@
 {% open_file('public_html/rc/templates/admin/' . view_path($model->getName()) . '/index.hbs') %}
 
 <div class="index-page">
+	<ol class="breadcrumb">
+		<li><a href="{{{route "admin/dashboard"}}}">Home</a></li>
+		{% if (($subordination = get_subordinated_by($model)) != null): %}
+		{{#if owner.id}}
+			<li><a href="{{{route "admin/{%= route_name($subordination[0]) %}/index"}}}">{%= model_label($subordination[0], true) %}</a></li>
+			<li><a href="{{{route "admin/{%= route_name($subordination[0]) %}/view" item=owner.id}}}">{%= model_to_string($subordination[0], 'owner.') %}</a></li>
+		{{/if}}
+		{% endif %}
+		<li class="active">{%= model_label($model, true) %}</li>
+	</ol>
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<div class="panel-toolbar">
+				{% if ($subordination != null): %}
+				{{#if owner.id}}
+					<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($subordination[0]) %}/view" item=owner.id}}}"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+					<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/createInOwner" owner=owner.id}}}"><span class="glyphicon glyphicon-plus"></span> Create</a>
+				{{else}}
+					<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/create"}}}"><span class="glyphicon glyphicon-plus"></span> Create</a>
+				{{/if}}
+				{% else: %}
 				<a class="btn btn-success btn-sm" href="{{{route "admin/{%= route_name($model) %}/create"}}}"><span class="glyphicon glyphicon-plus"></span> Create</a>
+				{% endif %}
 			</div>
 			<h3 class="panel-title">{%= model_label($model, true) %}</h3>
 		</div>
@@ -12,11 +31,11 @@
 		<table class="table table-hover">
 			<thead>
 				<tr>
-{% start_attr_list_natural_order %}
-{% if ($attribute->getBoolHint('tableview', true)): %}
+					{% start_attr_list_natural_order %}
+					{% if ($attribute->getBoolHint('tableview', true)): %}
 					<th> {%= attribute_label($attribute) %} </th>
-{% endif %}
-{% end_attr_list %}
+					{% endif %}
+					{% end_attr_list %}
 					<th width="100"> &nbsp; </th>
 				</tr>
 			</thead>
@@ -24,11 +43,11 @@
 				{{#with table}}
 					{{#each data}}
 						<tr>
-{% start_attr_list_natural_order %}
-{% if ($attribute->getBoolHint('tableview', true)): %}
+							{% start_attr_list_natural_order %}
+							{% if ($attribute->getBoolHint('tableview', true)): %}
 							<td> {%= attribute_getter($attribute) %} </td>
-{% endif %}
-{% end_attr_list %}
+							{% endif %}
+							{% end_attr_list %}
 							<td>
 								<a href="{{{route "admin/{%= route_name($model) %}/view" item=id}}}" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-eye-open"></span></a>
 								<a href="{{{route "admin/{%= route_name($model) %}/update" item=id}}}" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-pencil"></span></a>

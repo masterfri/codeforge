@@ -10,7 +10,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class {%= remove_namespace($model) %}Policy
 {
     use HandlesAuthorization;
-    
+
     public function search(User $user)
     {
 		return $user->isAdmin();
@@ -35,6 +35,18 @@ class {%= remove_namespace($model) %}Policy
     {
         return $user->isAdmin();
     }
+	{% foreach (get_subordinated($model) as $attribute): %}
+
+	public function create{%= ucfirst(attribute_name($attribute)) %}(User $user, {%= remove_namespace($model) %} $item)
+    {
+        return $user->isAdmin();
+    }
+
+    public function search{%= ucfirst(attribute_name($attribute)) %}(User $user, {%= remove_namespace($model) %} $item)
+    {
+        return $user->isAdmin();
+    }
+	{% endforeach %}
 }
 
 {% close_file() %}

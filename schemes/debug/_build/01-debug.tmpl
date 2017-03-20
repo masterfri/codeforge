@@ -3,7 +3,7 @@
 {%= $comma %}{
 	"name": {%= json_encode(model_name($another_model)) %},
 	"attributes": [
-{% $comma2 = ''; foreach ($another_model->getAttributes() as $attribute): %}
+		{% $comma2 = ''; foreach ($another_model->getAttributes() as $attribute): %}
 		{%= $comma2 %}{
 			"name": {%= json_encode(attribute_name($attribute)) %},
 			"type": {%= json_encode(attribute_type($attribute)) %},
@@ -13,8 +13,8 @@
 			"collection": {%= $attribute->getIsCollection() ? 'true' : 'false' %}
 
 		}
-{% $comma2 = ',' %}
-{% endforeach %}
+		{% $comma2 = ',' %}
+		{% endforeach %}
 	]
 }
 {% $comma = ',' %}{% end_model_list %}]

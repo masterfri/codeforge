@@ -1,34 +1,51 @@
-{% open_partial('php.laravel.routes.crud', $model->getName()) %}	
+{% open_partial('php.laravel.routes.crud', $model->getName()) %}
 	// {%= model_name($model) %} routes
-	Route::get('/{%= route_path($model, true) %}', [
-		'as' => 'admin/{%= route_name($model) %}/index', 
-		'uses' => '{%= model_name($model) %}Controller@index',
-	])->middleware('can:search,App\{%= model_name($model) %}');
 	Route::get('/{%= route_path($model) %}/query', [
 		'as' => 'admin/{%= route_name($model) %}/query', 
 		'uses' => '{%= model_name($model) %}Controller@query',
 	])->middleware('can:search,App\{%= model_name($model) %}');
-	Route::get('/{%= route_path($model) %}/{item}/view', [
-		'as' => 'admin/{%= route_name($model) %}/view', 
-		'uses' => '{%= model_name($model) %}Controller@view',
-	])->middleware('can:view,item');
-	Route::get('/{%= route_path($model) %}/create', [
+	{% if (($subordination = get_subordinated_by($model)) != null): %}
+	{% $prefix = '/' . route_path($subordination[0]) %}
+	Route::get('{%= $prefix %}/{owner?}/{%= route_path($model, true) %}', [
+		'as' => 'admin/{%= route_name($model) %}/indexByOwner', 
+		'uses' => '{%= model_name($model) %}Controller@index',
+	])->middleware('can:search{%= ucfirst(attribute_name($subordination[1])) %},owner');
+	Route::get('{%= $prefix %}/{owner?}/{%= route_path($model) %}/create', [
+		'as' => 'admin/{%= route_name($model) %}/createInOwner', 
+		'uses' => '{%= model_name($model) %}Controller@create',
+	])->middleware('can:create{%= ucfirst(attribute_name($subordination[1])) %},owner');
+	Route::post('{%= $prefix %}/{owner?}/{%= route_path($model) %}/create', [
+		'as' => 'admin/{%= route_name($model) %}/postCreateInOwner', 
+		'uses' => '{%= model_name($model) %}Controller@postCreate',
+	])->middleware('can:create{%= ucfirst(attribute_name($subordination[1])) %},owner');
+	{% else: %}
+	{% $prefix = '' %}
+	{% endif %}
+	Route::get('{%= $prefix %}/{%= route_path($model, true) %}', [
+		'as' => 'admin/{%= route_name($model) %}/index', 
+		'uses' => '{%= model_name($model) %}Controller@index',
+	])->middleware('can:search,App\{%= model_name($model) %}');
+	Route::get('{%= $prefix %}/{%= route_path($model) %}/create', [
 		'as' => 'admin/{%= route_name($model) %}/create', 
 		'uses' => '{%= model_name($model) %}Controller@create',
 	])->middleware('can:create,App\{%= model_name($model) %}');
-	Route::post('/{%= route_path($model) %}/create', [
+	Route::post('{%= $prefix %}/{%= route_path($model) %}/create', [
 		'as' => 'admin/{%= route_name($model) %}/postCreate', 
 		'uses' => '{%= model_name($model) %}Controller@postCreate',
 	])->middleware('can:create,App\{%= model_name($model) %}');
-	Route::get('/{%= route_path($model) %}/{item}/update', [
+	Route::get('{%= $prefix %}/{%= route_path($model) %}/{item}/view', [
+		'as' => 'admin/{%= route_name($model) %}/view', 
+		'uses' => '{%= model_name($model) %}Controller@view',
+	])->middleware('can:view,item');
+	Route::get('{%= $prefix %}/{%= route_path($model) %}/{item}/update', [
 		'as' => 'admin/{%= route_name($model) %}/update', 
 		'uses' => '{%= model_name($model) %}Controller@update',
 	])->middleware('can:update,item');
-	Route::post('/{%= route_path($model) %}/{item}/update', [
+	Route::post('{%= $prefix %}/{%= route_path($model) %}/{item}/update', [
 		'as' => 'admin/{%= route_name($model) %}/postUpdate', 
 		'uses' => '{%= model_name($model) %}Controller@postUpdate',
 	])->middleware('can:update,item');
-	Route::post('/{%= route_path($model) %}/{item}/delete', [
+	Route::post('{%= $prefix %}/{%= route_path($model) %}/{item}/delete', [
 		'as' => 'admin/{%= route_name($model) %}/delete', 
 		'uses' => '{%= model_name($model) %}Controller@delete',
 	])->middleware('can:delete,item');
