@@ -44,7 +44,7 @@
 			<table class="table table-hover">
 				<tbody>
 					{% start_attr_list_natural_order %}
-					{% if ($attribute->getBoolHint('detailsview', true)): %}
+					{% if ($attribute->getBoolHint('detailedview')): %}
 					<tr>
 						<th> {%= attribute_label($attribute) %} </th>
 						<td> {%= attribute_getter($attribute) %} </td>

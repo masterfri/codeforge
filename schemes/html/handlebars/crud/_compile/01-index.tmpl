@@ -32,7 +32,7 @@
 			<thead>
 				<tr>
 					{% start_attr_list_natural_order %}
-					{% if ($attribute->getBoolHint('tableview', true)): %}
+					{% if ($attribute->getBoolHint('tableview')): %}
 					<th> {%= attribute_label($attribute) %} </th>
 					{% endif %}
 					{% end_attr_list %}
@@ -44,7 +44,7 @@
 					{{#each data}}
 						<tr>
 							{% start_attr_list_natural_order %}
-							{% if ($attribute->getBoolHint('tableview', true)): %}
+							{% if ($attribute->getBoolHint('tableview')): %}
 							<td> {%= attribute_getter($attribute) %} </td>
 							{% endif %}
 							{% end_attr_list %}

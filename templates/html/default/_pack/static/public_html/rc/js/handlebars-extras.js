@@ -2,10 +2,6 @@ Handlebars.registerHelper('route', function(name, data) {
 	return routing.route(name, data.hash);
 });
 
-Handlebars.registerHelper('if_set', function(a, opts) {
-	return (a !== undefined && a !== null && a !== '') ? opts.fn(this) : opts.inverse(this);
-});
-
 Handlebars.registerHelper('if_eq', function(a, b, opts) {
 	return (a == b) ? opts.fn(this) : opts.inverse(this);
 });

@@ -480,7 +480,7 @@ class Builder
 			foreach ($components as $component) {
 				$fullpath .= $component . '/';
 				$this->active_namespace .= '::' . $component;
-				$this->loaded_namespaces[] = $this->active_namespace;
+				self::$loaded_namespaces[] = $this->active_namespace;
 				$this->loadHelpers($fullpath);
 			}
 			$fullpath .= $this->mode . '/';
@@ -502,7 +502,7 @@ class Builder
 	
 	protected function ensureHelpersLoaded($namespace)
 	{
-		if (!in_array($namespace, $this->loaded_namespaces)) {
+		if (!in_array($namespace, self::$loaded_namespaces)) {
 			$this->loadNamespaceHelpers($namespace);
 		}
 	}
@@ -519,7 +519,7 @@ class Builder
 			foreach ($components as $component) {
 				$fullpath .= $component . '/';
 				$this->active_namespace .= '::' . $component;
-				$this->loaded_namespaces[] = $this->active_namespace;
+				self::$loaded_namespaces[] = $this->active_namespace;
 				$this->loadHelpers($fullpath);
 			}
 		}
