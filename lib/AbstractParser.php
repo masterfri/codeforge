@@ -56,7 +56,7 @@ abstract class AbstractParser
 	const TOK_UNDEFINED = 'TOK_UNDEFINED';
 	const TOK_COMMENT = 'TOK_COMMENT';
 	
-	const ERR_SYNTAX = 'SyntaxErrorException';
+	const ERR_SYNTAX = 'Codeforge\SyntaxErrorException';
 	
 	protected $tokenizer;
 

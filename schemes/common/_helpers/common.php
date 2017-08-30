@@ -267,3 +267,20 @@ $this->registerHelper('get_subordinated_by', function ($invoker, $model)
 	}
 	return null;
 });
+
+$this->registerHelper('sanitize_var_name', function ($invoker, $str, $split='_', $case='L') 
+{
+	$s = preg_quote($split);
+	$str = preg_replace('/[^\x20-\x7E]/u', '', $str);
+	$str = preg_replace('!['.$s.']+!u', $split, $str);
+	$str = preg_replace('![^\pL\pN\s'.$s.']+!u', '', $str);
+	$str = preg_replace('![\s'.$s.']+!u', $split, $str);
+	$str = trim($str, $split);
+	if ($case == 'L') {
+		return strtolower($str);
+	} elseif ($case == 'U') {
+		return strtoupper($str);
+	} else {
+		return $str;
+	}
+});
