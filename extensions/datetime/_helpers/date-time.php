@@ -104,3 +104,16 @@ $this->registerHelper('form_control', function ($invoker, $attribute, $mode='')
 	}
 	return $invoker->referSuper();
 }, 100, '::html::handlebars');
+
+$this->registerHelper('date_attributes', function ($invoker, $model, $sorted=true) 
+{
+	$result = $invoker->referSuper();
+	foreach ($model->getAttributes($sorted) as $attribute) {
+		if ($attribute->getIsCustomType()) {
+			if (in_array($attribute->getCustomType(), array('date', 'datetime'))) {
+				$result[] = $attribute;
+			}
+		}
+	}
+	return $result;
+}, 100);

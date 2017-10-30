@@ -9,13 +9,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class Builder extends BaseBuilder
 {
-	public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+    public function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
-		$page = $page ?: Paginator::resolveCurrentPage($pageName);
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
         $perPage = $perPage ?: $this->model->getPerPage();
         $query = $this->toBase();
         $total = $query->getCountForPagination();
-		$page = max(1, min($page, ceil($total / $perPage)));
+        $page = max(1, min($page, ceil($total / $perPage)));
         $results = $total ? $this->forPage($page, $perPage)->get($columns) : new Collection;
         return new LengthAwarePaginator($results, $total, $perPage, $page, [
             'path' => Paginator::resolveCurrentPath(),

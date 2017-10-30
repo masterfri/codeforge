@@ -13,25 +13,37 @@ $this->registerHelper('attribute_name', function ($invoker, $attribute)
 
 $this->registerHelper('attribute_id', function ($invoker, $attribute)
 {
-	if ('belongs-to-one' == $invoker->refer('attribute_relation', $attribute)) {
-		return sprintf('%s_id', $invoker->refer('attribute_name', $attribute));
-	} else {
-		return $invoker->refer('attribute_name', $attribute);
-	}
+	return $this->cachedResult(
+		$this->makeCacheKey('attribute_id', $attribute), 
+		function() use($invoker, $attribute) 
+		{
+			if ('belongs-to-one' == $invoker->refer('attribute_relation', $attribute)) {
+				return sprintf('%s_id', $invoker->refer('attribute_name', $attribute));
+			} else {
+				return $invoker->refer('attribute_name', $attribute);
+			}
+		}
+	);
 });
 
 $this->registerHelper('attribute_label', function ($invoker, $attribute) 
 {
-	$comments = $attribute->getComments();
-	if (isset($comments[0])) {
-		return trim($comments[0]);
-	} else {
-		$words = array();
-		foreach (explode('_', $attribute->getName()) as $word) {
-			$words[] = ucfirst($word);
+	return $this->cachedResult(
+		$this->makeCacheKey('attribute_label', $attribute), 
+		function() use($invoker, $attribute) 
+		{
+			$comments = $attribute->getComments();
+			if (isset($comments[0])) {
+				return trim($comments[0]);
+			} else {
+				$words = array();
+				foreach (explode('_', $attribute->getName()) as $word) {
+					$words[] = ucfirst($word);
+				}
+				return implode(' ', $words);
+			}
 		}
-		return implode(' ', $words);
-	}
+	);
 });
 
 $this->registerHelper('model_name', function ($invoker, $model) 
@@ -54,19 +66,25 @@ $this->registerHelper('get_namespace', function ($invoker, $model)
 
 $this->registerHelper('model_label', function ($invoker, $model, $pluralize=false) 
 {
-	$comments = $model->getComments();
-	if (isset($comments[0])) {
-		$label = trim($comments[0]);
-	} else {
-		$parts = explode('_', $model->getName());
-		$words = preg_replace('/([a-z])([A-Z])/', '\1 \2', array_pop($parts));
-		$label = array();
-		foreach (explode(' ', $words) as $word) {
-			$label[] = ucfirst($word);
+	return $this->cachedResult(
+		$this->makeCacheKey('model_label', $model, $pluralize), 
+		function() use($invoker, $model, $pluralize) 
+		{
+			$comments = $model->getComments();
+			if (isset($comments[0])) {
+				$label = trim($comments[0]);
+			} else {
+				$parts = explode('_', $model->getName());
+				$words = preg_replace('/([a-z])([A-Z])/', '\1 \2', array_pop($parts));
+				$label = array();
+				foreach (explode(' ', $words) as $word) {
+					$label[] = ucfirst($word);
+				}
+				$label = implode(' ', $label);
+			}
+			return $pluralize ? $invoker->refer('pluralize', $label) : $label;
 		}
-		$label = implode(' ', $label);
-	}
-	return $pluralize ? $invoker->refer('pluralize', $label) : $label;
+	);
 });
 
 $this->registerHelper('pluralize', function ($invoker, $name) 
@@ -129,47 +147,59 @@ $this->registerHelper('attribute_type', function ($invoker, $attribute)
 
 $this->registerHelper('attribute_back_reference', function ($invoker, $attribute) 
 {
-	$references = $attribute->getOwner()->getReferences($attribute->getCustomType());
-	foreach ($references as $attr) {
-		if ($attr->getHint('backreference') == $attribute->getName() || $attribute->getHint('backreference') == $attr->getName()) {
-			return $attr;
+	return $this->cachedResult(
+		$this->makeCacheKey('attribute_back_reference', $attribute), 
+		function() use($invoker, $attribute) 
+		{
+			$references = $attribute->getOwner()->getReferences($attribute->getCustomType());
+			foreach ($references as $attr) {
+				if ($attr->getHint('backreference') == $attribute->getName() || $attribute->getHint('backreference') == $attr->getName()) {
+					return $attr;
+				}
+			}
+			return false;
 		}
-	}
-	return false;
+	);
 });
 
 $this->registerHelper('attribute_relation', function ($invoker, $attribute) 
 {
-	if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
-		$relation = $attribute->getHint('relation');
-		if ($relation) {
-			return strtolower($relation);
-		}
-		$backreference = $invoker->refer('attribute_back_reference', $attribute);
-		if ($backreference) {
-			$backrelation = $backreference->getHint('relation');
-			if ($backrelation) {
-				switch (strtolower($backrelation)) {
-					case 'belongs-to-many': return 'belongs-to-many';
-					case 'has-many': return 'belongs-to-one';
-					case 'belongs-to-one': return $attribute->getIsCollection() ? 'has-many' : 'has-one';
-					case 'has-one': return 'belongs-to-one';
+	return $this->cachedResult(
+		$this->makeCacheKey('attribute_relation', $attribute), 
+		function() use($invoker, $attribute) 
+		{
+			if ($attribute->getType() == Codeforge\Attribute::TYPE_CUSTOM) {
+				$relation = $attribute->getHint('relation');
+				if ($relation) {
+					return strtolower($relation);
+				}
+				$backreference = $invoker->refer('attribute_back_reference', $attribute);
+				if ($backreference) {
+					$backrelation = $backreference->getHint('relation');
+					if ($backrelation) {
+						switch (strtolower($backrelation)) {
+							case 'belongs-to-many': return 'belongs-to-many';
+							case 'has-many': return 'belongs-to-one';
+							case 'belongs-to-one': return $attribute->getIsCollection() ? 'has-many' : 'has-one';
+							case 'has-one': return 'belongs-to-one';
+						}
+					}
+				}
+				if ($attribute->getIsCollection()) {
+					if ($backreference && $backreference->getIsCollection()) {
+						return 'belongs-to-many';
+					} else {
+						return 'has-many';
+					}
+				} else {
+					if ($backreference && $backreference->getIsCollection()) {
+						return 'belongs-to-one';
+					}
 				}
 			}
+			return false;
 		}
-		if ($attribute->getIsCollection()) {
-			if ($backreference && $backreference->getIsCollection()) {
-				return 'belongs-to-many';
-			} else {
-				return 'has-many';
-			}
-		} else {
-			if ($backreference && $backreference->getIsCollection()) {
-				return 'belongs-to-one';
-			}
-		}
-	}
-	return false;
+	);
 });
 
 $this->registerHelper('searchable_attributes', function ($invoker, $model, $sorted=true) 
@@ -283,4 +313,13 @@ $this->registerHelper('sanitize_var_name', function ($invoker, $str, $split='_',
 	} else {
 		return $str;
 	}
+});
+
+$this->registerHelper('shortify_id', function ($invoker, $str, $limit=64) 
+{
+	if (strlen($str) > $limit) {
+		$suffix = '_' . dechex(crc32($str));
+		return substr($str, 0, $limit - strlen($suffix)) . $suffix;
+	}
+	return $str;
 });

@@ -32,15 +32,43 @@ $this->registerHelper('foreign_key', function ($invoker, $model_or_attribute)
 	return strtolower($name) . '_id';
 });
 
-$this->registerHelper('pivot_table', function ($invoker, $model1, $model2) 
+$this->registerHelper('pivot_table', function ($invoker, $model1, $model2, $attribute=null) 
 {
+	if ($attribute) {
+		$result = $attribute->getHint('linktable');
+		if ($result) {
+			return $result;
+		}
+		$suffix1 = $invoker->refer('attribute_name', $attribute);
+		$attribute2 = $invoker->refer('attribute_back_reference', $attribute);
+		if ($attribute2) {
+			$result = $attribute2->getHint('linktable');
+			if ($result) {
+				return $result;
+			}
+			$suffix2 = $invoker->refer('attribute_name', $attribute2);
+			if (strcmp($suffix1, $suffix2) < 0) {
+				$suffix = sprintf('_%s_%s', $suffix1, $suffix2);
+			} else {
+				$suffix = sprintf('_%s_%s', $suffix2, $suffix1);
+			}
+		} else {
+			$suffix = sprintf('_%s', $suffix1);
+		}
+	} else {
+		$suffix = '';
+	}
+	
 	$table1 = $invoker->refer('table_name', $model1, false);
 	$table2 = $invoker->refer('table_name', $model2, false);
+	
 	if (strcmp($table1, $table2) < 0) {
-		return sprintf('%s_%s_links', $table1, $table2);
+		$base = sprintf('%s_%s', $table1, $table2);
 	} else {
-		return sprintf('%s_%s_links', $table2, $table1);
+		$base = sprintf('%s_%s', $table2, $table1);
 	}
+	
+	return $invoker->refer('shortify_id', sprintf('%s%s_links', $base, $suffix));
 });
 
 $this->registerHelper('view_name', function ($invoker, $model) 

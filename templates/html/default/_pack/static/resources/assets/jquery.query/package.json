@@ -1,0 +1,8 @@
+{
+    "files": [
+        "js/jquery.query.js"
+    ],
+    "dependencies": {
+        "jquery": "*"
+    }
+}

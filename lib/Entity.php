@@ -52,7 +52,7 @@ abstract class Entity
 	public function addComment($comment)
 	{
 		if (preg_match('/^\s*@([a-zA-Z0-9_]+)\s*(.*)$/', $comment, $m)) {
-			$this->comments[strtolower($m[1])] = $m[2];
+			$this->comments[strtolower($m[1])] = trim($m[2]);
 		} else {
 			$this->comments[] = $comment;
 		}

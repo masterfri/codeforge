@@ -1,0 +1,20 @@
+{
+    "files": [
+        "js/handlebars-extras.js",
+        "js/routing.js",
+        "js/app.js",
+        "css/app.css"
+    ],
+    "dependencies": {
+        "jquery": "*",
+        "bootstrap": "*",
+        "handlebars": "*",
+        "select2": "*",
+        "jquery.query": "*",
+        "bootbox": "*",
+        "toastr": "*",
+        "moment": "*",
+        "bootstrap-datetimepicker": "*",
+        "ajaxik": "*"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "files": [
+        "js/select2.min.js",
+        "css/select2.min.css",
+        "css/select2-bootstrap.min.css"
+    ],
+    "dependencies": {
+        "jquery": "*",
+        "bootstrap": "*"
+    }
+}

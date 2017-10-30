@@ -39,6 +39,9 @@ class Builder
 	protected $active_namespace = '::';
 	protected $command;
 	protected $models = array();
+	protected $cached_results = array();
+	protected $cache_stats_puts = 0;
+	protected $cache_stats_hits = 0;
 	
 	protected static $schemes = array();
 	protected static $loaded_helper_groups = array();
@@ -707,5 +710,53 @@ class Builder
 		} else {
 			echo $output;
 		}
+	}
+	
+	protected function cachedResult($key, $function)
+	{
+		if (array_key_exists($key, $this->cached_results)) {
+			$this->cache_stats_hits++;
+			return $this->cached_results[$key];
+		}
+		$this->cache_stats_puts++;
+		$this->cached_results[$key] = call_user_func($function);
+		return $this->cached_results[$key];
+	}
+	
+	public function resetCachedResults()
+	{
+		$this->cached_results = array();
+		$this->cache_stats_puts = 0;
+		$this->cache_stats_hits = 0;
+	}
+	
+	public function getCacheStats()
+	{
+		return array(
+			'puts' => $this->cache_stats_puts,
+			'hits' => $this->cache_stats_hits,
+		);
+	}
+	
+	public function makeCacheKey()
+	{
+		$key = array();
+		foreach (func_get_args() as $arg) {
+			if (is_object($arg)) {
+				if ($arg instanceof Attribute) {
+					$key[] = $arg->getOwner()->getName();
+					$key[] = $arg->getName();
+				} elseif ($arg instanceof Model) {
+					$key[] = $arg->getName();
+				} else {
+					throw new \Exception('Invalid agrument type for cache key: ' . get_class($arg));
+				}
+			} elseif (is_array($arg)) {
+				throw new \Exception('Invalid agrument type for cache key: array');
+			} else {
+				$key[] = strval($arg);
+			}
+		}
+		return implode('#', $key);
 	}
 }

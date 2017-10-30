@@ -52,7 +52,7 @@ class {%= model_name($model) %} extends Model
 
 	public function {%= attribute_name($attribute) %}()
 	{
-		return $this->belongsToMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= pivot_table($model, $attribute->getCustomType()) %}', '{%= foreign_key($model) %}', '{%= foreign_key($attribute->getCustomType()) %}');
+		return $this->belongsToMany('App\{%= model_name($attribute->getCustomType()) %}', '{%= pivot_table($model, $attribute->getCustomType(), $attribute) %}', '{%= foreign_key($model) %}', '{%= foreign_key($attribute->getCustomType()) %}');
 	}
 	{% elseif ('has-one' == $relation): %}
 
@@ -68,21 +68,6 @@ class {%= model_name($model) %} extends Model
 	}
 	{% endif %}
 	{% end_attr_list %}
-	{% foreach(writable_attributes($model) as $attribute): %}
-	{% if ('has-one' == ($relation = attribute_relation($attribute))): %}
-
-	public function {%= attribute_setter($attribute) %}($value)
-	{
-		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? null : $value);
-	}
-	{% elseif ('belongs-to-many' == $relation || 'has-many' == $relation): %}
-
-	public function {%= attribute_setter($attribute) %}($value)
-	{
-		return $this->addLateBinding('{%= attribute_name($attribute) %}', empty($value) ? [] : $value);
-	}
-	{% endif %}
-	{% endforeach %}
 	{% start_attr_list %}
 	{% if ($attribute->getType() == Codeforge\Attribute::TYPE_INTOPTION || $attribute->getType() == Codeforge\Attribute::TYPE_STROPTION): %}
 

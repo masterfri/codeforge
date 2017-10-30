@@ -39,7 +39,7 @@ $this->registerHelper('link_tables', function ($invoker)
 						$amodel = $model;
 						$bmodel = $invoker->getBuilder()->getModel($attribute->getCustomType());
 						if ($bmodel !== null) {
-							$table_name = $invoker->refer('pivot_table', $amodel, $bmodel);
+							$table_name = $invoker->refer('pivot_table', $amodel, $bmodel, $attribute);
 							$fk1 = $invoker->refer('foreign_key', $amodel);
 							$fk2 = $invoker->refer('foreign_key', $bmodel);
 							if (strcmp($fk1, $fk2) < 0) {

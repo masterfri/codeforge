@@ -1,0 +1,10 @@
+{
+    "files": [
+        "js/ajaxik.js",
+        "js/mini-progress-bar.js",
+        "css/mini-progress-bar.css"
+    ],
+    "dependencies": {
+        "jquery": "*"
+    }
+}

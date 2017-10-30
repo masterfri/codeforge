@@ -1,0 +1,9 @@
+{
+    "files": [
+        "js/toastr.min.js",
+        "css/toastr.min.css"
+    ],
+    "dependencies": {
+        "jquery": "*"
+    }
+}

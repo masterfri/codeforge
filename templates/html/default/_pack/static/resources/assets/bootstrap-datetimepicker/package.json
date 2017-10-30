@@ -1,0 +1,11 @@
+{
+    "files": [
+        "js/bootstrap-datetimepicker.min.js",
+        "css/bootstrap-datetimepicker.min.css"
+    ],
+    "dependencies": {
+        "jquery": "*",
+        "moment": "*",
+        "bootstrap": "*"
+    }
+}
