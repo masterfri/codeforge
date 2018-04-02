@@ -2,7 +2,14 @@
 
 $this->registerHelper('migration_prefix', function ($invoker, $model) 
 {
-	return date('Y_m_d_His', $model->getHint('timeCreated', time()));
+	if (is_array($model)) {
+		$time = 1 + max(array_map(function($m) {
+			return $m->getHint('timeCreated', time());
+		}, $model));
+	} else {
+		$time = $model->getHint('timeCreated', time());
+	}
+	return date('Y_m_d_His', $time);
 });
 
 $this->registerHelper('migration_name', function ($invoker, $table) 
